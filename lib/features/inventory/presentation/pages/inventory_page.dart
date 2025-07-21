@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:portable_accounting/features/inventory/presentation/bloc/inventory_bloc.dart';
 import 'package:portable_accounting/features/inventory/presentation/widgets/add_item_form.dart';
 import 'package:portable_accounting/features/inventory/presentation/widgets/inventory_list_item.dart';
@@ -11,12 +12,46 @@ class InventoryPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('موجودی انبار')),
+      appBar: AppBar(
+        title: const Text('موجودی انبار'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.point_of_sale_outlined),
+            tooltip: 'فروش جدید',
+            onPressed: () {
+              // رفتن به صفحه ایجاد فاکتور
+              context.push('/create-invoice');
+            },
+          ),
+          // دکمه جدید برای مشاهده لیست فاکتورها
+          IconButton(
+            icon: const Icon(Icons.receipt_long_outlined),
+            tooltip: 'لیست فاکتورها',
+            onPressed: () {
+              // رفتن به صفحه لیست فاکتورها
+              context.push('/invoices');
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.analytics_outlined),
+            tooltip: 'داشبورد',
+            onPressed: () {
+              context.push('/dashboard');
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.settings_outlined),
+            tooltip: 'تنظیمات',
+            onPressed: () {
+              context.push('/settings');
+            },
+          ),
+        ],
+      ),
       body: BlocBuilder<InventoryBloc, InventoryState>(
         builder: (context, state) {
           return state.when(
             initial: () {
-              // برای شروع، ایونت لود را ارسال می‌کنیم
               context.read<InventoryBloc>().add(
                 const InventoryEvent.loadInventory(),
               );

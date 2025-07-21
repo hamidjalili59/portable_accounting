@@ -1,0 +1,32 @@
+import 'package:freezed_annotation/freezed_annotation.dart';
+
+part 'dashboard_data.freezed.dart';
+
+@freezed
+class DashboardData with _$DashboardData {
+  DashboardData({
+    required this.totalRevenue,
+    required this.totalCost,
+    required this.totalProfit,
+    required this.lastWeekProfit,
+  });
+
+  @override
+  final double totalRevenue;
+  @override
+  final double totalCost;
+  @override
+  final double totalProfit;
+  @override
+  final List<DailyProfit> lastWeekProfit;
+}
+
+@freezed
+class DailyProfit with _$DailyProfit {
+  DailyProfit({required this.date, required this.profit});
+
+  @override
+  final DateTime date;
+  @override
+  final double profit;
+}
