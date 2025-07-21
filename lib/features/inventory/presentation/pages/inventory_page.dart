@@ -161,11 +161,16 @@ class InventoryPage extends StatelessWidget {
                                 children: [
                                   IconButton(
                                     icon: const Icon(Icons.edit),
-                                    onPressed: () {},
+                                    onPressed: () =>
+                                        _showItemForm(context, item: item),
                                   ),
                                   IconButton(
                                     icon: const Icon(Icons.delete),
-                                    onPressed: () {},
+                                    onPressed: () =>
+                                        _showDeleteConfirmationDialog(
+                                          context,
+                                          item,
+                                        ),
                                   ),
                                 ],
                               ),
@@ -220,5 +225,31 @@ class InventoryPage extends StatelessWidget {
         ),
       );
     }
+  }
+
+  void _showDeleteConfirmationDialog(BuildContext context, InventoryItem item) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('تایید حذف'),
+        content: Text('آیا از حذف کالای "${item.name}" مطمئن هستید؟'),
+        actions: [
+          TextButton(
+            child: const Text('لغو'),
+            onPressed: () => Navigator.of(ctx).pop(),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(backgroundColor: Colors.red),
+            child: const Text('حذف'),
+            onPressed: () {
+              context.read<InventoryBloc>().add(
+                InventoryEvent.deleteItem(item.id),
+              );
+              Navigator.of(ctx).pop();
+            },
+          ),
+        ],
+      ),
+    );
   }
 }
