@@ -73,24 +73,6 @@ class InventoryPage extends StatelessWidget {
     return ResponsiveLayout(mobileBody: mobileView, desktopBody: desktopView);
   }
 
-  Widget _buildBodyContent() {
-    return BlocBuilder<InventoryBloc, InventoryState>(
-      builder: (context, state) {
-        return state.when(
-          initial: () => const Center(child: CircularProgressIndicator()),
-          loading: () => const Center(child: CircularProgressIndicator()),
-          loaded: (items) {
-            return ResponsiveLayout(
-              mobileBody: _buildMobileBody(items),
-              desktopBody: _buildDesktopBody(items),
-            );
-          },
-          error: (message) => Center(child: Text('خطا: $message')),
-        );
-      },
-    );
-  }
-
   Widget _buildMobileBody() {
     return BlocBuilder<InventoryBloc, InventoryState>(
       builder: (context, state) {
@@ -145,10 +127,7 @@ class InventoryPage extends StatelessWidget {
                     children: [
                       Text(
                         'مدیریت موجودی',
-                        style: Theme
-                            .of(context)
-                            .textTheme
-                            .headlineMedium,
+                        style: Theme.of(context).textTheme.headlineMedium,
                       ),
                       FilledButton.icon(
                         icon: const Icon(Icons.add),
@@ -214,23 +193,19 @@ class InventoryPage extends StatelessWidget {
   }
 
   void _showItemForm(BuildContext context, {InventoryItem? item}) {
-    if (MediaQuery
-        .of(context)
-        .size
-        .width >=
+    if (MediaQuery.of(context).size.width >=
         ResponsiveLayout.mobileBreakpoint) {
       showDialog(
         context: context,
-        builder: (_) =>
-            BlocProvider.value(
-              value: context.read<InventoryBloc>(),
-              child: Dialog(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 500),
-                  child: AddItemForm(editingItem: item),
-                ),
-              ),
+        builder: (_) => BlocProvider.value(
+          value: context.read<InventoryBloc>(),
+          child: Dialog(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 500),
+              child: AddItemForm(editingItem: item),
             ),
+          ),
+        ),
       );
     } else {
       showModalBottomSheet(
@@ -239,11 +214,10 @@ class InventoryPage extends StatelessWidget {
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
         ),
-        builder: (_) =>
-            BlocProvider.value(
-              value: context.read<InventoryBloc>(),
-              child: AddItemForm(editingItem: item),
-            ),
+        builder: (_) => BlocProvider.value(
+          value: context.read<InventoryBloc>(),
+          child: AddItemForm(editingItem: item),
+        ),
       );
     }
   }
