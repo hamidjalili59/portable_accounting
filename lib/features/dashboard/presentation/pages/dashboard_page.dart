@@ -2,6 +2,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:portable_accounting/core/widgets/responsive_layout.dart';
 import 'package:portable_accounting/features/dashboard/domain/entities/dashboard_data.dart';
 import 'package:portable_accounting/features/dashboard/presentation/bloc/dashboard_bloc.dart';
 
@@ -11,25 +12,19 @@ class DashboardPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('داشبورد')),
+      appBar:
+          MediaQuery.of(context).size.width < ResponsiveLayout.mobileBreakpoint
+          ? AppBar(title: const Text('داشبورد'))
+          : null, // در دسکتاپ، عنوان در بدنه نمایش داده می‌شود
       body: BlocBuilder<DashboardBloc, DashboardState>(
         builder: (context, state) {
           return state.when(
             initial: () => const SizedBox.shrink(),
             loading: () => const Center(child: CircularProgressIndicator()),
             error: (message) => Center(child: Text(message)),
-            loaded: (data) => SingleChildScrollView(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  // ویجت‌های نمایش آمار کلی
-                  _buildStatsCards(context, data),
-                  const SizedBox(height: 24),
-                  // نمودار سود هفتگی
-                  _buildChartCard(context, data.lastWeekProfit),
-                ],
-              ),
+            loaded: (data) => ResponsiveLayout(
+              mobileBody: _buildMobileLayout(context, data),
+              desktopBody: _buildDesktopLayout(context, data),
             ),
           );
         },
@@ -37,32 +32,68 @@ class DashboardPage extends StatelessWidget {
     );
   }
 
-  Widget _buildStatsCards(BuildContext context, DashboardData data) {
-    return Wrap(
-      spacing: 16,
-      runSpacing: 16,
-      alignment: WrapAlignment.center,
-      children: [
-        _StatCard(
-          title: 'کل درآمد',
-          value: '${data.totalRevenue.toStringAsFixed(0)} تومان',
-          icon: Icons.trending_up,
-          color: Colors.green,
-        ),
-        _StatCard(
-          title: 'کل هزینه',
-          value: '${data.totalCost.toStringAsFixed(0)} تومان',
-          icon: Icons.trending_down,
-          color: Colors.red,
-        ),
-        _StatCard(
-          title: 'سود خالص',
-          value: '${data.totalProfit.toStringAsFixed(0)} تومان',
-          icon: Icons.attach_money,
-          color: Colors.blue,
-        ),
-      ],
+  Widget _buildMobileLayout(BuildContext context, DashboardData data) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        children: [
+          _buildStatsCards(data, isMobile: true),
+          const SizedBox(height: 24),
+          _buildChartCard(context, data.lastWeekProfit),
+        ],
+      ),
     );
+  }
+
+  Widget _buildDesktopLayout(BuildContext context, DashboardData data) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(24.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('داشبورد', style: Theme.of(context).textTheme.headlineMedium),
+          const SizedBox(height: 24),
+          _buildStatsCards(data, isMobile: false),
+          const SizedBox(height: 24),
+          _buildChartCard(context, data.lastWeekProfit),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatsCards(DashboardData data, {required bool isMobile}) {
+    final cards = [
+      _StatCard(
+        title: 'کل درآمد',
+        value: '${data.totalRevenue.toStringAsFixed(0)} تومان',
+        icon: Icons.trending_up,
+        color: Colors.green,
+      ),
+      _StatCard(
+        title: 'کل هزینه',
+        value: '${data.totalCost.toStringAsFixed(0)} تومان',
+        icon: Icons.trending_down,
+        color: Colors.red,
+      ),
+      _StatCard(
+        title: 'سود خالص',
+        value: '${data.totalProfit.toStringAsFixed(0)} تومان',
+        icon: Icons.attach_money,
+        color: Colors.blue,
+      ),
+    ];
+
+    if (isMobile) {
+      return Wrap(
+        spacing: 16,
+        runSpacing: 16,
+        alignment: WrapAlignment.center,
+        children: cards,
+      );
+    } else {
+      // در دسکتاپ، کارت‌ها را در یک ردیف با فضای مساوی قرار می‌دهیم
+      return Row(children: cards.map((card) => Expanded(child: card)).toList());
+    }
   }
 
   Widget _buildChartCard(BuildContext context, List<DailyProfit> weeklyProfit) {

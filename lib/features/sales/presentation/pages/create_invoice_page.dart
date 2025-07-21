@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:portable_accounting/core/widgets/responsive_layout.dart';
 import 'package:portable_accounting/features/inventory/domain/entities/inventory_item.dart';
 import 'package:portable_accounting/features/sales/domain/entities/sale_item.dart';
 import 'package:portable_accounting/features/sales/presentation/bloc/sell_bloc.dart';
@@ -12,7 +13,6 @@ class CreateInvoicePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('صدور فاکتور جدید')),
-      // با BlocListener به استیت‌های یک‌بار مصرف مثل success و error گوش می‌دهیم
       body: BlocListener<SalesBloc, SalesState>(
         listener: (context, state) {
           state.whenOrNull(
@@ -23,7 +23,6 @@ class CreateInvoicePage extends StatelessWidget {
                   backgroundColor: Colors.green,
                 ),
               );
-              // پس از موفقیت به صفحه قبل برمی‌گردیم
               context.pop();
             },
             error: (message) {
@@ -33,7 +32,6 @@ class CreateInvoicePage extends StatelessWidget {
             },
           );
         },
-        // با BlocBuilder رابط کاربری را بر اساس استیت می‌سازیم
         child: BlocBuilder<SalesBloc, SalesState>(
           builder: (context, state) {
             return state.when(
@@ -43,32 +41,95 @@ class CreateInvoicePage extends StatelessWidget {
               success: () => const Center(
                 child: Icon(Icons.check_circle, color: Colors.green, size: 50),
               ),
-              // این وضعیت اصلی ماست که UI را نمایش می‌دهد
               loaded: (availableItems, invoiceItems, totalPrice) {
-                return Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // بخش اول: لیست کالاهای موجود در انبار
-                    Expanded(
-                      flex: 2,
-                      child: _AvailableItemsList(items: availableItems),
-                    ),
-                    const VerticalDivider(),
-                    // بخش دوم: فاکتور فعلی و سبد خرید
-                    Expanded(
-                      flex: 3,
-                      child: _CurrentInvoice(
-                        items: invoiceItems,
-                        totalPrice: totalPrice,
-                      ),
-                    ),
-                  ],
+                return ResponsiveLayout(
+                  mobileBody: _MobileInvoiceLayout(
+                    availableItems: availableItems,
+                    invoiceItems: invoiceItems,
+                    totalPrice: totalPrice,
+                  ),
+                  desktopBody: _DesktopInvoiceLayout(
+                    availableItems: availableItems,
+                    invoiceItems: invoiceItems,
+                    totalPrice: totalPrice,
+                  ),
                 );
               },
             );
           },
         ),
       ),
+    );
+  }
+}
+
+class _DesktopInvoiceLayout extends StatelessWidget {
+  final List<InventoryItem> availableItems;
+  final List<SaleItem> invoiceItems;
+  final double totalPrice;
+
+  const _DesktopInvoiceLayout({
+    required this.availableItems,
+    required this.invoiceItems,
+    required this.totalPrice,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // بخش اول: لیست کالاهای موجود در انبار
+        Expanded(flex: 2, child: _AvailableItemsList(items: availableItems)),
+        const VerticalDivider(),
+        // بخش دوم: فاکتور فعلی و سبد خرید
+        Expanded(
+          flex: 3,
+          child: _CurrentInvoice(items: invoiceItems, totalPrice: totalPrice),
+        ),
+      ],
+    );
+  }
+}
+
+// چیدمان موبایل
+class _MobileInvoiceLayout extends StatelessWidget {
+  final List<InventoryItem> availableItems;
+  final List<SaleItem> invoiceItems;
+  final double totalPrice;
+
+  const _MobileInvoiceLayout({
+    required this.availableItems,
+    required this.invoiceItems,
+    required this.totalPrice,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    // در موبایل، فقط سبد خرید را نمایش می‌دهیم و دکمه‌ای برای افزودن کالا داریم
+    return Column(
+      children: [
+        Expanded(
+          child: _CurrentInvoice(items: invoiceItems, totalPrice: totalPrice),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: OutlinedButton.icon(
+            icon: const Icon(Icons.add_shopping_cart),
+            label: const Text('افزودن کالا به فاکتور'),
+            onPressed: () {
+              // لیست کالاها را در یک BottomSheet نمایش می‌دهیم
+              showModalBottomSheet(
+                context: context,
+                builder: (_) => BlocProvider.value(
+                  value: context.read<SalesBloc>(),
+                  child: _AvailableItemsList(items: availableItems),
+                ),
+              );
+            },
+          ),
+        ),
+      ],
     );
   }
 }

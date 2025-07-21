@@ -1,5 +1,10 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
 import 'package:portable_accounting/features/inventory/domain/entities/inventory_item.dart';
 import 'package:portable_accounting/features/inventory/presentation/bloc/inventory_bloc.dart';
 
@@ -19,16 +24,18 @@ class _AddItemFormState extends State<AddItemForm> {
   final _purchasePriceController = TextEditingController();
   final _salePriceController = TextEditingController();
 
+  String? _selectedImagePath;
+
   @override
   void initState() {
     super.initState();
-    // اگر در حالت ویرایش بودیم، فرم را با اطلاعات آیتم پر می‌کنیم
     if (widget.editingItem != null) {
       final item = widget.editingItem!;
       _nameController.text = item.name;
       _quantityController.text = item.quantity.toString();
       _purchasePriceController.text = item.purchasePrice.toString();
       _salePriceController.text = item.salePrice.toString();
+      _selectedImagePath = widget.editingItem!.imagePath;
     }
   }
 
@@ -41,44 +48,53 @@ class _AddItemFormState extends State<AddItemForm> {
     super.dispose();
   }
 
+  Future<void> _pickImage() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 80,
+    );
+
+    if (pickedFile != null) {
+      final appDir = await getApplicationDocumentsDirectory();
+      final fileName = p.basename(pickedFile.path);
+      final savedImage = await File(
+        pickedFile.path,
+      ).copy('${appDir.path}/$fileName');
+
+      setState(() {
+        _selectedImagePath = savedImage.path;
+      });
+    }
+  }
+
   void _submitForm() {
     if (_formKey.currentState!.validate()) {
-      final name = _nameController.text;
-      final quantity = double.parse(_quantityController.text);
-      final purchasePrice = double.parse(_purchasePriceController.text);
-      final salePrice = double.parse(_salePriceController.text);
+      final isEditing = widget.editingItem != null;
 
-      // تشخیص می‌دهیم که باید آیتم را آپدیت کنیم یا یک آیتم جدید بسازیم
-      if (widget.editingItem != null) {
-        // حالت ویرایش
-        final updatedItem = widget.editingItem!.copyWith(
-          name: name,
-          quantity: quantity,
-          purchasePrice: purchasePrice,
-          salePrice: salePrice,
-        );
+      final itemToSave = InventoryItem(
+        id: widget.editingItem?.id ?? 0,
+        name: _nameController.text,
+        quantity: double.parse(_quantityController.text),
+        purchasePrice: double.parse(_purchasePriceController.text),
+        salePrice: double.parse(_salePriceController.text),
+        imagePath: _selectedImagePath,
+      );
+
+      if (isEditing) {
         context.read<InventoryBloc>().add(
-          InventoryEvent.updateItem(updatedItem),
+          InventoryEvent.updateItem(itemToSave),
         );
       } else {
-        // حالت افزودن
-        final newItem = InventoryItem(
-          id: 0,
-          name: name,
-          quantity: quantity,
-          purchasePrice: purchasePrice,
-          salePrice: salePrice,
-        );
-        context.read<InventoryBloc>().add(InventoryEvent.addItem(newItem));
+        context.read<InventoryBloc>().add(InventoryEvent.addItem(itemToSave));
       }
 
-      Navigator.of(context).pop();
+      if (mounted) Navigator.of(context).pop();
     }
   }
 
   @override
   Widget build(BuildContext context) {
-
     final isEditing = widget.editingItem != null;
     return Padding(
       padding: EdgeInsets.only(
@@ -117,7 +133,7 @@ class _AddItemFormState extends State<AddItemForm> {
                 decoration: const InputDecoration(labelText: 'تعداد'),
                 keyboardType: TextInputType.number,
                 validator: (value) {
-                  if (value == null || int.tryParse(value) == null) {
+                  if (value == null || double.tryParse(value) == null) {
                     return 'لطفاً یک عدد معتبر وارد کنید';
                   }
                   return null;
@@ -147,16 +163,51 @@ class _AddItemFormState extends State<AddItemForm> {
                   return null;
                 },
               ),
+              const SizedBox(height: 20),
+              // بخش انتخاب و پیش‌نمایش عکس
+              _buildImagePicker(),
               const SizedBox(height: 24),
               ElevatedButton(
                 onPressed: _submitForm,
-                child: Text(isEditing ? 'ذخیره تغییرات' : 'ذخیره'),
+                child: Text(
+                  widget.editingItem != null ? 'ذخیره تغییرات' : 'ذخیره',
+                ),
               ),
               const SizedBox(height: 16),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildImagePicker() {
+    return Column(
+      children: [
+        Container(
+          width: 120,
+          height: 120,
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.grey),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: _selectedImagePath != null
+              ? ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Image.file(
+                    File(_selectedImagePath!),
+                    fit: BoxFit.cover,
+                  ),
+                )
+              : const Icon(Icons.image, size: 50, color: Colors.grey),
+        ),
+        const SizedBox(height: 8),
+        TextButton.icon(
+          onPressed: _pickImage,
+          icon: const Icon(Icons.camera_alt),
+          label: const Text('انتخاب عکس'),
+        ),
+      ],
     );
   }
 }

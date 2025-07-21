@@ -1,3 +1,5 @@
+import 'dart:io' show File;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:portable_accounting/features/inventory/domain/entities/inventory_item.dart';
@@ -15,61 +17,82 @@ class InventoryListItem extends StatelessWidget {
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       child: Padding(
         padding: const EdgeInsets.all(12.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            // ویجت نمایش عکس
+            SizedBox(
+              width: 80,
+              height: 80,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child:
+                    (item.imagePath != null &&
+                        File(item.imagePath!).existsSync())
+                    ? Image.file(File(item.imagePath!), fit: BoxFit.cover)
+                    : Container(
+                        color: Colors.grey.shade200,
+                        child: const Icon(
+                          Icons.inventory_2_outlined,
+                          color: Colors.grey,
+                          size: 40,
+                        ),
+                      ),
+              ),
+            ),
+            const SizedBox(width: 16),
+            // بخش اطلاعات کالا
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    item.name,
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                  const SizedBox(height: 8),
+                  Text('موجودی: ${item.quantity} عدد'),
+                  Text('قیمت فروش: ${item.salePrice.toStringAsFixed(0)} تومان'),
+                ],
+              ),
+            ),
+            // بخش دکمه‌ها
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(item.name, style: Theme.of(context).textTheme.titleLarge),
-                Row(
-                  children: [
-                    // دکمه ویرایش - فعلا خالی
-                    IconButton(
-                      icon: const Icon(Icons.edit, color: Colors.blue),
-                      onPressed: () {
-                        // همان متد showModalBottomSheet را برای ویرایش فراخوانی می‌کنیم
-                        showModalBottomSheet(
-                          context: context,
-                          isScrollControlled: true,
-                          shape: const RoundedRectangleBorder(
-                            borderRadius: BorderRadius.vertical(
-                              top: Radius.circular(16),
-                            ),
-                          ),
-                          builder: (_) {
-                            return BlocProvider.value(
-                              value: context.read<InventoryBloc>(),
-                              // آیتم فعلی را به فرم پاس می‌دهیم تا در حالت ویرایش باز شود
-                              child: AddItemForm(editingItem: item),
-                            );
-                          },
-                        );
-                      },
-                    ),
-                    // دکمه حذف
-                    IconButton(
-                      icon: const Icon(Icons.delete, color: Colors.red),
-                      onPressed: () =>
-                          _showDeleteConfirmationDialog(context, item),
-                    ),
-                  ],
+                IconButton(
+                  icon: const Icon(Icons.edit, color: Colors.blue),
+                  tooltip: 'ویرایش',
+                  onPressed: () {
+                    // **اینجا منطق صحیح ویرایش اضافه شد**
+                    showModalBottomSheet(
+                      context: context,
+                      isScrollControlled: true,
+                      shape: const RoundedRectangleBorder(
+                        borderRadius: BorderRadius.vertical(
+                          top: Radius.circular(16),
+                        ),
+                      ),
+                      builder: (_) => BlocProvider.value(
+                        value: context.read<InventoryBloc>(),
+                        child: AddItemForm(editingItem: item),
+                      ),
+                    );
+                  },
+                ),
+                IconButton(
+                  icon: const Icon(Icons.delete, color: Colors.red),
+                  tooltip: 'حذف',
+                  onPressed: () => _showDeleteConfirmationDialog(context, item),
                 ),
               ],
             ),
-            const SizedBox(height: 8),
-            Text('تعداد موجود: ${item.quantity} عدد'),
-            const SizedBox(height: 4),
-            Text('قیمت خرید: ${item.purchasePrice.toStringAsFixed(0)} تومان'),
-            const SizedBox(height: 4),
-            Text('قیمت فروش: ${item.salePrice.toStringAsFixed(0)} تومان'),
           ],
         ),
       ),
     );
   }
 
-  // متد نمایش دیالوگ تایید برای حذف
   void _showDeleteConfirmationDialog(BuildContext context, InventoryItem item) {
     showDialog(
       context: context,
@@ -79,15 +102,12 @@ class InventoryListItem extends StatelessWidget {
         actions: [
           TextButton(
             child: const Text('لغو'),
-            onPressed: () {
-              Navigator.of(ctx).pop();
-            },
+            onPressed: () => Navigator.of(ctx).pop(),
           ),
           FilledButton(
             style: FilledButton.styleFrom(backgroundColor: Colors.red),
             child: const Text('حذف'),
             onPressed: () {
-              // ارسال ایونت حذف به BLoC
               context.read<InventoryBloc>().add(
                 InventoryEvent.deleteItem(item.id),
               );
