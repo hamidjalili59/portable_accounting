@@ -81,8 +81,8 @@ class InventoryPage extends StatelessWidget {
           loading: () => const Center(child: CircularProgressIndicator()),
           loaded: (items) {
             return ResponsiveLayout(
-              mobileBody: _buildMobileListView(items),
-              desktopBody: _buildDesktopDataTable(items),
+              mobileBody: _buildMobileBody(items),
+              desktopBody: _buildDesktopBody(items),
             );
           },
           error: (message) => Center(child: Text('خطا: $message')),
