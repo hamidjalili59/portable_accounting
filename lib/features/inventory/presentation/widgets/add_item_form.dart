@@ -26,6 +26,8 @@ class _AddItemFormState extends State<AddItemForm> {
 
   String? _selectedImagePath;
 
+  bool _isFormDirty = false;
+
   @override
   void initState() {
     super.initState();
@@ -36,15 +38,33 @@ class _AddItemFormState extends State<AddItemForm> {
       _purchasePriceController.text = item.purchasePrice.toString();
       _salePriceController.text = item.salePrice.toString();
       _selectedImagePath = widget.editingItem!.imagePath;
+
+      _nameController.addListener(_onFormChanged);
+      _quantityController.addListener(_onFormChanged);
+      _purchasePriceController.addListener(_onFormChanged);
+      _salePriceController.addListener(_onFormChanged);
+    }
+  }
+
+  void _onFormChanged() {
+    if (!_isFormDirty) {
+      setState(() {
+        _isFormDirty = true;
+      });
     }
   }
 
   @override
   void dispose() {
+    _nameController.removeListener(_onFormChanged);
+    _quantityController.removeListener(_onFormChanged);
+    _purchasePriceController.removeListener(_onFormChanged);
+    _salePriceController.removeListener(_onFormChanged);
     _nameController.dispose();
     _quantityController.dispose();
     _purchasePriceController.dispose();
     _salePriceController.dispose();
+
     super.dispose();
   }
 
@@ -64,6 +84,12 @@ class _AddItemFormState extends State<AddItemForm> {
 
       setState(() {
         _selectedImagePath = savedImage.path;
+      });
+    }
+
+    if (!_isFormDirty) {
+      setState(() {
+        _isFormDirty = true;
       });
     }
   }
@@ -96,85 +122,117 @@ class _AddItemFormState extends State<AddItemForm> {
   @override
   Widget build(BuildContext context) {
     final isEditing = widget.editingItem != null;
-    return Padding(
-      padding: EdgeInsets.only(
-        left: 16,
-        right: 16,
-        top: 20,
-        // این مقدار باعث می‌شود کیبورد روی فرم را نپوشاند
-        bottom: MediaQuery.of(context).viewInsets.bottom,
-      ),
-      child: Form(
-        key: _formKey,
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text(
-                isEditing ? 'ویرایش کالا' : 'افزودن کالای جدید',
-                style: Theme.of(context).textTheme.headlineSmall,
-                textAlign: TextAlign.center,
+    return PopScope(
+      canPop: !_isFormDirty,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) return;
+
+        final shouldPop = await showDialog<bool>(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Discard Changes?'),
+            content: const Text(
+              'You have unsaved changes. Are you sure you want to go back?',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text('Stay'),
               ),
-              const SizedBox(height: 20),
-              TextFormField(
-                controller: _nameController,
-                decoration: const InputDecoration(labelText: 'نام کالا'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'لطفاً نام کالا را وارد کنید';
-                  }
-                  return null;
-                },
+              FilledButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: const Text('Discard'),
               ),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: _quantityController,
-                decoration: const InputDecoration(labelText: 'تعداد'),
-                keyboardType: TextInputType.number,
-                validator: (value) {
-                  if (value == null || double.tryParse(value) == null) {
-                    return 'لطفاً یک عدد معتبر وارد کنید';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: _purchasePriceController,
-                decoration: const InputDecoration(labelText: 'قیمت خرید'),
-                keyboardType: TextInputType.number,
-                validator: (value) {
-                  if (value == null || double.tryParse(value) == null) {
-                    return 'لطفاً یک قیمت معتبر وارد کنید';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: _salePriceController,
-                decoration: const InputDecoration(labelText: 'قیمت فروش'),
-                keyboardType: TextInputType.number,
-                validator: (value) {
-                  if (value == null || double.tryParse(value) == null) {
-                    return 'لطفاً یک قیمت معتبر وارد کنید';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 20),
-              // بخش انتخاب و پیش‌نمایش عکس
-              _buildImagePicker(),
-              const SizedBox(height: 24),
-              ElevatedButton(
-                onPressed: _submitForm,
-                child: Text(
-                  widget.editingItem != null ? 'ذخیره تغییرات' : 'ذخیره',
-                ),
-              ),
-              const SizedBox(height: 16),
             ],
+          ),
+        );
+
+        if (shouldPop ?? false) {
+          if (mounted) {
+            Navigator.of(context).pop();
+          }
+        }
+      },
+      child: Padding(
+        padding: EdgeInsets.only(
+          left: 16,
+          right: 16,
+          top: 20,
+          // این مقدار باعث می‌شود کیبورد روی فرم را نپوشاند
+          bottom: MediaQuery.of(context).viewInsets.bottom,
+        ),
+        child: Form(
+          key: _formKey,
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  isEditing ? 'ویرایش کالا' : 'افزودن کالای جدید',
+                  style: Theme.of(context).textTheme.headlineSmall,
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 20),
+                TextFormField(
+                  controller: _nameController,
+                  decoration: const InputDecoration(labelText: 'نام کالا'),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'لطفاً نام کالا را وارد کنید';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 12),
+                TextFormField(
+                  controller: _quantityController,
+                  decoration: const InputDecoration(labelText: 'تعداد'),
+                  keyboardType: TextInputType.number,
+                  validator: (value) {
+                    if (value == null || double.tryParse(value) == null) {
+                      return 'لطفاً یک عدد معتبر وارد کنید';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 12),
+                TextFormField(
+                  controller: _purchasePriceController,
+                  decoration: const InputDecoration(labelText: 'قیمت خرید'),
+                  keyboardType: TextInputType.number,
+                  validator: (value) {
+                    if (value == null || double.tryParse(value) == null) {
+                      return 'لطفاً یک قیمت معتبر وارد کنید';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 12),
+                TextFormField(
+                  controller: _salePriceController,
+                  decoration: const InputDecoration(labelText: 'قیمت فروش'),
+                  keyboardType: TextInputType.number,
+                  validator: (value) {
+                    if (value == null || double.tryParse(value) == null) {
+                      return 'لطفاً یک قیمت معتبر وارد کنید';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 20),
+                // بخش انتخاب و پیش‌نمایش عکس
+                _buildImagePicker(),
+                const SizedBox(height: 24),
+                ElevatedButton(
+                  onPressed: _submitForm,
+                  child: Text(
+                    widget.editingItem != null ? 'ذخیره تغییرات' : 'ذخیره',
+                  ),
+                ),
+                const SizedBox(height: 16),
+              ],
+            ),
           ),
         ),
       ),

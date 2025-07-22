@@ -17,6 +17,8 @@ part 'inventory_event.dart';
 
 part 'inventory_state.dart';
 
+enum InventorySortOrder { byNameAsc, byNameDesc, byQuantityAsc, byQuantityDesc }
+
 class InventoryBloc extends Bloc<InventoryEvent, InventoryState> {
   final GetAllInventoryItems getAllInventoryItems;
   final AddInventoryItem addInventoryItem;
@@ -35,6 +37,72 @@ class InventoryBloc extends Bloc<InventoryEvent, InventoryState> {
     on<AddItem>(_onAddItem);
     on<UpdateItem>(_onUpdateItem);
     on<DeleteItem>(_onDeleteItem);
+    on<SearchChanged>(_onSearchChanged);
+    on<SortOrderChanged>(_onSortOrderChanged);
+  }
+
+  List<InventoryItem> _applyFiltersAndSort(
+    List<InventoryItem> items,
+    String query,
+    InventorySortOrder sortOrder,
+  ) {
+    // ۱. اعمال فیلتر جستجو
+    final filteredItems = items.where((item) {
+      return item.name.toLowerCase().contains(query.toLowerCase());
+    }).toList();
+
+    // ۲. اعمال مرتب‌سازی
+    filteredItems.sort((a, b) {
+      switch (sortOrder) {
+        case InventorySortOrder.byNameAsc:
+          return a.name.compareTo(b.name);
+        case InventorySortOrder.byNameDesc:
+          return b.name.compareTo(a.name);
+        case InventorySortOrder.byQuantityAsc:
+          return a.quantity.compareTo(b.quantity);
+        case InventorySortOrder.byQuantityDesc:
+          return b.quantity.compareTo(a.quantity);
+      }
+    });
+
+    return filteredItems;
+  }
+
+  void _onSearchChanged(SearchChanged event, Emitter<InventoryState> emit) {
+    final currentState = state;
+    if (currentState is Loaded) {
+      final displayedItems = _applyFiltersAndSort(
+        currentState.originalItems,
+        event.query,
+        currentState.sortOrder,
+      );
+      emit(
+        currentState.copyWith(
+          searchQuery: event.query,
+          displayedItems: displayedItems,
+        ),
+      );
+    }
+  }
+
+  void _onSortOrderChanged(
+    SortOrderChanged event,
+    Emitter<InventoryState> emit,
+  ) {
+    final currentState = state;
+    if (currentState is Loaded) {
+      final displayedItems = _applyFiltersAndSort(
+        currentState.originalItems,
+        currentState.searchQuery,
+        event.sortOrder,
+      );
+      emit(
+        currentState.copyWith(
+          sortOrder: event.sortOrder,
+          displayedItems: displayedItems,
+        ),
+      );
+    }
   }
 
   @override
@@ -54,7 +122,9 @@ class InventoryBloc extends Bloc<InventoryEvent, InventoryState> {
       onData: (eitherResult) {
         eitherResult.fold(
           (failure) => emit(InventoryState.error(failure.message)),
-          (items) => emit(InventoryState.loaded(items)),
+          (items) => emit(
+            InventoryState.loaded(originalItems: items, displayedItems: items),
+          ),
         );
       },
       onError: (error, stackTrace) =>

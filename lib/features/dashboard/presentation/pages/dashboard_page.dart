@@ -97,11 +97,23 @@ class DashboardPage extends StatelessWidget {
   }
 
   Widget _buildChartCard(BuildContext context, List<DailyProfit> weeklyProfit) {
+    if (weeklyProfit.isEmpty) {
+      return Card(
+        elevation: 4,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        child: const SizedBox(
+          height: 200,
+          child: Center(
+            child: Text('داده‌ای برای نمایش نمودار سود وجود ندارد.'),
+          ),
+        ),
+      );
+    }
     return Card(
       elevation: 4,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 8), // پدینگ برای زیبایی
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -126,8 +138,12 @@ class DashboardPage extends StatelessWidget {
                       sideTitles: SideTitles(
                         showTitles: true,
                         reservedSize: 30,
+                        interval: 1, // برای نمایش تمام برچسب‌ها
                         getTitlesWidget: (value, meta) {
                           // نمایش تاریخ در محور افقی
+                          if (value.toInt() >= weeklyProfit.length) {
+                            return const SizedBox.shrink();
+                          }
                           final day = weeklyProfit[value.toInt()].date;
                           return SideTitleWidget(
                             meta: meta,

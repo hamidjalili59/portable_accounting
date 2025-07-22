@@ -791,7 +791,6 @@ class _Loaded implements SalesState {
   return EqualUnmodifiableListView(_invoiceItems);
 }
 
-// کالاهای انتخاب شده برای این فاکتور
  final  double totalPrice;
 
 /// Create a copy of SalesState

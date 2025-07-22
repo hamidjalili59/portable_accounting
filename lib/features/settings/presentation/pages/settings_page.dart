@@ -20,18 +20,54 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   Future<void> _handleBackup() async {
-    setState(() => _isLoading = true);
-    final success = await _backupService.backupDatabase();
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            success ? 'پشتیبان‌گیری آغاز شد.' : 'خطا در پشتیبان‌گیری.',
+    // Show a dialog to let the user choose the backup method.
+    final choice = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Create Backup'),
+        content: const Text('How would you like to back up your data?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop('share'),
+            child: const Text('Share'),
           ),
-          backgroundColor: success ? Colors.green : Colors.red,
-        ),
-      );
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop('save'),
+            child: const Text('Save to Downloads'),
+          ),
+        ],
+      ),
+    );
+
+    if (choice == null) return; // User dismissed the dialog
+
+    setState(() => _isLoading = true);
+
+    try {
+      if (choice == 'save') {
+        final path = await _backupService.saveBackupToDownloads();
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Backup saved successfully to: $path'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      } else if (choice == 'share') {
+        await _backupService.shareBackup();
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error creating backup: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
+
     setState(() => _isLoading = false);
   }
 

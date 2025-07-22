@@ -6,194 +6,221 @@ import 'package:portable_accounting/features/inventory/domain/entities/inventory
 import 'package:portable_accounting/features/inventory/presentation/bloc/inventory_bloc.dart';
 import 'package:portable_accounting/features/inventory/presentation/widgets/add_item_form.dart';
 import 'package:portable_accounting/features/inventory/presentation/widgets/inventory_list_item.dart';
-// ...
 
 class InventoryPage extends StatelessWidget {
   const InventoryPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final mobileView = Scaffold(
-      appBar: AppBar(
-        title: const Text('موجودی انبار'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.point_of_sale_outlined),
-            tooltip: 'فروش جدید',
-            onPressed: () {
-              context.push('/create-invoice');
-            },
+    // فقط یک Scaffold داریم
+    return SafeArea(
+      child: Scaffold(
+        // AppBar فقط در حالت موبایل نمایش داده می‌شود
+        appBar:
+            MediaQuery.of(context).size.width < ResponsiveLayout.mobileBreakpoint
+            ? AppBar(
+                title: const Text('موجودی انبار'),
+                actions: [
+                  IconButton(
+                    icon: const Icon(Icons.analytics_outlined),
+                    tooltip: 'داشبورد',
+                    onPressed: () => context.push('/dashboard'),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.point_of_sale_outlined),
+                    tooltip: 'فروش جدید',
+                    onPressed: () => context.push('/create-invoice'),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.receipt_long_outlined),
+                    tooltip: 'لیست فاکتورها',
+                    onPressed: () => context.push('/invoices'),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.settings_outlined),
+                    tooltip: 'تنظیمات',
+                    onPressed: () => context.push('/settings'),
+                  ),
+                ],
+              )
+            : null,
+        // فقط یک BlocBuilder داریم
+        body: BlocBuilder<InventoryBloc, InventoryState>(
+          builder: (context, state) {
+            return state.when(
+              // دیگر نیازی به ارسال ایونت در اینجا نیست
+              initial: () => const Center(child: CircularProgressIndicator()),
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (message) => Center(child: Text('خطا: $message')),
+              // فقط در حالت loaded تصمیم می‌گیریم کدام UI را نشان دهیم
+              loaded: (originalItems, displayedItems, searchQuery, sortOrder) {
+                return ResponsiveLayout(
+                  mobileBody: Column(
+                    children: [
+                      _buildControls(context, state as Loaded), // state را به متد پاس دهید
+                      Expanded(child: _buildMobileListView(context, displayedItems)), // از displayedItems استفاده کنید
+                    ],
+                  ),
+                  desktopBody: Column(
+                    children: [
+                      // برای دسکتاپ هم می‌توانید از همین کنترل‌ها استفاده کنید
+                      _buildControls(context, state),
+                      Expanded(child: _buildDesktopDataTable(context, displayedItems)), // از displayedItems استفاده کنید
+                    ],
+                  ),
+                );
+              },
+            );
+          },
+        ),
+        // دکمه شناور فقط در حالت موبایل نمایش داده می‌شود
+        floatingActionButton:
+            MediaQuery.of(context).size.width < ResponsiveLayout.mobileBreakpoint
+            ? FloatingActionButton(
+                onPressed: () => _showItemForm(context),
+                child: const Icon(Icons.add),
+              )
+            : null,
+      ),
+    );
+  }
+
+  Widget _buildControls(BuildContext context, Loaded state) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+      child: Row(
+        children: [
+          // فیلد جستجو
+          Expanded(
+            child: TextField(
+              decoration: const InputDecoration(
+                hintText: 'جستجو بر اساس نام...',
+                prefixIcon: Icon(Icons.search),
+                border: OutlineInputBorder(),
+                contentPadding: EdgeInsets.symmetric(horizontal: 8),
+              ),
+              onChanged: (query) {
+                context.read<InventoryBloc>().add(InventoryEvent.searchChanged(query));
+              },
+            ),
           ),
-          IconButton(
-            icon: const Icon(Icons.receipt_long_outlined),
-            tooltip: 'لیست فاکتورها',
-            onPressed: () {
-              context.push('/invoices');
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.analytics_outlined),
-            tooltip: 'داشبورد',
-            onPressed: () {
-              context.push('/dashboard');
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.settings_outlined),
-            tooltip: 'تنظیمات',
-            onPressed: () {
-              context.push('/settings');
+          const SizedBox(width: 16),
+          // منوی مرتب‌سازی
+          DropdownButton<InventorySortOrder>(
+            value: state.sortOrder,
+            items: const [
+              DropdownMenuItem(value: InventorySortOrder.byNameAsc, child: Text('نام (صعودی)')),
+              DropdownMenuItem(value: InventorySortOrder.byNameDesc, child: Text('نام (نزولی)')),
+              DropdownMenuItem(value: InventorySortOrder.byQuantityAsc, child: Text('تعداد (کم به زیاد)')),
+              DropdownMenuItem(value: InventorySortOrder.byQuantityDesc, child: Text('تعداد (زیاد به کم)')),
+            ],
+            onChanged: (value) {
+              if (value != null) {
+                context.read<InventoryBloc>().add(InventoryEvent.sortOrderChanged(value));
+              }
             },
           ),
         ],
       ),
-      body: _buildMobileBody(),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          showModalBottomSheet(
-            context: context,
-            isScrollControlled: true,
-            shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-            ),
-            builder: (_) {
-              return BlocProvider.value(
-                value: context.read<InventoryBloc>(),
-                child: const AddItemForm(),
-              );
-            },
-          );
-        },
-        child: const Icon(Icons.add),
-      ),
-    );
-
-    final desktopView = Scaffold(body: _buildDesktopBody());
-
-    return ResponsiveLayout(mobileBody: mobileView, desktopBody: desktopView);
-  }
-
-  Widget _buildMobileBody() {
-    return BlocBuilder<InventoryBloc, InventoryState>(
-      builder: (context, state) {
-        return state.when(
-          initial: () {
-            context.read<InventoryBloc>().add(
-              const InventoryEvent.loadInventory(),
-            );
-            return const Center(child: CircularProgressIndicator());
-          },
-          loading: () => const Center(child: CircularProgressIndicator()),
-          loaded: (items) {
-            if (items.isEmpty) {
-              return const Center(
-                child: Text(
-                  'هیچ آیتمی در انبار وجود ندارد. برای افزودن روی + کلیک کنید.',
-                ),
-              );
-            }
-            return ListView.builder(
-              itemCount: items.length,
-              itemBuilder: (context, index) {
-                return InventoryListItem(item: items[index]);
-              },
-            );
-          },
-          error: (message) => Center(child: Text('خطا: $message')),
-        );
-      },
     );
   }
 
-  Widget _buildDesktopBody() {
-    return BlocBuilder<InventoryBloc, InventoryState>(
-      builder: (context, state) {
-        return state.when(
-          loaded: (items) {
-            if (items.isEmpty) {
-              return const Center(
-                child: Text(
-                  'هیچ آیتمی در انبار وجود ندارد. برای افزودن روی + کلیک کنید.',
-                ),
-              );
-            }
-            return SingleChildScrollView(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+  // متدهای ساخت UI حالا خالص‌تر و بدون منطق اضافی هستند
+  Widget _buildMobileListView(BuildContext context, List<InventoryItem> items) {
+    return ListView.builder(
+      padding: const EdgeInsets.only(bottom: 80),
+      // برای اینکه FAB روی آیتم آخر را نپوشاند
+      itemCount: items.length,
+      itemBuilder: (context, index) => InventoryListItem(item: items[index]),
+    );
+  }
+
+  Widget _buildDesktopDataTable(
+    BuildContext context,
+    List<InventoryItem> items,
+  ) {
+    return Padding(
+      padding: const EdgeInsets.all(24.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'مدیریت موجودی',
+                style: Theme.of(context).textTheme.headlineMedium,
+              ),
+              Row(
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'مدیریت موجودی',
-                        style: Theme.of(context).textTheme.headlineMedium,
-                      ),
-                      FilledButton.icon(
-                        icon: const Icon(Icons.add),
-                        label: const Text('افزودن کالای جدید'),
-                        onPressed: () => _showItemForm(context),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  SizedBox(
-                    width: double.infinity,
-                    child: DataTable(
-                      columns: const [
-                        DataColumn(label: Text('کالا')),
-                        DataColumn(label: Text('تعداد')),
-                        DataColumn(label: Text('قیمت خرید')),
-                        DataColumn(label: Text('قیمت فروش')),
-                        DataColumn(label: Text('عملیات')),
-                      ],
-                      rows: items.map((item) {
-                        return DataRow(
-                          cells: [
-                            DataCell(Text(item.name)),
-                            DataCell(Text(item.quantity.toString())),
-                            DataCell(
-                              Text(item.purchasePrice.toStringAsFixed(0)),
-                            ),
-                            DataCell(Text(item.salePrice.toStringAsFixed(0))),
-                            DataCell(
-                              Row(
-                                children: [
-                                  IconButton(
-                                    icon: const Icon(Icons.edit),
-                                    onPressed: () =>
-                                        _showItemForm(context, item: item),
-                                  ),
-                                  IconButton(
-                                    icon: const Icon(Icons.delete),
-                                    onPressed: () =>
-                                        _showDeleteConfirmationDialog(
-                                          context,
-                                          item,
-                                        ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        );
-                      }).toList(),
+                  FilledButton.icon(
+                    icon: const Icon(Icons.point_of_sale_outlined),
+                    label: const Text('فروش جدید'),
+                    onPressed: () => context.push('/create-invoice'),
+                    style: FilledButton.styleFrom(
+                      backgroundColor: Theme.of(context).colorScheme.secondary,
                     ),
+                  ),
+                  const SizedBox(width: 12),
+                  FilledButton.icon(
+                    icon: const Icon(Icons.add),
+                    label: const Text('افزودن کالای جدید'),
+                    onPressed: () => _showItemForm(context),
                   ),
                 ],
               ),
-            );
-          },
-          initial: () {
-            context.read<InventoryBloc>().add(
-              const InventoryEvent.loadInventory(),
-            );
-            return const Center(child: CircularProgressIndicator());
-          },
-          loading: () => const Center(child: CircularProgressIndicator()),
-          error: (message) => Center(child: Text('خطا: $message')),
-        );
-      },
+            ],
+          ),
+          const SizedBox(height: 16),
+          Expanded(
+            child: DataTable(
+              columns: const [
+                DataColumn(label: Text('کالا')),
+                DataColumn(label: Text('تعداد')),
+                DataColumn(label: Text('قیمت خرید')),
+                DataColumn(label: Text('قیمت فروش')),
+                DataColumn(label: Text('عملیات')),
+              ],
+              rows: items
+                  .map(
+                    (item) => DataRow(
+                      cells: [
+                        DataCell(Text(item.name)),
+                        DataCell(Text(item.quantity.toString())),
+                        DataCell(Text(item.purchasePrice.toStringAsFixed(0))),
+                        DataCell(Text(item.salePrice.toStringAsFixed(0))),
+                        DataCell(
+                          Row(
+                            children: [
+                              IconButton(
+                                icon: const Icon(
+                                  Icons.edit,
+                                  color: Colors.blue,
+                                ),
+                                onPressed: () =>
+                                    _showItemForm(context, item: item),
+                              ),
+                              IconButton(
+                                icon: const Icon(
+                                  Icons.delete,
+                                  color: Colors.red,
+                                ),
+                                onPressed: () => _showDeleteConfirmationDialog(
+                                  context,
+                                  item,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                  .toList(),
+            ),
+          ),
+        ],
+      ),
     );
   }
 

@@ -55,14 +55,16 @@ extension InventoryEventPatterns on InventoryEvent {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( LoadInventory value)?  loadInventory,TResult Function( AddItem value)?  addItem,TResult Function( UpdateItem value)?  updateItem,TResult Function( DeleteItem value)?  deleteItem,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( LoadInventory value)?  loadInventory,TResult Function( AddItem value)?  addItem,TResult Function( UpdateItem value)?  updateItem,TResult Function( DeleteItem value)?  deleteItem,TResult Function( SearchChanged value)?  searchChanged,TResult Function( SortOrderChanged value)?  sortOrderChanged,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case LoadInventory() when loadInventory != null:
 return loadInventory(_that);case AddItem() when addItem != null:
 return addItem(_that);case UpdateItem() when updateItem != null:
 return updateItem(_that);case DeleteItem() when deleteItem != null:
-return deleteItem(_that);case _:
+return deleteItem(_that);case SearchChanged() when searchChanged != null:
+return searchChanged(_that);case SortOrderChanged() when sortOrderChanged != null:
+return sortOrderChanged(_that);case _:
   return orElse();
 
 }
@@ -80,14 +82,16 @@ return deleteItem(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( LoadInventory value)  loadInventory,required TResult Function( AddItem value)  addItem,required TResult Function( UpdateItem value)  updateItem,required TResult Function( DeleteItem value)  deleteItem,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( LoadInventory value)  loadInventory,required TResult Function( AddItem value)  addItem,required TResult Function( UpdateItem value)  updateItem,required TResult Function( DeleteItem value)  deleteItem,required TResult Function( SearchChanged value)  searchChanged,required TResult Function( SortOrderChanged value)  sortOrderChanged,}){
 final _that = this;
 switch (_that) {
 case LoadInventory():
 return loadInventory(_that);case AddItem():
 return addItem(_that);case UpdateItem():
 return updateItem(_that);case DeleteItem():
-return deleteItem(_that);case _:
+return deleteItem(_that);case SearchChanged():
+return searchChanged(_that);case SortOrderChanged():
+return sortOrderChanged(_that);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -104,14 +108,16 @@ return deleteItem(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( LoadInventory value)?  loadInventory,TResult? Function( AddItem value)?  addItem,TResult? Function( UpdateItem value)?  updateItem,TResult? Function( DeleteItem value)?  deleteItem,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( LoadInventory value)?  loadInventory,TResult? Function( AddItem value)?  addItem,TResult? Function( UpdateItem value)?  updateItem,TResult? Function( DeleteItem value)?  deleteItem,TResult? Function( SearchChanged value)?  searchChanged,TResult? Function( SortOrderChanged value)?  sortOrderChanged,}){
 final _that = this;
 switch (_that) {
 case LoadInventory() when loadInventory != null:
 return loadInventory(_that);case AddItem() when addItem != null:
 return addItem(_that);case UpdateItem() when updateItem != null:
 return updateItem(_that);case DeleteItem() when deleteItem != null:
-return deleteItem(_that);case _:
+return deleteItem(_that);case SearchChanged() when searchChanged != null:
+return searchChanged(_that);case SortOrderChanged() when sortOrderChanged != null:
+return sortOrderChanged(_that);case _:
   return null;
 
 }
@@ -128,13 +134,15 @@ return deleteItem(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  loadInventory,TResult Function( InventoryItem item)?  addItem,TResult Function( InventoryItem item)?  updateItem,TResult Function( int id)?  deleteItem,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  loadInventory,TResult Function( InventoryItem item)?  addItem,TResult Function( InventoryItem item)?  updateItem,TResult Function( int id)?  deleteItem,TResult Function( String query)?  searchChanged,TResult Function( InventorySortOrder sortOrder)?  sortOrderChanged,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case LoadInventory() when loadInventory != null:
 return loadInventory();case AddItem() when addItem != null:
 return addItem(_that.item);case UpdateItem() when updateItem != null:
 return updateItem(_that.item);case DeleteItem() when deleteItem != null:
-return deleteItem(_that.id);case _:
+return deleteItem(_that.id);case SearchChanged() when searchChanged != null:
+return searchChanged(_that.query);case SortOrderChanged() when sortOrderChanged != null:
+return sortOrderChanged(_that.sortOrder);case _:
   return orElse();
 
 }
@@ -152,13 +160,15 @@ return deleteItem(_that.id);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  loadInventory,required TResult Function( InventoryItem item)  addItem,required TResult Function( InventoryItem item)  updateItem,required TResult Function( int id)  deleteItem,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  loadInventory,required TResult Function( InventoryItem item)  addItem,required TResult Function( InventoryItem item)  updateItem,required TResult Function( int id)  deleteItem,required TResult Function( String query)  searchChanged,required TResult Function( InventorySortOrder sortOrder)  sortOrderChanged,}) {final _that = this;
 switch (_that) {
 case LoadInventory():
 return loadInventory();case AddItem():
 return addItem(_that.item);case UpdateItem():
 return updateItem(_that.item);case DeleteItem():
-return deleteItem(_that.id);case _:
+return deleteItem(_that.id);case SearchChanged():
+return searchChanged(_that.query);case SortOrderChanged():
+return sortOrderChanged(_that.sortOrder);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -175,13 +185,15 @@ return deleteItem(_that.id);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  loadInventory,TResult? Function( InventoryItem item)?  addItem,TResult? Function( InventoryItem item)?  updateItem,TResult? Function( int id)?  deleteItem,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  loadInventory,TResult? Function( InventoryItem item)?  addItem,TResult? Function( InventoryItem item)?  updateItem,TResult? Function( int id)?  deleteItem,TResult? Function( String query)?  searchChanged,TResult? Function( InventorySortOrder sortOrder)?  sortOrderChanged,}) {final _that = this;
 switch (_that) {
 case LoadInventory() when loadInventory != null:
 return loadInventory();case AddItem() when addItem != null:
 return addItem(_that.item);case UpdateItem() when updateItem != null:
 return updateItem(_that.item);case DeleteItem() when deleteItem != null:
-return deleteItem(_that.id);case _:
+return deleteItem(_that.id);case SearchChanged() when searchChanged != null:
+return searchChanged(_that.query);case SortOrderChanged() when sortOrderChanged != null:
+return sortOrderChanged(_that.sortOrder);case _:
   return null;
 
 }
@@ -438,6 +450,138 @@ as int,
 }
 
 /// @nodoc
+
+
+class SearchChanged implements InventoryEvent {
+  const SearchChanged(this.query);
+  
+
+ final  String query;
+
+/// Create a copy of InventoryEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$SearchChangedCopyWith<SearchChanged> get copyWith => _$SearchChangedCopyWithImpl<SearchChanged>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is SearchChanged&&(identical(other.query, query) || other.query == query));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,query);
+
+@override
+String toString() {
+  return 'InventoryEvent.searchChanged(query: $query)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $SearchChangedCopyWith<$Res> implements $InventoryEventCopyWith<$Res> {
+  factory $SearchChangedCopyWith(SearchChanged value, $Res Function(SearchChanged) _then) = _$SearchChangedCopyWithImpl;
+@useResult
+$Res call({
+ String query
+});
+
+
+
+
+}
+/// @nodoc
+class _$SearchChangedCopyWithImpl<$Res>
+    implements $SearchChangedCopyWith<$Res> {
+  _$SearchChangedCopyWithImpl(this._self, this._then);
+
+  final SearchChanged _self;
+  final $Res Function(SearchChanged) _then;
+
+/// Create a copy of InventoryEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? query = null,}) {
+  return _then(SearchChanged(
+null == query ? _self.query : query // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+
+}
+
+/// @nodoc
+
+
+class SortOrderChanged implements InventoryEvent {
+  const SortOrderChanged(this.sortOrder);
+  
+
+ final  InventorySortOrder sortOrder;
+
+/// Create a copy of InventoryEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$SortOrderChangedCopyWith<SortOrderChanged> get copyWith => _$SortOrderChangedCopyWithImpl<SortOrderChanged>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is SortOrderChanged&&(identical(other.sortOrder, sortOrder) || other.sortOrder == sortOrder));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,sortOrder);
+
+@override
+String toString() {
+  return 'InventoryEvent.sortOrderChanged(sortOrder: $sortOrder)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $SortOrderChangedCopyWith<$Res> implements $InventoryEventCopyWith<$Res> {
+  factory $SortOrderChangedCopyWith(SortOrderChanged value, $Res Function(SortOrderChanged) _then) = _$SortOrderChangedCopyWithImpl;
+@useResult
+$Res call({
+ InventorySortOrder sortOrder
+});
+
+
+
+
+}
+/// @nodoc
+class _$SortOrderChangedCopyWithImpl<$Res>
+    implements $SortOrderChangedCopyWith<$Res> {
+  _$SortOrderChangedCopyWithImpl(this._self, this._then);
+
+  final SortOrderChanged _self;
+  final $Res Function(SortOrderChanged) _then;
+
+/// Create a copy of InventoryEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? sortOrder = null,}) {
+  return _then(SortOrderChanged(
+null == sortOrder ? _self.sortOrder : sortOrder // ignore: cast_nullable_to_non_nullable
+as InventorySortOrder,
+  ));
+}
+
+
+}
+
+/// @nodoc
 mixin _$InventoryState {
 
 
@@ -481,12 +625,12 @@ extension InventoryStatePatterns on InventoryState {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( _Initial value)?  initial,TResult Function( _Loading value)?  loading,TResult Function( _Loaded value)?  loaded,TResult Function( _Error value)?  error,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( _Initial value)?  initial,TResult Function( _Loading value)?  loading,TResult Function( Loaded value)?  loaded,TResult Function( _Error value)?  error,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case _Initial() when initial != null:
 return initial(_that);case _Loading() when loading != null:
-return loading(_that);case _Loaded() when loaded != null:
+return loading(_that);case Loaded() when loaded != null:
 return loaded(_that);case _Error() when error != null:
 return error(_that);case _:
   return orElse();
@@ -506,12 +650,12 @@ return error(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( _Initial value)  initial,required TResult Function( _Loading value)  loading,required TResult Function( _Loaded value)  loaded,required TResult Function( _Error value)  error,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( _Initial value)  initial,required TResult Function( _Loading value)  loading,required TResult Function( Loaded value)  loaded,required TResult Function( _Error value)  error,}){
 final _that = this;
 switch (_that) {
 case _Initial():
 return initial(_that);case _Loading():
-return loading(_that);case _Loaded():
+return loading(_that);case Loaded():
 return loaded(_that);case _Error():
 return error(_that);case _:
   throw StateError('Unexpected subclass');
@@ -530,12 +674,12 @@ return error(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( _Initial value)?  initial,TResult? Function( _Loading value)?  loading,TResult? Function( _Loaded value)?  loaded,TResult? Function( _Error value)?  error,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( _Initial value)?  initial,TResult? Function( _Loading value)?  loading,TResult? Function( Loaded value)?  loaded,TResult? Function( _Error value)?  error,}){
 final _that = this;
 switch (_that) {
 case _Initial() when initial != null:
 return initial(_that);case _Loading() when loading != null:
-return loading(_that);case _Loaded() when loaded != null:
+return loading(_that);case Loaded() when loaded != null:
 return loaded(_that);case _Error() when error != null:
 return error(_that);case _:
   return null;
@@ -554,12 +698,12 @@ return error(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function()?  loading,TResult Function( List<InventoryItem> items)?  loaded,TResult Function( String message)?  error,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function()?  loading,TResult Function( List<InventoryItem> originalItems,  List<InventoryItem> displayedItems,  String searchQuery,  InventorySortOrder sortOrder)?  loaded,TResult Function( String message)?  error,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Initial() when initial != null:
 return initial();case _Loading() when loading != null:
-return loading();case _Loaded() when loaded != null:
-return loaded(_that.items);case _Error() when error != null:
+return loading();case Loaded() when loaded != null:
+return loaded(_that.originalItems,_that.displayedItems,_that.searchQuery,_that.sortOrder);case _Error() when error != null:
 return error(_that.message);case _:
   return orElse();
 
@@ -578,12 +722,12 @@ return error(_that.message);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function()  loading,required TResult Function( List<InventoryItem> items)  loaded,required TResult Function( String message)  error,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function()  loading,required TResult Function( List<InventoryItem> originalItems,  List<InventoryItem> displayedItems,  String searchQuery,  InventorySortOrder sortOrder)  loaded,required TResult Function( String message)  error,}) {final _that = this;
 switch (_that) {
 case _Initial():
 return initial();case _Loading():
-return loading();case _Loaded():
-return loaded(_that.items);case _Error():
+return loading();case Loaded():
+return loaded(_that.originalItems,_that.displayedItems,_that.searchQuery,_that.sortOrder);case _Error():
 return error(_that.message);case _:
   throw StateError('Unexpected subclass');
 
@@ -601,12 +745,12 @@ return error(_that.message);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function()?  loading,TResult? Function( List<InventoryItem> items)?  loaded,TResult? Function( String message)?  error,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function()?  loading,TResult? Function( List<InventoryItem> originalItems,  List<InventoryItem> displayedItems,  String searchQuery,  InventorySortOrder sortOrder)?  loaded,TResult? Function( String message)?  error,}) {final _that = this;
 switch (_that) {
 case _Initial() when initial != null:
 return initial();case _Loading() when loading != null:
-return loading();case _Loaded() when loaded != null:
-return loaded(_that.items);case _Error() when error != null:
+return loading();case Loaded() when loaded != null:
+return loaded(_that.originalItems,_that.displayedItems,_that.searchQuery,_that.sortOrder);case _Error() when error != null:
 return error(_that.message);case _:
   return null;
 
@@ -682,49 +826,61 @@ String toString() {
 /// @nodoc
 
 
-class _Loaded implements InventoryState {
-  const _Loaded(final  List<InventoryItem> items): _items = items;
+class Loaded implements InventoryState {
+  const Loaded({required final  List<InventoryItem> originalItems, required final  List<InventoryItem> displayedItems, this.searchQuery = '', this.sortOrder = InventorySortOrder.byNameAsc}): _originalItems = originalItems,_displayedItems = displayedItems;
   
 
- final  List<InventoryItem> _items;
- List<InventoryItem> get items {
-  if (_items is EqualUnmodifiableListView) return _items;
+ final  List<InventoryItem> _originalItems;
+ List<InventoryItem> get originalItems {
+  if (_originalItems is EqualUnmodifiableListView) return _originalItems;
   // ignore: implicit_dynamic_type
-  return EqualUnmodifiableListView(_items);
+  return EqualUnmodifiableListView(_originalItems);
 }
 
+// لیست اصلی و دست‌نخورده
+ final  List<InventoryItem> _displayedItems;
+// لیست اصلی و دست‌نخورده
+ List<InventoryItem> get displayedItems {
+  if (_displayedItems is EqualUnmodifiableListView) return _displayedItems;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_displayedItems);
+}
+
+// لیست فیلتر و مرتب شده برای نمایش
+@JsonKey() final  String searchQuery;
+@JsonKey() final  InventorySortOrder sortOrder;
 
 /// Create a copy of InventoryState
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
 @pragma('vm:prefer-inline')
-_$LoadedCopyWith<_Loaded> get copyWith => __$LoadedCopyWithImpl<_Loaded>(this, _$identity);
+$LoadedCopyWith<Loaded> get copyWith => _$LoadedCopyWithImpl<Loaded>(this, _$identity);
 
 
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Loaded&&const DeepCollectionEquality().equals(other._items, _items));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Loaded&&const DeepCollectionEquality().equals(other._originalItems, _originalItems)&&const DeepCollectionEquality().equals(other._displayedItems, _displayedItems)&&(identical(other.searchQuery, searchQuery) || other.searchQuery == searchQuery)&&(identical(other.sortOrder, sortOrder) || other.sortOrder == sortOrder));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_items));
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_originalItems),const DeepCollectionEquality().hash(_displayedItems),searchQuery,sortOrder);
 
 @override
 String toString() {
-  return 'InventoryState.loaded(items: $items)';
+  return 'InventoryState.loaded(originalItems: $originalItems, displayedItems: $displayedItems, searchQuery: $searchQuery, sortOrder: $sortOrder)';
 }
 
 
 }
 
 /// @nodoc
-abstract mixin class _$LoadedCopyWith<$Res> implements $InventoryStateCopyWith<$Res> {
-  factory _$LoadedCopyWith(_Loaded value, $Res Function(_Loaded) _then) = __$LoadedCopyWithImpl;
+abstract mixin class $LoadedCopyWith<$Res> implements $InventoryStateCopyWith<$Res> {
+  factory $LoadedCopyWith(Loaded value, $Res Function(Loaded) _then) = _$LoadedCopyWithImpl;
 @useResult
 $Res call({
- List<InventoryItem> items
+ List<InventoryItem> originalItems, List<InventoryItem> displayedItems, String searchQuery, InventorySortOrder sortOrder
 });
 
 
@@ -732,19 +888,22 @@ $Res call({
 
 }
 /// @nodoc
-class __$LoadedCopyWithImpl<$Res>
-    implements _$LoadedCopyWith<$Res> {
-  __$LoadedCopyWithImpl(this._self, this._then);
+class _$LoadedCopyWithImpl<$Res>
+    implements $LoadedCopyWith<$Res> {
+  _$LoadedCopyWithImpl(this._self, this._then);
 
-  final _Loaded _self;
-  final $Res Function(_Loaded) _then;
+  final Loaded _self;
+  final $Res Function(Loaded) _then;
 
 /// Create a copy of InventoryState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? items = null,}) {
-  return _then(_Loaded(
-null == items ? _self._items : items // ignore: cast_nullable_to_non_nullable
-as List<InventoryItem>,
+@pragma('vm:prefer-inline') $Res call({Object? originalItems = null,Object? displayedItems = null,Object? searchQuery = null,Object? sortOrder = null,}) {
+  return _then(Loaded(
+originalItems: null == originalItems ? _self._originalItems : originalItems // ignore: cast_nullable_to_non_nullable
+as List<InventoryItem>,displayedItems: null == displayedItems ? _self._displayedItems : displayedItems // ignore: cast_nullable_to_non_nullable
+as List<InventoryItem>,searchQuery: null == searchQuery ? _self.searchQuery : searchQuery // ignore: cast_nullable_to_non_nullable
+as String,sortOrder: null == sortOrder ? _self.sortOrder : sortOrder // ignore: cast_nullable_to_non_nullable
+as InventorySortOrder,
   ));
 }
 

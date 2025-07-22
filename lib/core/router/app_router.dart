@@ -27,31 +27,27 @@ final GoRouter router = GoRouter(
       routes: [
         GoRoute(
           path: '/inventory',
-          builder: (context, state) =>
-              BlocProvider(
-                create: (context) => sl<InventoryBloc>(),
-                child: const InventoryPage(),
-              ),
+          builder: (context, state) => BlocProvider(
+            create: (context) =>
+                sl<InventoryBloc>()..add(const InventoryEvent.loadInventory()),
+            child: const InventoryPage(),
+          ),
         ),
         GoRoute(
           path: '/dashboard',
-          builder: (context, state) =>
-              BlocProvider(
-                create: (context) =>
-                sl<DashboardBloc>()
-                  ..add(const DashboardEvent.load()),
-                child: const DashboardPage(),
-              ),
+          builder: (context, state) => BlocProvider(
+            create: (context) =>
+                sl<DashboardBloc>()..add(const DashboardEvent.load()),
+            child: const DashboardPage(),
+          ),
         ),
         GoRoute(
           path: '/invoices',
-          builder: (context, state) =>
-              BlocProvider(
-                create: (context) =>
-                sl<InvoiceListBloc>()
-                  ..add(const InvoiceListEvent.load()),
-                child: const InvoicesListPage(),
-              ),
+          builder: (context, state) => BlocProvider(
+            create: (context) =>
+                sl<InvoiceListBloc>()..add(const InvoiceListEvent.load()),
+            child: const InvoicesListPage(),
+          ),
         ),
         GoRoute(
           path: '/settings',
@@ -60,13 +56,11 @@ final GoRouter router = GoRouter(
         // این مسیر ShellRoute ندارد چون یک صفحه کامل است
         GoRoute(
           path: '/create-invoice',
-          builder: (context, state) =>
-              BlocProvider(
-                create: (context) =>
-                sl<SalesBloc>()
-                  ..add(const SalesEvent.loadInitialData()),
-                child: const CreateInvoicePage(),
-              ),
+          builder: (context, state) => BlocProvider(
+            create: (context) =>
+                sl<SalesBloc>()..add(const SalesEvent.loadInitialData()),
+            child: const CreateInvoicePage(),
+          ),
         ),
       ],
     ),

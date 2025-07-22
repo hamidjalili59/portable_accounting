@@ -128,8 +128,9 @@ class SalesBloc extends Bloc<SalesEvent, SalesState> {
   ) {
     if (state is _Loaded) {
       final currentState = state as _Loaded;
+
       final newInvoiceItems = List<SaleItem>.from(currentState.invoiceItems)
-        ..removeWhere((item) => item.id == event.item.id);
+        ..remove(event.item);
 
       emit(
         currentState.copyWith(

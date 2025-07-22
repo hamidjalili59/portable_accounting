@@ -34,27 +34,70 @@ class CreateInvoicePage extends StatelessWidget {
         },
         child: BlocBuilder<SalesBloc, SalesState>(
           builder: (context, state) {
-            return state.when(
-              initial: () => const Center(child: Text("در حال آماده سازی...")),
-              loading: () => const Center(child: CircularProgressIndicator()),
-              error: (message) => Center(child: Text(message)),
-              success: () => const Center(
-                child: Icon(Icons.check_circle, color: Colors.green, size: 50),
-              ),
-              loaded: (availableItems, invoiceItems, totalPrice) {
-                return ResponsiveLayout(
-                  mobileBody: _MobileInvoiceLayout(
-                    availableItems: availableItems,
-                    invoiceItems: invoiceItems,
-                    totalPrice: totalPrice,
-                  ),
-                  desktopBody: _DesktopInvoiceLayout(
-                    availableItems: availableItems,
-                    invoiceItems: invoiceItems,
-                    totalPrice: totalPrice,
+            final canPop = state.maybeWhen(
+              loaded: (_, invoiceItems, _) => invoiceItems.isEmpty,
+              orElse: () =>
+                  true, // Allow pop in initial, loading, success states
+            );
+            return PopScope(
+              canPop: canPop,
+              onPopInvokedWithResult: (didPop, result) async {
+                if (didPop) return; // If pop was successful, do nothing.
+
+                // If pop was blocked, show the confirmation dialog.
+                final shouldPop = await showDialog<bool>(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: const Text('Exit Confirmation'),
+                    content: const Text(
+                      'You have items in your invoice. Are you sure you want to exit and discard them?',
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(false),
+                        child: const Text('Stay'),
+                      ),
+                      FilledButton(
+                        onPressed: () => Navigator.of(context).pop(true),
+                        child: const Text('Exit'),
+                      ),
+                    ],
                   ),
                 );
+
+                if (shouldPop ?? false) {
+                  if (context.mounted) {
+                    context.pop();
+                  }
+                }
               },
+              child: state.when(
+                initial: () =>
+                    const Center(child: Text("در حال آماده سازی...")),
+                loading: () => const Center(child: CircularProgressIndicator()),
+                error: (message) => Center(child: Text(message)),
+                success: () => const Center(
+                  child: Icon(
+                    Icons.check_circle,
+                    color: Colors.green,
+                    size: 50,
+                  ),
+                ),
+                loaded: (availableItems, invoiceItems, totalPrice) {
+                  return ResponsiveLayout(
+                    mobileBody: _MobileInvoiceLayout(
+                      availableItems: availableItems,
+                      invoiceItems: invoiceItems,
+                      totalPrice: totalPrice,
+                    ),
+                    desktopBody: _DesktopInvoiceLayout(
+                      availableItems: availableItems,
+                      invoiceItems: invoiceItems,
+                      totalPrice: totalPrice,
+                    ),
+                  );
+                },
+              ),
             );
           },
         ),

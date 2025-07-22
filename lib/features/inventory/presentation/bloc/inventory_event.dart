@@ -9,4 +9,7 @@ class InventoryEvent with _$InventoryEvent {
   const factory InventoryEvent.updateItem(InventoryItem item) = UpdateItem;
 
   const factory InventoryEvent.deleteItem(int id) = DeleteItem;
+  const factory InventoryEvent.searchChanged(String query) = SearchChanged;
+  const factory InventoryEvent.sortOrderChanged(InventorySortOrder sortOrder) = SortOrderChanged;
+
 }
