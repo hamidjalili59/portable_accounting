@@ -5,7 +5,6 @@ import 'package:flutter/foundation.dart' show debugPrint, kDebugMode;
 import 'package:intl/intl.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:portable_accounting/core/database/app_database.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -35,37 +34,28 @@ class BackupService {
   /// Saves the backup file directly to the Downloads folder.
   Future<String> saveBackupToDownloads() async {
     try {
-      // 1. Check and request storage permission
-      final status = await Permission.storage.request();
+      final dbPath = await getDatabasePath();
+      final dbFile = File(dbPath);
+      if (!await dbFile.exists()) {
+        throw Exception('Database file does not exist.');
+      }
 
-      // if (status.isGranted) {
-        // 2. If permission is granted, proceed with saving
-        final dbPath = await getDatabasePath();
-        final dbFile = File(dbPath);
-        if (!await dbFile.exists()) {
-          throw Exception('Database file does not exist.');
-        }
+      final timestamp = DateFormat('yyyy-MM-dd_HH-mm').format(DateTime.now());
+      final fileName = 'backup-$timestamp';
 
-        final timestamp = DateFormat('yyyy-MM-dd_HH-mm').format(DateTime.now());
-        final fileName = 'backup-$timestamp';
+      final bytes = await dbFile.readAsBytes();
 
-        final bytes = await dbFile.readAsBytes();
+      String? savedPath = await FileSaver.instance.saveAs(
+        name: fileName,
+        bytes: bytes,
+        fileExtension: 'db',
+        mimeType: MimeType.other,
+      );
 
-        String? savedPath = await FileSaver.instance.saveAs(
-          name: fileName,
-          bytes: bytes,
-          fileExtension: 'db',
-          mimeType: MimeType.other,
-        );
-
-        if (savedPath == null) {
-          throw Exception('File saving was cancelled.');
-        }
-        return savedPath;
-      // } else {
-      //   // 3. If permission is denied, throw an error
-      //   throw Exception('Storage permission is required to save the file.');
-      // }
+      if (savedPath == null) {
+        throw Exception('File saving was cancelled.');
+      }
+      return savedPath;
     } catch (e) {
       debugPrint('Save backup failed: $e');
       rethrow; // Re-throw the exception to be caught by the UI

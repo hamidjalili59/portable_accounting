@@ -18,7 +18,7 @@ class InventoryItem with _$InventoryItem {
   @override
   final String name;
   @override
-  final double quantity;
+  final int quantity;
   @override
   final double purchasePrice;
   @override

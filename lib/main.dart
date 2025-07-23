@@ -1,14 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:portable_accounting/core/di/service_locator.dart' as di;
 import 'package:portable_accounting/core/router/app_router.dart';
 import 'package:portable_accounting/core/theme/app_colors.dart';
 import 'package:portable_accounting/core/theme/app_text_styles.dart';
 
+import 'core/services/currency_service.dart';
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await di.initDependencies();
 
-  runApp(const MyApp());
+  runApp(
+    MultiBlocProvider(
+      providers: [BlocProvider(create: (context) => CurrencyCubit())],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {

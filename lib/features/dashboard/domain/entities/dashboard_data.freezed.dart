@@ -14,7 +14,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$DashboardData {
 
- double get totalRevenue; double get totalCost; double get totalProfit; List<DailyProfit> get lastWeekProfit;
+ double get totalRevenue; double get totalCost; double get totalProfit; List<DailyProfit> get lastWeekProfit; int get totalSalesCount; List<TopSellingProduct> get topSellingProducts;
 /// Create a copy of DashboardData
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -25,16 +25,16 @@ $DashboardDataCopyWith<DashboardData> get copyWith => _$DashboardDataCopyWithImp
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is DashboardData&&(identical(other.totalRevenue, totalRevenue) || other.totalRevenue == totalRevenue)&&(identical(other.totalCost, totalCost) || other.totalCost == totalCost)&&(identical(other.totalProfit, totalProfit) || other.totalProfit == totalProfit)&&const DeepCollectionEquality().equals(other.lastWeekProfit, lastWeekProfit));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is DashboardData&&(identical(other.totalRevenue, totalRevenue) || other.totalRevenue == totalRevenue)&&(identical(other.totalCost, totalCost) || other.totalCost == totalCost)&&(identical(other.totalProfit, totalProfit) || other.totalProfit == totalProfit)&&const DeepCollectionEquality().equals(other.lastWeekProfit, lastWeekProfit)&&(identical(other.totalSalesCount, totalSalesCount) || other.totalSalesCount == totalSalesCount)&&const DeepCollectionEquality().equals(other.topSellingProducts, topSellingProducts));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,totalRevenue,totalCost,totalProfit,const DeepCollectionEquality().hash(lastWeekProfit));
+int get hashCode => Object.hash(runtimeType,totalRevenue,totalCost,totalProfit,const DeepCollectionEquality().hash(lastWeekProfit),totalSalesCount,const DeepCollectionEquality().hash(topSellingProducts));
 
 @override
 String toString() {
-  return 'DashboardData(totalRevenue: $totalRevenue, totalCost: $totalCost, totalProfit: $totalProfit, lastWeekProfit: $lastWeekProfit)';
+  return 'DashboardData(totalRevenue: $totalRevenue, totalCost: $totalCost, totalProfit: $totalProfit, lastWeekProfit: $lastWeekProfit, totalSalesCount: $totalSalesCount, topSellingProducts: $topSellingProducts)';
 }
 
 
@@ -45,7 +45,7 @@ abstract mixin class $DashboardDataCopyWith<$Res>  {
   factory $DashboardDataCopyWith(DashboardData value, $Res Function(DashboardData) _then) = _$DashboardDataCopyWithImpl;
 @useResult
 $Res call({
- double totalRevenue, double totalCost, double totalProfit, List<DailyProfit> lastWeekProfit
+ double totalRevenue, double totalCost, double totalProfit, List<DailyProfit> lastWeekProfit, int totalSalesCount, List<TopSellingProduct> topSellingProducts
 });
 
 
@@ -62,13 +62,15 @@ class _$DashboardDataCopyWithImpl<$Res>
 
 /// Create a copy of DashboardData
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? totalRevenue = null,Object? totalCost = null,Object? totalProfit = null,Object? lastWeekProfit = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? totalRevenue = null,Object? totalCost = null,Object? totalProfit = null,Object? lastWeekProfit = null,Object? totalSalesCount = null,Object? topSellingProducts = null,}) {
   return _then(DashboardData(
 totalRevenue: null == totalRevenue ? _self.totalRevenue : totalRevenue // ignore: cast_nullable_to_non_nullable
 as double,totalCost: null == totalCost ? _self.totalCost : totalCost // ignore: cast_nullable_to_non_nullable
 as double,totalProfit: null == totalProfit ? _self.totalProfit : totalProfit // ignore: cast_nullable_to_non_nullable
 as double,lastWeekProfit: null == lastWeekProfit ? _self.lastWeekProfit : lastWeekProfit // ignore: cast_nullable_to_non_nullable
-as List<DailyProfit>,
+as List<DailyProfit>,totalSalesCount: null == totalSalesCount ? _self.totalSalesCount : totalSalesCount // ignore: cast_nullable_to_non_nullable
+as int,topSellingProducts: null == topSellingProducts ? _self.topSellingProducts : topSellingProducts // ignore: cast_nullable_to_non_nullable
+as List<TopSellingProduct>,
   ));
 }
 
@@ -263,6 +265,192 @@ as double,
 
 /// Adds pattern-matching-related methods to [DailyProfit].
 extension DailyProfitPatterns on DailyProfit {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(){
+final _that = this;
+switch (_that) {
+case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(){
+final _that = this;
+switch (_that) {
+case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>() {final _that = this;
+switch (_that) {
+case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>() {final _that = this;
+switch (_that) {
+case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+mixin _$TopSellingProduct {
+
+ String get name; int get quantitySold;
+/// Create a copy of TopSellingProduct
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$TopSellingProductCopyWith<TopSellingProduct> get copyWith => _$TopSellingProductCopyWithImpl<TopSellingProduct>(this as TopSellingProduct, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is TopSellingProduct&&(identical(other.name, name) || other.name == name)&&(identical(other.quantitySold, quantitySold) || other.quantitySold == quantitySold));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,name,quantitySold);
+
+@override
+String toString() {
+  return 'TopSellingProduct(name: $name, quantitySold: $quantitySold)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $TopSellingProductCopyWith<$Res>  {
+  factory $TopSellingProductCopyWith(TopSellingProduct value, $Res Function(TopSellingProduct) _then) = _$TopSellingProductCopyWithImpl;
+@useResult
+$Res call({
+ String name, int quantitySold
+});
+
+
+
+
+}
+/// @nodoc
+class _$TopSellingProductCopyWithImpl<$Res>
+    implements $TopSellingProductCopyWith<$Res> {
+  _$TopSellingProductCopyWithImpl(this._self, this._then);
+
+  final TopSellingProduct _self;
+  final $Res Function(TopSellingProduct) _then;
+
+/// Create a copy of TopSellingProduct
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? name = null,Object? quantitySold = null,}) {
+  return _then(TopSellingProduct(
+name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String,quantitySold: null == quantitySold ? _self.quantitySold : quantitySold // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [TopSellingProduct].
+extension TopSellingProductPatterns on TopSellingProduct {
 /// A variant of `map` that fallback to returning `orElse`.
 ///
 /// It is equivalent to doing:

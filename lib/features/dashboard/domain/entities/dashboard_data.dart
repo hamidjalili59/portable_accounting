@@ -9,6 +9,8 @@ class DashboardData with _$DashboardData {
     required this.totalCost,
     required this.totalProfit,
     required this.lastWeekProfit,
+    required this.totalSalesCount,
+    required this.topSellingProducts,
   });
 
   @override
@@ -19,6 +21,10 @@ class DashboardData with _$DashboardData {
   final double totalProfit;
   @override
   final List<DailyProfit> lastWeekProfit;
+  @override
+  final int totalSalesCount;
+  @override
+  final List<TopSellingProduct> topSellingProducts;
 }
 
 @freezed
@@ -29,4 +35,14 @@ class DailyProfit with _$DailyProfit {
   final DateTime date;
   @override
   final double profit;
+}
+
+@freezed
+class TopSellingProduct with _$TopSellingProduct {
+  TopSellingProduct({required this.name, required this.quantitySold});
+
+  @override
+  final String name;
+  @override
+  final int quantitySold;
 }

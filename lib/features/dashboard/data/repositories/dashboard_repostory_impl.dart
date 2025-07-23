@@ -12,90 +12,167 @@ class DashboardRepositoryImpl implements DashboardRepository {
   @override
   Future<Either<Failure, DashboardData>> getDashboardData() async {
     try {
-      // خواندن تمام آیتم‌های فروخته شده و فاکتورها
+      // Fetch all necessary data from the database
       final allSaleItems = await _db.select(_db.saleItems).get();
       final allInvoices = await _db.select(_db.invoices).get();
 
+      // If there's no data, return an empty dashboard state
       if (allSaleItems.isEmpty) {
-        // اگر فروشی ثبت نشده، داده‌های صفر برمی‌گردانیم
-        return Right(DashboardData(
-          totalRevenue: 0,
-          totalCost: 0,
-          totalProfit: 0,
-          lastWeekProfit: [],
-        ));
+        return Right(
+          DashboardData(
+            totalRevenue: 0,
+            totalCost: 0,
+            totalProfit: 0,
+            lastWeekProfit: [],
+            totalSalesCount: 0,
+            topSellingProducts: [],
+          ),
+        );
       }
 
-      // ۱. محاسبه کل درآمد
+      // --- Perform Calculations ---
+
+      // 1. Calculate total revenue from all sold items
       final totalRevenue = allSaleItems.fold<double>(
         0,
-            (sum, item) => sum + (item.quantity * item.price),
+        (sum, item) => sum + (item.quantity * item.price),
       );
 
-      // ۲. محاسبه کل هزینه (قیمت تمام شده کالاهای فروخته شده)
+      // 2. Calculate total cost of goods sold (COGS)
       double totalCost = 0;
       for (final saleItem in allSaleItems) {
-        // قیمت خرید کالا را از جدول انبار پیدا می‌کنیم
-        final inventoryItem = await (_db.select(_db.inventoryItems)
-          ..where((tbl) => tbl.id.equals(saleItem.inventoryItemId)))
-            .getSingleOrNull();
+        // Find the original purchase price from the inventory table
+        final inventoryItem =
+            await (_db.select(_db.inventoryItems)
+                  ..where((tbl) => tbl.id.equals(saleItem.inventoryItemId)))
+                .getSingleOrNull();
 
         if (inventoryItem != null) {
           totalCost += saleItem.quantity * inventoryItem.purchasePrice;
         }
       }
 
-      // ۳. محاسبه سود خالص
+      // 3. Calculate net profit
       final totalProfit = totalRevenue - totalCost;
 
-      // ۴. محاسبه سود ۷ روز گذشته برای نمودار
-      final lastWeekProfit = _calculateLastWeekProfit(allInvoices, allSaleItems);
+      // 4. Calculate total number of sales (invoices)
+      final totalSalesCount = allInvoices.length;
 
-      return Right(DashboardData(
-        totalRevenue: totalRevenue,
-        totalCost: totalCost,
-        totalProfit: totalProfit,
-        lastWeekProfit: await lastWeekProfit,
-      ));
+      // 5. Calculate top 5 selling products by quantity
+      final productSales =
+          <int, int>{}; // Map<inventoryItemId, totalQuantitySold>
+      for (final item in allSaleItems) {
+        productSales.update(
+          item.inventoryItemId,
+          (value) => value + item.quantity,
+          ifAbsent: () => item.quantity,
+        );
+      }
+
+      final sortedProducts = productSales.entries.toList()
+        ..sort((a, b) => b.value.compareTo(a.value));
+
+      final topSellingProducts = <TopSellingProduct>[];
+      for (final entry in sortedProducts.take(5)) {
+        final inventoryItem = await (_db.select(
+          _db.inventoryItems,
+        )..where((tbl) => tbl.id.equals(entry.key))).getSingleOrNull();
+        if (inventoryItem != null) {
+          topSellingProducts.add(
+            TopSellingProduct(
+              name: inventoryItem.name,
+              quantitySold: entry.value,
+            ),
+          );
+        }
+      }
+
+      // 6. Calculate profit for the last 7 days for the chart
+      final lastWeekProfit = await _calculateLastWeekProfit(
+        allInvoices,
+        allSaleItems,
+      );
+
+      // Return the complete dashboard data object
+      return Right(
+        DashboardData(
+          totalRevenue: totalRevenue,
+          totalCost: totalCost,
+          totalProfit: totalProfit,
+          lastWeekProfit: lastWeekProfit,
+          totalSalesCount: totalSalesCount,
+          topSellingProducts: topSellingProducts,
+        ),
+      );
     } catch (e) {
-      return Left(DatabaseFailure(message: 'خطا در محاسبه داده‌های داشبورد: ${e.toString()}'));
+      return Left(
+        DatabaseFailure(
+          message: 'Error calculating dashboard data: ${e.toString()}',
+        ),
+      );
     }
   }
 
-  // متد کمکی برای محاسبه سود روزانه
+  /// Helper method to calculate daily profit for the last 7 days.
   Future<List<DailyProfit>> _calculateLastWeekProfit(
-      List<InvoiceData> allInvoices, List<SaleItemData> allSaleItems) async {
+    List<InvoiceData> allInvoices,
+    List<SaleItemData> allSaleItems,
+  ) async {
+    // Step 1: Create a map with all of the last 7 days initialized to zero profit.
     final Map<DateTime, double> dailyProfitMap = {};
     final today = DateTime.now();
+    for (int i = 6; i >= 0; i--) {
+      final date = today.subtract(Duration(days: i));
+      // Use a date without time for consistent grouping
+      final dateOnly = DateTime(date.year, date.month, date.day);
+      dailyProfitMap[dateOnly] = 0.0;
+    }
+
+    // Step 2: Filter for invoices within the last 7 days
     final sevenDaysAgo = today.subtract(const Duration(days: 7));
+    final recentInvoices = allInvoices.where(
+      (inv) => inv.date.isAfter(sevenDaysAgo),
+    );
 
-    // فاکتورهای ۷ روز گذشته را فیلتر می‌کنیم
-    final recentInvoices = allInvoices.where((inv) => inv.date.isAfter(sevenDaysAgo));
-
+    // Step 3: Iterate through actual sales and update the profit for the corresponding day
     for (final invoice in recentInvoices) {
-      final dateOnly = DateTime(invoice.date.year, invoice.date.month, invoice.date.day);
-      final itemsForThisInvoice = allSaleItems.where((item) => item.invoiceId == invoice.id);
+      final dateOnly = DateTime(
+        invoice.date.year,
+        invoice.date.month,
+        invoice.date.day,
+      );
+      final itemsForThisInvoice = allSaleItems.where(
+        (item) => item.invoiceId == invoice.id,
+      );
 
-      double dailyRevenue = itemsForThisInvoice.fold(0, (sum, item) => sum + (item.quantity * item.price));
+      double dailyRevenue = itemsForThisInvoice.fold(
+        0,
+        (sum, item) => sum + (item.quantity * item.price),
+      );
       double dailyCost = 0;
 
       for (final saleItem in itemsForThisInvoice) {
-        final inventoryItem = await (_db.select(_db.inventoryItems)
-          ..where((tbl) => tbl.id.equals(saleItem.inventoryItemId)))
-            .getSingleOrNull();
+        final inventoryItem =
+            await (_db.select(_db.inventoryItems)
+                  ..where((tbl) => tbl.id.equals(saleItem.inventoryItemId)))
+                .getSingleOrNull();
         if (inventoryItem != null) {
           dailyCost += saleItem.quantity * inventoryItem.purchasePrice;
         }
       }
 
+      // Update the map with the calculated profit for that day
       dailyProfitMap.update(
         dateOnly,
-            (existingProfit) => existingProfit + (dailyRevenue - dailyCost),
+        (existingProfit) => existingProfit + (dailyRevenue - dailyCost),
         ifAbsent: () => dailyRevenue - dailyCost,
       );
     }
 
-    return dailyProfitMap.entries.map((e) => DailyProfit(date: e.key, profit: e.value)).toList()
-      ..sort((a,b) => a.date.compareTo(b.date));
+    // Step 4: Convert the map to a sorted list
+    return dailyProfitMap.entries
+        .map((entry) => DailyProfit(date: entry.key, profit: entry.value))
+        .toList()
+      ..sort((a, b) => a.date.compareTo(b.date));
   }
 }

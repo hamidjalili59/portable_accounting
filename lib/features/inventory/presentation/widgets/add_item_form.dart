@@ -171,7 +171,7 @@ class _AddItemFormState extends State<AddItemForm> {
       final itemToSave = InventoryItem(
         id: widget.editingItem?.id ?? 0,
         name: _nameController.text,
-        quantity: double.parse(_quantityController.text),
+        quantity: int.parse(_quantityController.text),
         purchasePrice: double.parse(_purchasePriceController.text),
         salePrice: double.parse(_salePriceController.text),
         imagePath: _selectedImagePath,

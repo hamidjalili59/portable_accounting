@@ -1,10 +1,13 @@
-import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart';
+import 'package:portable_accounting/core/helpers/currency_formatter.dart';
+import 'package:portable_accounting/core/services/currency_service.dart';
 import 'package:portable_accounting/core/widgets/responsive_layout.dart';
-import 'package:portable_accounting/features/dashboard/domain/entities/dashboard_data.dart';
-import 'package:portable_accounting/features/dashboard/presentation/bloc/dashboard_bloc.dart';
+import 'package:portable_accounting/features/dashboard/presentation/widgets/profit_chart_card.dart';
+import '../../domain/entities/dashboard_data.dart';
+import '../bloc/dashboard_bloc.dart';
+import '../widgets/stat_card.dart';
+import '../widgets/top_products_card.dart';
 
 class DashboardPage extends StatelessWidget {
   const DashboardPage({super.key});
@@ -14,204 +17,137 @@ class DashboardPage extends StatelessWidget {
     return Scaffold(
       appBar:
           MediaQuery.of(context).size.width < ResponsiveLayout.mobileBreakpoint
-          ? AppBar(title: const Text('داشبورد'))
-          : null, // در دسکتاپ، عنوان در بدنه نمایش داده می‌شود
+          ? AppBar(title: const Text('Dashboard'))
+          : null,
       body: BlocBuilder<DashboardBloc, DashboardState>(
         builder: (context, state) {
           return state.when(
             initial: () => const SizedBox.shrink(),
             loading: () => const Center(child: CircularProgressIndicator()),
             error: (message) => Center(child: Text(message)),
-            loaded: (data) => ResponsiveLayout(
-              mobileBody: _buildMobileLayout(context, data),
-              desktopBody: _buildDesktopLayout(context, data),
-            ),
+            loaded: (data) {
+              // The main content is now a clean, readable layout.
+              return SingleChildScrollView(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (MediaQuery.of(context).size.width >=
+                        ResponsiveLayout.mobileBreakpoint)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 16.0),
+                        child: Text(
+                          'Dashboard',
+                          style: Theme.of(context).textTheme.headlineMedium,
+                        ),
+                      ),
+
+                    // Main Stats Grid
+                    _buildStatsGrid(context, data),
+                    const SizedBox(height: 24),
+
+                    // The two charts
+                    ResponsiveLayout(
+                      mobileBody: Column(
+                        children: [
+                          ProfitChartCard(weeklyProfit: data.lastWeekProfit),
+                          const SizedBox(height: 24),
+                          TopProductsCard(products: data.topSellingProducts),
+                        ],
+                      ),
+                      desktopBody: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            flex: 2,
+                            child: ProfitChartCard(
+                              weeklyProfit: data.lastWeekProfit,
+                            ),
+                          ),
+                          const SizedBox(width: 24),
+                          Expanded(
+                            flex: 1,
+                            child: TopProductsCard(
+                              products: data.topSellingProducts,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
           );
         },
       ),
     );
   }
 
-  Widget _buildMobileLayout(BuildContext context, DashboardData data) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        children: [
-          _buildStatsCards(data, isMobile: true),
-          const SizedBox(height: 24),
-          _buildChartCard(context, data.lastWeekProfit),
-        ],
-      ),
-    );
-  }
+  // A helper to build the stats grid responsively.
+  Widget _buildStatsGrid(BuildContext context, DashboardData data) {
+    final currencyUnit = context.watch<CurrencyCubit>().state;
 
-  Widget _buildDesktopLayout(BuildContext context, DashboardData data) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(24.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('داشبورد', style: Theme.of(context).textTheme.headlineMedium),
-          const SizedBox(height: 24),
-          _buildStatsCards(data, isMobile: false),
-          const SizedBox(height: 24),
-          _buildChartCard(context, data.lastWeekProfit),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildStatsCards(DashboardData data, {required bool isMobile}) {
-    final cards = [
-      _StatCard(
-        title: 'کل درآمد',
-        value: '${data.totalRevenue.toStringAsFixed(0)} تومان',
-        icon: Icons.trending_up,
-        color: Colors.green,
-      ),
-      _StatCard(
-        title: 'کل هزینه',
-        value: '${data.totalCost.toStringAsFixed(0)} تومان',
-        icon: Icons.trending_down,
-        color: Colors.red,
-      ),
-      _StatCard(
-        title: 'سود خالص',
-        value: '${data.totalProfit.toStringAsFixed(0)} تومان',
+    final stats = [
+      StatCard(
+        title: 'Net Profit',
+        value: data.totalProfit.formatAsCurrency(currencyUnit),
         icon: Icons.attach_money,
         color: Colors.blue,
       ),
+      StatCard(
+        title: 'Total Revenue',
+        value: data.totalRevenue.formatAsCurrency(currencyUnit),
+        icon: Icons.trending_up,
+        color: Colors.green,
+      ),
+      StatCard(
+        title: 'Total Cost',
+        value: data.totalCost.formatAsCurrency(currencyUnit),
+        icon: Icons.trending_down,
+        color: Colors.red,
+      ),
+      StatCard(
+        title: 'Total Sales',
+        value: '${data.totalSalesCount}',
+        icon: Icons.point_of_sale,
+        color: Colors.orange,
+      ),
     ];
 
-    if (isMobile) {
-      return Wrap(
-        spacing: 16,
-        runSpacing: 16,
-        alignment: WrapAlignment.center,
-        children: cards,
-      );
-    } else {
-      // در دسکتاپ، کارت‌ها را در یک ردیف با فضای مساوی قرار می‌دهیم
-      return Row(children: cards.map((card) => Expanded(child: card)).toList());
-    }
-  }
-
-  Widget _buildChartCard(BuildContext context, List<DailyProfit> weeklyProfit) {
-    if (weeklyProfit.isEmpty) {
-      return Card(
-        elevation: 4,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        child: const SizedBox(
-          height: 200,
-          child: Center(
-            child: Text('داده‌ای برای نمایش نمودار سود وجود ندارد.'),
-          ),
-        ),
-      );
-    }
-    return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 16, 16, 8), // پدینگ برای زیبایی
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(
-              'سود ۷ روز گذشته',
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
-            const SizedBox(height: 24),
-            SizedBox(
-              height: 200,
-              child: LineChart(
-                LineChartData(
-                  gridData: const FlGridData(show: false),
-                  titlesData: FlTitlesData(
-                    leftTitles: const AxisTitles(
-                      sideTitles: SideTitles(showTitles: false),
-                    ),
-                    topTitles: const AxisTitles(
-                      sideTitles: SideTitles(showTitles: false),
-                    ),
-                    bottomTitles: AxisTitles(
-                      sideTitles: SideTitles(
-                        showTitles: true,
-                        reservedSize: 30,
-                        interval: 1, // برای نمایش تمام برچسب‌ها
-                        getTitlesWidget: (value, meta) {
-                          // نمایش تاریخ در محور افقی
-                          if (value.toInt() >= weeklyProfit.length) {
-                            return const SizedBox.shrink();
-                          }
-                          final day = weeklyProfit[value.toInt()].date;
-                          return SideTitleWidget(
-                            meta: meta,
-                            child: Text(DateFormat('M/d').format(day)),
-                          );
-                        },
-                      ),
-                    ),
-                  ),
-                  borderData: FlBorderData(show: false),
-                  lineBarsData: [
-                    LineChartBarData(
-                      spots: weeklyProfit.asMap().entries.map((e) {
-                        return FlSpot(e.key.toDouble(), e.value.profit);
-                      }).toList(),
-                      isCurved: true,
-                      color: Theme.of(context).primaryColor,
-                      barWidth: 4,
-                      isStrokeCapRound: true,
-                      dotData: const FlDotData(show: false),
-                      belowBarData: BarAreaData(
-                        show: true,
-                        color: Theme.of(context).primaryColor.withOpacity(0.3),
-                      ),
-                    ),
-                  ],
+    // For desktop, we use a Row with Expanded children.
+    if (MediaQuery.of(context).size.width >=
+        ResponsiveLayout.mobileBreakpoint) {
+      return Row(
+        children: stats
+            .map(
+              (card) => Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  child: card,
                 ),
               ),
-            ),
-          ],
-        ),
-      ),
+            )
+            .toList(),
+      );
+    }
+
+    // For mobile, we use a Wrap for maximum flexibility.
+    return Wrap(
+      spacing: 16, // Horizontal space between cards
+      runSpacing: 16, // Vertical space between rows
+      alignment: WrapAlignment.center,
+      children: stats.map((card) {
+        // We calculate a flexible width to ensure two cards fit if possible,
+        // but they can shrink or grow as needed.
+        final screenWidth = MediaQuery.of(context).size.width;
+        final cardWidth =
+            (screenWidth - 48) / 2; // (Screen width - total padding) / 2
+        return SizedBox(width: cardWidth, child: card);
+      }).toList(),
     );
   }
 }
 
-// یک ویجت کوچک برای نمایش کارت‌های آمار
-class _StatCard extends StatelessWidget {
-  final String title;
-  final String value;
-  final IconData icon;
-  final Color color;
-
-  const _StatCard({
-    required this.title,
-    required this.value,
-    required this.icon,
-    required this.color,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      elevation: 2,
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        width: 180,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Icon(icon, size: 32, color: color),
-            const SizedBox(height: 8),
-            Text(title, style: Theme.of(context).textTheme.bodyLarge),
-            const SizedBox(height: 4),
-            Text(value, style: Theme.of(context).textTheme.headlineSmall),
-          ],
-        ),
-      ),
-    );
-  }
-}
+// Don't forget to move the Line Chart logic into its own file:
+// lib/features/dashboard/presentation/widgets/profit_chart_card.dart

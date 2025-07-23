@@ -2,18 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pdf/pdf.dart' show PdfPageFormat;
+import 'package:portable_accounting/core/helpers/currency_formatter.dart';
+import 'package:portable_accounting/core/services/currency_service.dart';
 import 'package:portable_accounting/core/widgets/empty_state_widget.dart';
 import 'package:portable_accounting/features/inventory/data/pdf/pdf_generator.dart';
 import 'package:portable_accounting/features/inventory/presentation/bloc/invoice_list_bloc.dart';
 import 'package:portable_accounting/features/sales/domain/entities/invoice.dart';
 import 'package:printing/printing.dart';
 
-
 class InvoicesListPage extends StatelessWidget {
   const InvoicesListPage({super.key});
 
-  Future<void> _generateAndPrintPdf(Invoice invoice) async {
-    final pdfBytes = await PdfInvoiceGenerator.generate(invoice);
+  Future<void> _generateAndPrintPdf(
+    Invoice invoice,
+    CurrencyUnit currencyUnit,
+  ) async {
+    final pdfBytes = await PdfInvoiceGenerator.generate(invoice, currencyUnit);
     await Printing.layoutPdf(
       onLayout: (PdfPageFormat format) async => pdfBytes,
     );
@@ -34,7 +38,8 @@ class InvoicesListPage extends StatelessWidget {
                 return EmptyStateWidget(
                   icon: Icons.receipt_long_outlined,
                   title: 'هنوز فاکتوری ثبت نشده!',
-                  message: 'پس از ثبت اولین فروش، فاکتور آن در اینجا نمایش داده می‌شود.',
+                  message:
+                      'پس از ثبت اولین فروش، فاکتور آن در اینجا نمایش داده می‌شود.',
                   buttonText: 'ثبت اولین فاکتور',
                   onButtonPressed: () {
                     // کاربر را به صفحه ایجاد فاکتور هدایت می‌کنیم
@@ -42,6 +47,8 @@ class InvoicesListPage extends StatelessWidget {
                   },
                 );
               }
+              final currencyUnit = context.watch<CurrencyCubit>().state;
+
               return ListView.builder(
                 itemCount: invoices.length,
                 itemBuilder: (context, index) {
@@ -57,12 +64,16 @@ class InvoicesListPage extends StatelessWidget {
                         'مشتری: ${invoice.customerName ?? "نامشخص"} - تاریخ: ${invoice.date.toLocal().toString().split(' ')[0]}',
                       ),
                       trailing: Text(
-                        '${invoice.totalPrice.toStringAsFixed(0)} تومان',
+                        invoice.totalPrice.formatAsCurrency(currencyUnit),
                       ),
                       leading: IconButton(
                         icon: const Icon(Icons.print_outlined),
                         onPressed: () {
-                          _generateAndPrintPdf(invoice);
+                          final currencyUnit = context
+                              .read<CurrencyCubit>()
+                              .state;
+
+                          _generateAndPrintPdf(invoice, currencyUnit);
                         },
                       ),
                     ),

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:portable_accounting/core/di/service_locator.dart';
 import 'package:portable_accounting/core/services/backup_service.dart';
+import 'package:portable_accounting/core/services/currency_service.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -154,6 +156,28 @@ class _SettingsPageState extends State<SettingsPage> {
                       'اطلاعات خود را از یک فایل پشتیبان بازگردانید.',
                     ),
                     onTap: _handleRestore,
+                  ),
+                  const Divider(),
+                  ListTile(
+                    leading: const Icon(Icons.attach_money_outlined),
+                    title: const Text('واحد پولی'),
+                    trailing: DropdownButton<CurrencyUnit>(
+                      value: context
+                          .watch<CurrencyCubit>()
+                          .state, // خواندن وضعیت فعلی
+                      items: CurrencyUnit.values.map((unit) {
+                        return DropdownMenuItem(
+                          value: unit,
+                          child: Text(unit.displayName),
+                        );
+                      }).toList(),
+                      onChanged: (newUnit) {
+                        if (newUnit != null) {
+                          // ارسال درخواست تغییر واحد پولی به Cubit
+                          context.read<CurrencyCubit>().setCurrency(newUnit);
+                        }
+                      },
+                    ),
                   ),
                 ],
               ),

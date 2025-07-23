@@ -39,11 +39,11 @@ class $InventoryItemsTable extends InventoryItems
     'quantity',
   );
   @override
-  late final GeneratedColumn<double> quantity = GeneratedColumn<double>(
+  late final GeneratedColumn<int> quantity = GeneratedColumn<int>(
     'quantity',
     aliasedName,
     false,
-    type: DriftSqlType.double,
+    type: DriftSqlType.int,
     requiredDuringInsert: true,
   );
   static const VerificationMeta _purchasePriceMeta = const VerificationMeta(
@@ -162,7 +162,7 @@ class $InventoryItemsTable extends InventoryItems
         data['${effectivePrefix}name'],
       )!,
       quantity: attachedDatabase.typeMapping.read(
-        DriftSqlType.double,
+        DriftSqlType.int,
         data['${effectivePrefix}quantity'],
       )!,
       purchasePrice: attachedDatabase.typeMapping.read(
@@ -190,7 +190,7 @@ class InventoryItemData extends DataClass
     implements Insertable<InventoryItemData> {
   final int id;
   final String name;
-  final double quantity;
+  final int quantity;
   final double purchasePrice;
   final double salePrice;
   final String? imagePath;
@@ -207,7 +207,7 @@ class InventoryItemData extends DataClass
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
     map['name'] = Variable<String>(name);
-    map['quantity'] = Variable<double>(quantity);
+    map['quantity'] = Variable<int>(quantity);
     map['purchase_price'] = Variable<double>(purchasePrice);
     map['sale_price'] = Variable<double>(salePrice);
     if (!nullToAbsent || imagePath != null) {
@@ -237,7 +237,7 @@ class InventoryItemData extends DataClass
     return InventoryItemData(
       id: serializer.fromJson<int>(json['id']),
       name: serializer.fromJson<String>(json['name']),
-      quantity: serializer.fromJson<double>(json['quantity']),
+      quantity: serializer.fromJson<int>(json['quantity']),
       purchasePrice: serializer.fromJson<double>(json['purchasePrice']),
       salePrice: serializer.fromJson<double>(json['salePrice']),
       imagePath: serializer.fromJson<String?>(json['imagePath']),
@@ -249,7 +249,7 @@ class InventoryItemData extends DataClass
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
       'name': serializer.toJson<String>(name),
-      'quantity': serializer.toJson<double>(quantity),
+      'quantity': serializer.toJson<int>(quantity),
       'purchasePrice': serializer.toJson<double>(purchasePrice),
       'salePrice': serializer.toJson<double>(salePrice),
       'imagePath': serializer.toJson<String?>(imagePath),
@@ -259,7 +259,7 @@ class InventoryItemData extends DataClass
   InventoryItemData copyWith({
     int? id,
     String? name,
-    double? quantity,
+    int? quantity,
     double? purchasePrice,
     double? salePrice,
     Value<String?> imagePath = const Value.absent(),
@@ -315,7 +315,7 @@ class InventoryItemData extends DataClass
 class InventoryItemsCompanion extends UpdateCompanion<InventoryItemData> {
   final Value<int> id;
   final Value<String> name;
-  final Value<double> quantity;
+  final Value<int> quantity;
   final Value<double> purchasePrice;
   final Value<double> salePrice;
   final Value<String?> imagePath;
@@ -330,7 +330,7 @@ class InventoryItemsCompanion extends UpdateCompanion<InventoryItemData> {
   InventoryItemsCompanion.insert({
     this.id = const Value.absent(),
     required String name,
-    required double quantity,
+    required int quantity,
     required double purchasePrice,
     required double salePrice,
     this.imagePath = const Value.absent(),
@@ -341,7 +341,7 @@ class InventoryItemsCompanion extends UpdateCompanion<InventoryItemData> {
   static Insertable<InventoryItemData> custom({
     Expression<int>? id,
     Expression<String>? name,
-    Expression<double>? quantity,
+    Expression<int>? quantity,
     Expression<double>? purchasePrice,
     Expression<double>? salePrice,
     Expression<String>? imagePath,
@@ -359,7 +359,7 @@ class InventoryItemsCompanion extends UpdateCompanion<InventoryItemData> {
   InventoryItemsCompanion copyWith({
     Value<int>? id,
     Value<String>? name,
-    Value<double>? quantity,
+    Value<int>? quantity,
     Value<double>? purchasePrice,
     Value<double>? salePrice,
     Value<String?>? imagePath,
@@ -384,7 +384,7 @@ class InventoryItemsCompanion extends UpdateCompanion<InventoryItemData> {
       map['name'] = Variable<String>(name.value);
     }
     if (quantity.present) {
-      map['quantity'] = Variable<double>(quantity.value);
+      map['quantity'] = Variable<int>(quantity.value);
     }
     if (purchasePrice.present) {
       map['purchase_price'] = Variable<double>(purchasePrice.value);
@@ -1148,7 +1148,7 @@ typedef $$InventoryItemsTableCreateCompanionBuilder =
     InventoryItemsCompanion Function({
       Value<int> id,
       required String name,
-      required double quantity,
+      required int quantity,
       required double purchasePrice,
       required double salePrice,
       Value<String?> imagePath,
@@ -1157,7 +1157,7 @@ typedef $$InventoryItemsTableUpdateCompanionBuilder =
     InventoryItemsCompanion Function({
       Value<int> id,
       Value<String> name,
-      Value<double> quantity,
+      Value<int> quantity,
       Value<double> purchasePrice,
       Value<double> salePrice,
       Value<String?> imagePath,
@@ -1213,7 +1213,7 @@ class $$InventoryItemsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<double> get quantity => $composableBuilder(
+  ColumnFilters<int> get quantity => $composableBuilder(
     column: $table.quantity,
     builder: (column) => ColumnFilters(column),
   );
@@ -1278,7 +1278,7 @@ class $$InventoryItemsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<double> get quantity => $composableBuilder(
+  ColumnOrderings<int> get quantity => $composableBuilder(
     column: $table.quantity,
     builder: (column) => ColumnOrderings(column),
   );
@@ -1314,7 +1314,7 @@ class $$InventoryItemsTableAnnotationComposer
   GeneratedColumn<String> get name =>
       $composableBuilder(column: $table.name, builder: (column) => column);
 
-  GeneratedColumn<double> get quantity =>
+  GeneratedColumn<int> get quantity =>
       $composableBuilder(column: $table.quantity, builder: (column) => column);
 
   GeneratedColumn<double> get purchasePrice => $composableBuilder(
@@ -1386,7 +1386,7 @@ class $$InventoryItemsTableTableManager
               ({
                 Value<int> id = const Value.absent(),
                 Value<String> name = const Value.absent(),
-                Value<double> quantity = const Value.absent(),
+                Value<int> quantity = const Value.absent(),
                 Value<double> purchasePrice = const Value.absent(),
                 Value<double> salePrice = const Value.absent(),
                 Value<String?> imagePath = const Value.absent(),
@@ -1402,7 +1402,7 @@ class $$InventoryItemsTableTableManager
               ({
                 Value<int> id = const Value.absent(),
                 required String name,
-                required double quantity,
+                required int quantity,
                 required double purchasePrice,
                 required double salePrice,
                 Value<String?> imagePath = const Value.absent(),

@@ -4,86 +4,92 @@ import 'package:go_router/go_router.dart';
 import 'package:portable_accounting/core/widgets/responsive_layout.dart';
 import 'package:portable_accounting/features/inventory/domain/entities/inventory_item.dart';
 import 'package:portable_accounting/features/sales/domain/entities/sale_item.dart';
-import 'package:portable_accounting/features/sales/presentation/bloc/sell_bloc.dart';
+import '../bloc/sell_bloc.dart';
+import '../widgets/available_items_list.dart';
+import '../widgets/current_invoice_card.dart';
 
+/// The main page for creating a new invoice.
+///
+/// This widget coordinates the overall layout and state management, using
+/// child widgets for specific UI sections like the item list and the current invoice.
 class CreateInvoicePage extends StatelessWidget {
   const CreateInvoicePage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('صدور فاکتور جدید')),
-      body: BlocListener<SalesBloc, SalesState>(
-        listener: (context, state) {
-          state.whenOrNull(
-            success: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('فاکتور با موفقیت ثبت شد!'),
-                  backgroundColor: Colors.green,
-                ),
-              );
-              context.pop();
-            },
-            error: (message) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(message), backgroundColor: Colors.red),
-              );
-            },
-          );
-        },
-        child: BlocBuilder<SalesBloc, SalesState>(
-          builder: (context, state) {
-            final canPop = state.maybeWhen(
-              loaded: (_, invoiceItems, _) => invoiceItems.isEmpty,
-              orElse: () =>
-                  true, // Allow pop in initial, loading, success states
-            );
-            return PopScope(
-              canPop: canPop,
-              onPopInvokedWithResult: (didPop, result) async {
-                if (didPop) return; // If pop was successful, do nothing.
+    return BlocBuilder<SalesBloc, SalesState>(
+      builder: (context, state) {
+        // Determine if the user should be allowed to navigate back freely.
+        final canPop = state.maybeWhen(
+          loaded: (_, invoiceItems, _) => invoiceItems.isEmpty,
+          orElse: () => true, // Allow back navigation in initial, loading, or success states.
+        );
 
-                // If pop was blocked, show the confirmation dialog.
-                final shouldPop = await showDialog<bool>(
-                  context: context,
-                  builder: (context) => AlertDialog(
-                    title: const Text('Exit Confirmation'),
-                    content: const Text(
-                      'You have items in your invoice. Are you sure you want to exit and discard them?',
-                    ),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.of(context).pop(false),
-                        child: const Text('Stay'),
-                      ),
-                      FilledButton(
-                        onPressed: () => Navigator.of(context).pop(true),
-                        child: const Text('Exit'),
-                      ),
-                    ],
+        return PopScope(
+          canPop: canPop,
+          onPopInvoked: (didPop) async {
+            // If the pop was already successful, do nothing.
+            if (didPop) return;
+
+            // If the pop was blocked, show a confirmation dialog.
+            final shouldPop = await showDialog<bool>(
+              context: context,
+              builder: (context) => AlertDialog(
+                title: const Text('Exit Confirmation'),
+                content: const Text('You have items in your invoice. Are you sure you want to exit and discard them?'),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(false),
+                    child: const Text('Stay'),
                   ),
-                );
+                  FilledButton(
+                    onPressed: () => Navigator.of(context).pop(true),
+                    child: const Text('Exit'),
+                  ),
+                ],
+              ),
+            );
 
-                if (shouldPop ?? false) {
-                  if (context.mounted) {
+            // If the user confirmed, then programmatically pop the screen.
+            if (shouldPop ?? false) {
+              if (context.mounted) {
+                context.pop();
+              }
+            }
+          },
+          child: Scaffold(
+            appBar: AppBar(title: const Text('Create New Invoice')),
+            body: BlocListener<SalesBloc, SalesState>(
+              // This listener handles one-time events like showing SnackBars.
+              listener: (context, state) {
+                state.whenOrNull(
+                  success: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Invoice created successfully!'),
+                        backgroundColor: Colors.green,
+                      ),
+                    );
                     context.pop();
-                  }
-                }
+                  },
+                  error: (message) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(message),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                  },
+                );
               },
+              // This builder handles building the main UI based on the state.
               child: state.when(
-                initial: () =>
-                    const Center(child: Text("در حال آماده سازی...")),
+                initial: () => const Center(child: Text("Initializing...")),
                 loading: () => const Center(child: CircularProgressIndicator()),
                 error: (message) => Center(child: Text(message)),
-                success: () => const Center(
-                  child: Icon(
-                    Icons.check_circle,
-                    color: Colors.green,
-                    size: 50,
-                  ),
-                ),
+                success: () => const Center(child: Icon(Icons.check_circle, color: Colors.green, size: 50)),
                 loaded: (availableItems, invoiceItems, totalPrice) {
+                  // The main layout is now very clean and declarative.
                   return ResponsiveLayout(
                     mobileBody: _MobileInvoiceLayout(
                       availableItems: availableItems,
@@ -98,14 +104,15 @@ class CreateInvoicePage extends StatelessWidget {
                   );
                 },
               ),
-            );
-          },
-        ),
-      ),
+            ),
+          ),
+        );
+      },
     );
   }
 }
 
+/// Defines the desktop layout for the create invoice page.
 class _DesktopInvoiceLayout extends StatelessWidget {
   final List<InventoryItem> availableItems;
   final List<SaleItem> invoiceItems;
@@ -122,20 +129,15 @@ class _DesktopInvoiceLayout extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // بخش اول: لیست کالاهای موجود در انبار
-        Expanded(flex: 2, child: _AvailableItemsList(items: availableItems)),
-        const VerticalDivider(),
-        // بخش دوم: فاکتور فعلی و سبد خرید
-        Expanded(
-          flex: 3,
-          child: _CurrentInvoice(items: invoiceItems, totalPrice: totalPrice),
-        ),
+        Expanded(flex: 2, child: AvailableItemsList(items: availableItems)),
+        const VerticalDivider(width: 1),
+        Expanded(flex: 3, child: CurrentInvoiceCard(items: invoiceItems, totalPrice: totalPrice)),
       ],
     );
   }
 }
 
-// چیدمان موبایل
+/// Defines the mobile layout for the create invoice page.
 class _MobileInvoiceLayout extends StatelessWidget {
   final List<InventoryItem> availableItems;
   final List<SaleItem> invoiceItems;
@@ -149,168 +151,27 @@ class _MobileInvoiceLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // در موبایل، فقط سبد خرید را نمایش می‌دهیم و دکمه‌ای برای افزودن کالا داریم
     return Column(
       children: [
-        Expanded(
-          child: _CurrentInvoice(items: invoiceItems, totalPrice: totalPrice),
-        ),
+        Expanded(child: CurrentInvoiceCard(items: invoiceItems, totalPrice: totalPrice)),
         Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: const EdgeInsets.all(16.0),
           child: OutlinedButton.icon(
             icon: const Icon(Icons.add_shopping_cart),
-            label: const Text('افزودن کالا به فاکتور'),
+            label: const Text('Add Item to Invoice'),
+            style: OutlinedButton.styleFrom(
+              minimumSize: const Size.fromHeight(50),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
             onPressed: () {
-              // لیست کالاها را در یک BottomSheet نمایش می‌دهیم
               showModalBottomSheet(
                 context: context,
                 builder: (_) => BlocProvider.value(
                   value: context.read<SalesBloc>(),
-                  child: _AvailableItemsList(items: availableItems),
+                  child: AvailableItemsList(items: availableItems),
                 ),
               );
             },
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-// ویجت برای نمایش لیست کالاهای موجود در انبار
-class _AvailableItemsList extends StatelessWidget {
-  final List<InventoryItem> items;
-
-  const _AvailableItemsList({required this.items});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Text(
-            "کالاهای انبار",
-            style: Theme.of(context).textTheme.titleLarge,
-            textAlign: TextAlign.center,
-          ),
-        ),
-        const Divider(),
-        Expanded(
-          child: ListView.builder(
-            itemCount: items.length,
-            itemBuilder: (context, index) {
-              final item = items[index];
-              return ListTile(
-                title: Text(item.name),
-                subtitle: Text('موجودی: ${item.quantity}'),
-                trailing: Text('${item.salePrice.toStringAsFixed(0)} تومان'),
-                // با کلیک روی هر کالا، به فاکتور اضافه می‌شود
-                onTap: item.quantity > 0
-                    ? () => context.read<SalesBloc>().add(
-                        SalesEvent.addItemToInvoice(item),
-                      )
-                    : null, // اگر موجودی صفر باشد، غیرفعال می‌شود
-              );
-            },
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-// ویجت برای نمایش و مدیریت فاکتور فعلی
-class _CurrentInvoice extends StatelessWidget {
-  final List<SaleItem> items;
-  final double totalPrice;
-
-  const _CurrentInvoice({required this.items, required this.totalPrice});
-
-  @override
-  Widget build(BuildContext context) {
-    final customerNameController = TextEditingController();
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Text(
-            "فاکتور فروش",
-            style: Theme.of(context).textTheme.titleLarge,
-            textAlign: TextAlign.center,
-          ),
-        ),
-        const Divider(),
-        Expanded(
-          child: items.isEmpty
-              ? const Center(child: Text('کالایی انتخاب نشده است.'))
-              : ListView.builder(
-                  itemCount: items.length,
-                  itemBuilder: (context, index) {
-                    final item = items[index];
-                    return ListTile(
-                      title: Text(item.name),
-                      subtitle: Text(
-                        '${item.quantity} عدد × ${item.price.toStringAsFixed(0)} تومان',
-                      ),
-                      trailing: IconButton(
-                        icon: const Icon(
-                          Icons.delete_outline,
-                          color: Colors.red,
-                        ),
-                        onPressed: () => context.read<SalesBloc>().add(
-                          SalesEvent.removeItemFromInvoice(item),
-                        ),
-                      ),
-                    );
-                  },
-                ),
-        ),
-        const Divider(),
-        Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            children: [
-              TextField(
-                controller: customerNameController,
-                decoration: const InputDecoration(
-                  labelText: 'نام مشتری (اختیاری)',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              const SizedBox(height: 12),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    "جمع کل:",
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                  Text(
-                    "${totalPrice.toStringAsFixed(0)} تومان",
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      color: Theme.of(context).primaryColor,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              SizedBox(
-                width: double.infinity,
-                child: FilledButton(
-                  onPressed: items.isNotEmpty
-                      ? () => context.read<SalesBloc>().add(
-                          SalesEvent.submitInvoice(
-                            customerName: customerNameController.text,
-                          ),
-                        )
-                      : null,
-                  child: const Text('ثبت نهایی فاکتور'),
-                ),
-              ),
-            ],
           ),
         ),
       ],
