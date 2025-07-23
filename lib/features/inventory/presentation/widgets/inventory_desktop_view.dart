@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:portable_accounting/core/l10n/l10n.dart';
 import 'package:portable_accounting/core/services/currency_service.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
@@ -29,6 +30,7 @@ class InventoryDesktopView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     // If the list is empty, show the empty state widget.
     if (items.isEmpty) {
       return EmptyStateWidget(
@@ -46,6 +48,7 @@ class InventoryDesktopView extends StatelessWidget {
       currencyUnit: currencyUnit,
       onEdit: onEditItem,
       onDelete: onDeleteItem,
+      l10n: l10n,
     );
 
     return Padding(

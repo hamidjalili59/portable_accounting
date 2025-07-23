@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pdf/pdf.dart' show PdfPageFormat;
 import 'package:portable_accounting/core/helpers/currency_formatter.dart';
+import 'package:portable_accounting/core/l10n/l10n.dart';
 import 'package:portable_accounting/core/services/currency_service.dart';
 import 'package:portable_accounting/core/widgets/empty_state_widget.dart';
 import 'package:portable_accounting/features/inventory/data/pdf/pdf_generator.dart';
@@ -25,8 +26,9 @@ class InvoicesListPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Scaffold(
-      appBar: AppBar(title: const Text('لیست فاکتورها')),
+      appBar: AppBar(title: Text(l10n.page_invoices)),
       body: BlocBuilder<InvoiceListBloc, InvoiceListState>(
         builder: (context, state) {
           return state.when(
@@ -37,10 +39,9 @@ class InvoicesListPage extends StatelessWidget {
               if (invoices.isEmpty) {
                 return EmptyStateWidget(
                   icon: Icons.receipt_long_outlined,
-                  title: 'هنوز فاکتوری ثبت نشده!',
-                  message:
-                      'پس از ثبت اولین فروش، فاکتور آن در اینجا نمایش داده می‌شود.',
-                  buttonText: 'ثبت اولین فاکتور',
+                  title: l10n.invoices_emptyTitle,
+                  message: l10n.invoices_emptyMessage,
+                  buttonText: l10n.invoices_createFirst,
                   onButtonPressed: () {
                     // کاربر را به صفحه ایجاد فاکتور هدایت می‌کنیم
                     context.push('/create-invoice');
@@ -59,9 +60,9 @@ class InvoicesListPage extends StatelessWidget {
                       vertical: 8,
                     ),
                     child: ListTile(
-                      title: Text('فاکتور شماره: ${invoice.id}'),
+                      title: Text(l10n.invoices_invoiceNumber(invoice.id)),
                       subtitle: Text(
-                        'مشتری: ${invoice.customerName ?? "نامشخص"} - تاریخ: ${invoice.date.toLocal().toString().split(' ')[0]}',
+                        '${l10n.invoices_customer}: ${invoice.customerName} - ${l10n.invoices_date}: ${invoice.date}',
                       ),
                       trailing: Text(
                         invoice.totalPrice.formatAsCurrency(currencyUnit),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:portable_accounting/core/l10n/l10n.dart';
 import '../../domain/entities/inventory_item.dart';
 
 /// A widget that displays a summary of the inventory.
@@ -33,6 +34,7 @@ class InventorySummaryHeader extends StatelessWidget {
 
     // --- UI ---
 
+    final l10n = context.l10n;
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
       elevation: 0,
@@ -46,7 +48,7 @@ class InventorySummaryHeader extends StatelessWidget {
             // Stat for unique items
             _buildStat(
               context: context,
-              label: 'Unique Items',
+              label: l10n.inventory_unique_items,
               value: totalUniqueItems.toString(),
               icon: Icons.inventory_2_outlined,
             ),
@@ -57,7 +59,7 @@ class InventorySummaryHeader extends StatelessWidget {
             // Stat for total stock value
             _buildStat(
               context: context,
-              label: 'Total Stock Value',
+              label: l10n.inventory_total_stock_value,
               value: formattedTotalValue,
               icon: Icons.monetization_on_outlined,
             ),

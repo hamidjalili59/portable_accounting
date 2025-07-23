@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:portable_accounting/core/l10n/l10n.dart';
 
 import '../bloc/inventory_bloc.dart';
 
@@ -52,6 +53,7 @@ class _InventoryControlsState extends State<InventoryControls> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
       child: Row(
@@ -61,7 +63,7 @@ class _InventoryControlsState extends State<InventoryControls> {
             child: TextField(
               controller: _searchController,
               decoration: InputDecoration(
-                hintText: 'Search by name...',
+                hintText: l10n.inventory_controls_searchHint,
                 prefixIcon: const Icon(Icons.search),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -82,22 +84,22 @@ class _InventoryControlsState extends State<InventoryControls> {
             child: DropdownButtonHideUnderline(
               child: DropdownButton<InventorySortOrder>(
                 value: widget.sortOrder,
-                items: const [
+                items: [
                   DropdownMenuItem(
                     value: InventorySortOrder.byNameAsc,
-                    child: Text('Name (A-Z)'),
+                    child: Text(l10n.inventory_controls_sortByNameAsc),
                   ),
                   DropdownMenuItem(
                     value: InventorySortOrder.byNameDesc,
-                    child: Text('Name (Z-A)'),
+                    child: Text(l10n.inventory_controls_sortByNameDesc),
                   ),
                   DropdownMenuItem(
                     value: InventorySortOrder.byQuantityAsc,
-                    child: Text('Quantity (Low-High)'),
+                    child: Text(l10n.inventory_controls_sortByQuantityAsc),
                   ),
                   DropdownMenuItem(
                     value: InventorySortOrder.byQuantityDesc,
-                    child: Text('Quantity (High-Low)'),
+                    child: Text(l10n.inventory_controls_sortByQuantityDesc),
                   ),
                 ],
                 onChanged: (value) {

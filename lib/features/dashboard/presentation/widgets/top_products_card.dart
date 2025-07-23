@@ -1,5 +1,6 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:portable_accounting/core/l10n/l10n.dart';
 import 'package:portable_accounting/core/widgets/responsive_layout.dart';
 import '../../domain/entities/dashboard_data.dart';
 
@@ -10,6 +11,7 @@ class TopProductsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -19,13 +21,13 @@ class TopProductsCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Best-Selling Items',
+              l10n.dashboard_bestSellingItems,
               style: Theme.of(context).textTheme.titleLarge,
             ),
             const SizedBox(height: 24),
             if (products.isEmpty)
-              const Center(
-                child: Text('No sales data available to show top products.'),
+              Center(
+                child: Text(l10n.dashboard_noChartData),
               )
             else
               // Use ResponsiveLayout to change the layout based on screen size

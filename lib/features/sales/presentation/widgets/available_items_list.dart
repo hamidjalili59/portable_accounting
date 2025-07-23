@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:portable_accounting/core/l10n/l10n.dart';
 import 'package:portable_accounting/core/widgets/responsive_layout.dart';
 import '../../../inventory/domain/entities/inventory_item.dart';
 import '../bloc/sell_bloc.dart';
@@ -12,13 +13,14 @@ class AvailableItemsList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Padding(
           padding: const EdgeInsets.all(16.0),
           child: Text(
-            "Available Items",
+            l10n.createInvoice_availableItems,
             style: Theme.of(context).textTheme.titleLarge,
             textAlign: TextAlign.center,
           ),
@@ -32,7 +34,7 @@ class AvailableItemsList extends StatelessWidget {
               final isOutOfStock = item.quantity <= 0;
               return ListTile(
                 title: Text(item.name),
-                subtitle: Text('In Stock: ${item.quantity}'),
+                subtitle: Text(l10n.createInvoice_inStock(item.quantity)),
                 trailing: Text(item.salePrice.toStringAsFixed(0)),
                 enabled: !isOutOfStock,
                 onTap: isOutOfStock

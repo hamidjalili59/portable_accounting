@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:portable_accounting/core/l10n/app_localizations.dart';
+import 'package:portable_accounting/core/l10n/l10n.dart';
 import 'package:portable_accounting/core/services/currency_service.dart';
 import 'package:portable_accounting/core/widgets/responsive_layout.dart';
 import 'package:portable_accounting/features/inventory/domain/entities/inventory_item.dart';
@@ -21,9 +23,10 @@ class InventoryPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Scaffold(
       // The AppBar is only built for the mobile layout.
-      appBar: _buildMobileAppBar(context),
+      appBar: _buildMobileAppBar(context, l10n),
 
       // The body uses a single BlocBuilder to handle all states.
       body: BlocBuilder<InventoryBloc, InventoryState>(
@@ -31,7 +34,8 @@ class InventoryPage extends StatelessWidget {
           return state.when(
             initial: () => const Center(child: CircularProgressIndicator()),
             loading: () => const Center(child: CircularProgressIndicator()),
-            error: (message) => Center(child: Text('Error: $message')),
+            error: (message) =>
+                Center(child: Text('${l10n.global_error}: $message')),
 
             // The 'loaded' state composes the entire UI from our refactored widgets.
             loaded: (originalItems, displayedItems, searchQuery, sortOrder) {
@@ -72,42 +76,45 @@ class InventoryPage extends StatelessWidget {
       ),
 
       // The FloatingActionButton is only built for the mobile layout.
-      floatingActionButton: _buildMobileFab(context),
+      floatingActionButton: _buildMobileFab(context, l10n),
     );
   }
 
   /// Builds the AppBar for the mobile layout, returning null for desktop.
-  PreferredSizeWidget? _buildMobileAppBar(BuildContext context) {
+  PreferredSizeWidget? _buildMobileAppBar(
+    BuildContext context,
+    AppLocalizations l10n,
+  ) {
     if (MediaQuery.of(context).size.width >=
         ResponsiveLayout.mobileBreakpoint) {
       return null;
     }
     return AppBar(
-      title: const Text('Inventory'),
+      title: Text(l10n.page_inventory),
       actions: [
         IconButton(
           icon: const Icon(Icons.analytics_outlined),
-          tooltip: 'Dashboard',
+          tooltip: l10n.page_dashboard,
           onPressed: () => context.push('/dashboard'),
         ),
         IconButton(
           icon: const Icon(Icons.point_of_sale_outlined),
-          tooltip: 'New Sale',
+          tooltip: l10n.inventory_newSale,
           onPressed: () => context.push('/create-invoice'),
         ),
         IconButton(
           icon: const Icon(Icons.receipt_long_outlined),
-          tooltip: 'Invoices',
+          tooltip: l10n.page_invoices,
           onPressed: () => context.push('/invoices'),
         ),
         IconButton(
           icon: const Icon(Icons.assessment_outlined),
-          tooltip: 'Reports',
+          tooltip: l10n.page_reports,
           onPressed: () => context.push('/reports'),
         ),
         IconButton(
           icon: const Icon(Icons.settings_outlined),
-          tooltip: 'Settings',
+          tooltip: l10n.page_settings,
           onPressed: () => context.push('/settings'),
         ),
       ],
@@ -115,14 +122,14 @@ class InventoryPage extends StatelessWidget {
   }
 
   /// Builds the FloatingActionButton for the mobile layout, returning null for desktop.
-  Widget? _buildMobileFab(BuildContext context) {
+  Widget? _buildMobileFab(BuildContext context, AppLocalizations l10n) {
     if (MediaQuery.of(context).size.width >=
         ResponsiveLayout.mobileBreakpoint) {
       return null;
     }
     return FloatingActionButton(
       onPressed: () => _showItemForm(context),
-      tooltip: 'Add New Item',
+      tooltip: l10n.inventory_addNewItem,
       child: const Icon(Icons.add),
     );
   }
@@ -163,19 +170,20 @@ class InventoryPage extends StatelessWidget {
 
   /// Displays the confirmation dialog before deleting an item.
   void _showDeleteConfirmationDialog(BuildContext context, InventoryItem item) {
+    final l10n = context.l10n;
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Confirm Deletion'),
-        content: Text('Are you sure you want to delete "${item.name}"?'),
+        title: Text(l10n.dialog_deleteConfirmTitle),
+        content: Text(l10n.dialog_deleteConfirmMessage(item.name)),
         actions: [
           TextButton(
-            child: const Text('Cancel'),
+            child: Text(l10n.global_cancel),
             onPressed: () => Navigator.of(ctx).pop(),
           ),
           FilledButton(
             style: FilledButton.styleFrom(backgroundColor: Colors.red),
-            child: const Text('Delete'),
+            child: Text(l10n.global_delete),
             onPressed: () {
               context.read<InventoryBloc>().add(
                 InventoryEvent.deleteItem(item.id),

@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:portable_accounting/core/l10n/app_localizations.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 import '../../../../core/helpers/currency_formatter.dart';
 import '../../../../core/services/currency_service.dart';
@@ -13,12 +14,14 @@ class InventoryDataSource extends DataGridSource {
   final CurrencyUnit currencyUnit;
   final Function(InventoryItem) onEdit;
   final Function(InventoryItem) onDelete;
+  final AppLocalizations l10n;
 
   InventoryDataSource({
     required List<InventoryItem> inventoryItems,
     required this.currencyUnit,
     required this.onEdit,
     required this.onDelete,
+    required this.l10n,
   }) : _inventoryItems = inventoryItems {
     _buildDataGridRows();
   }
@@ -129,10 +132,12 @@ class InventoryDataSource extends DataGridSource {
       children: [
         IconButton(
           icon: const Icon(Icons.edit, color: Colors.blue),
+          tooltip: l10n.global_edit,
           onPressed: () => onEdit(item),
         ),
         IconButton(
           icon: const Icon(Icons.delete, color: Colors.red),
+          tooltip: l10n.global_delete,
           onPressed: () => onDelete(item),
         ),
       ],

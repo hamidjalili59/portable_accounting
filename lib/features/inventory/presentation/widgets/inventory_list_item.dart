@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:portable_accounting/core/helpers/currency_formatter.dart';
+import 'package:portable_accounting/core/l10n/l10n.dart';
 import 'package:portable_accounting/core/services/currency_service.dart';
 import '../../domain/entities/inventory_item.dart';
 
@@ -29,6 +30,7 @@ class InventoryListItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final currencyUnit = context.watch<CurrencyCubit>().state;
+    final l10n = context.l10n;
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       elevation: 2,
@@ -82,7 +84,7 @@ class InventoryListItem extends StatelessWidget {
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          'Stock:',
+                          '${l10n.inventory_stock}:',
                           style: Theme.of(context).textTheme.bodyMedium,
                         ),
                         Container(
@@ -108,7 +110,7 @@ class InventoryListItem extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Sale Price: ${item.salePrice.formatAsCurrency(currencyUnit)}',
+                      '${l10n.inventory_sale_price}: ${item.salePrice.formatAsCurrency(currencyUnit)}',
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                   ],
@@ -124,19 +126,19 @@ class InventoryListItem extends StatelessWidget {
                   }
                 },
                 itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-                  const PopupMenuItem<String>(
+                  PopupMenuItem<String>(
                     value: 'edit',
                     child: ListTile(
                       leading: Icon(Icons.edit_outlined),
-                      title: Text('Edit'),
+                      title: Text(l10n.global_edit),
                     ),
                   ),
-                  const PopupMenuItem<String>(
+                  PopupMenuItem<String>(
                     value: 'delete',
                     child: ListTile(
                       leading: Icon(Icons.delete_outline, color: Colors.red),
                       title: Text(
-                        'Delete',
+                        l10n.global_delete,
                         style: TextStyle(color: Colors.red),
                       ),
                     ),

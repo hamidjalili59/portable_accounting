@@ -5,6 +5,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
+import 'package:portable_accounting/core/l10n/app_localizations.dart' show AppLocalizations;
+import 'package:portable_accounting/core/l10n/l10n.dart';
 import 'package:portable_accounting/core/router/app_router.dart';
 import 'package:portable_accounting/features/inventory/domain/entities/inventory_item.dart';
 import 'package:portable_accounting/features/inventory/presentation/bloc/inventory_bloc.dart';
@@ -101,7 +103,9 @@ class _AddItemFormState extends State<AddItemForm> {
         padding: const EdgeInsets.symmetric(vertical: 24),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
-          color: Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.5),
+          color: Theme.of(
+            context,
+          ).colorScheme.surfaceContainerHighest.withOpacity(0.5),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -115,7 +119,8 @@ class _AddItemFormState extends State<AddItemForm> {
     );
   }
 
-  void _showImageSourceDialog() {
+  void _showImageSourceDialog(BuildContext context) {
+    final l10n = context.l10n;
     showModalBottomSheet(
       context: context,
       backgroundColor: Theme.of(context).cardColor,
@@ -130,7 +135,7 @@ class _AddItemFormState extends State<AddItemForm> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Text(
-                'Choose Image Source',
+                l10n.form_imageSourceTitle,
                 style: Theme.of(context).textTheme.titleLarge,
               ),
               const SizedBox(height: 24),
@@ -140,7 +145,7 @@ class _AddItemFormState extends State<AddItemForm> {
                   _buildSourceOption(
                     context: context,
                     icon: Icons.photo_library_outlined,
-                    label: 'Gallery',
+                    label: l10n.form_gallery,
                     onTap: () {
                       _pickImage(ImageSource.gallery);
                       Navigator.of(context).pop();
@@ -149,7 +154,7 @@ class _AddItemFormState extends State<AddItemForm> {
                   _buildSourceOption(
                     context: context,
                     icon: Icons.camera_alt_outlined,
-                    label: 'Camera',
+                    label: l10n.form_camera,
                     onTap: () {
                       _pickImage(ImageSource.camera);
                       Navigator.of(context).pop();
@@ -191,6 +196,7 @@ class _AddItemFormState extends State<AddItemForm> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final isEditing = widget.editingItem != null;
     return PopScope(
       canPop: !_isFormDirty,
@@ -200,18 +206,16 @@ class _AddItemFormState extends State<AddItemForm> {
         final shouldPop = await showDialog<bool>(
           context: context,
           builder: (context) => AlertDialog(
-            title: const Text('Discard Changes?'),
-            content: const Text(
-              'You have unsaved changes. Are you sure you want to go back?',
-            ),
+            title: Text(l10n.dialog_discardChangesTitle),
+            content: Text(l10n.dialog_discardChangesMessage),
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(context).pop(false),
-                child: const Text('Stay'),
+                child: Text(l10n.global_stay),
               ),
               FilledButton(
                 onPressed: () => Navigator.of(context).pop(true),
-                child: const Text('Discard'),
+                child: Text(l10n.global_discard),
               ),
             ],
           ),
@@ -239,17 +243,17 @@ class _AddItemFormState extends State<AddItemForm> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Text(
-                  isEditing ? 'ویرایش کالا' : 'افزودن کالای جدید',
+                  isEditing ? l10n.form_editItemTitle : l10n.form_addNewItemTitle,
                   style: Theme.of(context).textTheme.headlineSmall,
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 20),
                 TextFormField(
                   controller: _nameController,
-                  decoration: const InputDecoration(labelText: 'نام کالا'),
+                  decoration: InputDecoration(labelText: l10n.inventory_item_name),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'لطفاً نام کالا را وارد کنید';
+                      return l10n.form_validator_pleaseEnterName;
                     }
                     return null;
                   },
@@ -257,11 +261,11 @@ class _AddItemFormState extends State<AddItemForm> {
                 const SizedBox(height: 12),
                 TextFormField(
                   controller: _quantityController,
-                  decoration: const InputDecoration(labelText: 'تعداد'),
+                  decoration: InputDecoration(labelText: l10n.inventory_quantity),
                   keyboardType: TextInputType.number,
                   validator: (value) {
                     if (value == null || double.tryParse(value) == null) {
-                      return 'لطفاً یک عدد معتبر وارد کنید';
+                      return l10n.form_validator_pleaseEnterValidNumber;
                     }
                     return null;
                   },
@@ -269,11 +273,11 @@ class _AddItemFormState extends State<AddItemForm> {
                 const SizedBox(height: 12),
                 TextFormField(
                   controller: _purchasePriceController,
-                  decoration: const InputDecoration(labelText: 'قیمت خرید'),
+                  decoration: InputDecoration(labelText: l10n.inventory_sale_price),
                   keyboardType: TextInputType.number,
                   validator: (value) {
                     if (value == null || double.tryParse(value) == null) {
-                      return 'لطفاً یک قیمت معتبر وارد کنید';
+                      return l10n.form_validator_pleaseEnterValidNumber;
                     }
                     return null;
                   },
@@ -292,7 +296,7 @@ class _AddItemFormState extends State<AddItemForm> {
                 ),
                 const SizedBox(height: 20),
                 // بخش انتخاب و پیش‌نمایش عکس
-                _buildImagePicker(),
+                _buildImagePicker(l10n),
                 const SizedBox(height: 24),
                 SizedBox(
                   width: double.infinity,
@@ -305,7 +309,7 @@ class _AddItemFormState extends State<AddItemForm> {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    child: Text(isEditing ? 'Save Changes' : 'Save Item'),
+                    child: Text(isEditing ? l10n.form_saveChanges : l10n.global_save),
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -317,7 +321,7 @@ class _AddItemFormState extends State<AddItemForm> {
     );
   }
 
-  Widget _buildImagePicker() {
+  Widget _buildImagePicker(AppLocalizations l10n) {
     return Column(
       children: [
         Container(
@@ -339,9 +343,9 @@ class _AddItemFormState extends State<AddItemForm> {
         ),
         const SizedBox(height: 8),
         TextButton.icon(
-          onPressed: _showImageSourceDialog,
+          onPressed: () => _showImageSourceDialog(context),
           icon: const Icon(Icons.camera_alt),
-          label: const Text('انتخاب عکس'),
+          label: Text(l10n.form_imageSourceTitle),
         ),
       ],
     );

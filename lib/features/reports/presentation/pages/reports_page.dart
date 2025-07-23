@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:portable_accounting/core/helpers/currency_formatter.dart';
+import 'package:portable_accounting/core/l10n/l10n.dart';
 import 'package:portable_accounting/core/services/currency_service.dart';
 import 'package:portable_accounting/features/reports/presentation/bloc/reports_bloc.dart';
 import 'package:portable_accounting/features/sales/domain/entities/invoice.dart';
@@ -41,16 +42,16 @@ class _ReportsPageState extends State<ReportsPage> {
   @override
   Widget build(BuildContext context) {
     final currencyUnit = context.watch<CurrencyCubit>().state;
-
+    final l10n = context.l10n;
     return Scaffold(
-      appBar: AppBar(title: const Text('Reports')),
+      appBar: AppBar(title: Text(l10n.page_reports)),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              'Select Date Range',
+              l10n.reports_selectDateRange,
               style: Theme.of(context).textTheme.titleLarge,
             ),
             const SizedBox(height: 16),
@@ -60,7 +61,7 @@ class _ReportsPageState extends State<ReportsPage> {
                 Expanded(
                   child: ElevatedButton.icon(
                     icon: const Icon(Icons.calendar_today),
-                    label: Text('From: ${_formatter.format(_startDate)}'),
+                    label: Text(l10n.reports_from(_formatter.format(_startDate))),
                     onPressed: () => _selectDate(context, true),
                   ),
                 ),
@@ -68,7 +69,7 @@ class _ReportsPageState extends State<ReportsPage> {
                 Expanded(
                   child: ElevatedButton.icon(
                     icon: const Icon(Icons.calendar_today),
-                    label: Text('To: ${_formatter.format(_endDate)}'),
+                    label: Text(l10n.reports_to(_formatter.format(_endDate))),
                     onPressed: () => _selectDate(context, false),
                   ),
                 ),
@@ -82,7 +83,7 @@ class _ReportsPageState extends State<ReportsPage> {
                   ReportsEvent.generateReport(start: _startDate, end: _endDate),
                 );
               },
-              child: const Text('Generate Sales Report'),
+              child: Text(l10n.reports_generateButton),
             ),
             const Divider(height: 32),
             // بخش نمایش نتایج گزارش (فعلاً خالی)
@@ -91,7 +92,7 @@ class _ReportsPageState extends State<ReportsPage> {
                 builder: (context, state) {
                   return state.when(
                     initial: () =>
-                        const Center(child: Text('Please generate a report.')),
+                        Center(child: Text(l10n.reports_initialMessage)),
                     loading: () =>
                         const Center(child: CircularProgressIndicator()),
                     error: (message) => Center(
@@ -102,8 +103,8 @@ class _ReportsPageState extends State<ReportsPage> {
                     ),
                     loaded: (invoices) {
                       if (invoices.isEmpty) {
-                        return const Center(
-                          child: Text('No sales found in this date range.'),
+                        return Center(
+                          child: Text(l10n.reports_noSalesFound),
                         );
                       }
                       return _buildReportResult(invoices, currencyUnit);
@@ -124,7 +125,7 @@ class _ReportsPageState extends State<ReportsPage> {
       0,
       (sum, inv) => sum + inv.totalPrice,
     );
-
+    final l10n = context.l10n;
     return Column(
       children: [
         // خلاصه گزارش
@@ -134,9 +135,9 @@ class _ReportsPageState extends State<ReportsPage> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                Text('Total Invoices: ${invoices.length}'),
+                Text(l10n.reports_totalInvoices(invoices.length)),
                 Text(
-                  'Total Revenue: ${totalRevenue.formatAsCurrency(currencyUnit)}',
+                  l10n.reports_totalRevenue(totalRevenue.formatAsCurrency(currencyUnit)),
                 ),
               ],
             ),
@@ -151,7 +152,7 @@ class _ReportsPageState extends State<ReportsPage> {
               final invoice = invoices[index];
               return ListTile(
                 title: Text(
-                  'Invoice #${invoice.id} - ${invoice.customerName ?? "N/A"}',
+                  '${l10n.invoices_invoiceNumber(invoice.id)} - ${invoice.customerName ?? l10n.global_na}',
                 ),
                 subtitle: Text(_formatter.format(invoice.date)),
                 trailing: Text(

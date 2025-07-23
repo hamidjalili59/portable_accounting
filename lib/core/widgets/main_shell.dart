@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:portable_accounting/core/l10n/l10n.dart';
 import 'package:portable_accounting/core/widgets/responsive_layout.dart';
 
 class MainShell extends StatefulWidget {
@@ -45,6 +46,7 @@ class _MainShellState extends State<MainShell> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return ResponsiveLayout(
       mobileBody: widget.child,
       desktopBody: Scaffold(
@@ -55,32 +57,32 @@ class _MainShellState extends State<MainShell> {
               onDestinationSelected: (index) =>
                   _onDestinationSelected(index, context),
               labelType: NavigationRailLabelType.all,
-              destinations: const [
+              destinations: [
                 NavigationRailDestination(
                   icon: Icon(Icons.inventory_2_outlined),
                   selectedIcon: Icon(Icons.inventory_2),
-                  label: Text('Inventory'),
+                  label: Text(l10n.page_inventory),
                 ),
                 NavigationRailDestination(
                   icon: Icon(Icons.analytics_outlined),
                   selectedIcon: Icon(Icons.analytics),
-                  label: Text('Dashboard'),
+                  label: Text(l10n.page_dashboard),
                 ),
                 NavigationRailDestination(
                   icon: Icon(Icons.receipt_long_outlined),
                   selectedIcon: Icon(Icons.receipt_long),
-                  label: Text('Invoices'),
+                  label: Text(l10n.page_invoices),
                 ),
                 // Add this new destination for Reports
                 NavigationRailDestination(
                   icon: Icon(Icons.assessment_outlined),
                   selectedIcon: Icon(Icons.assessment),
-                  label: Text('Reports'),
+                  label: Text(l10n.page_reports),
                 ),
                 NavigationRailDestination(
                   icon: Icon(Icons.settings_outlined),
                   selectedIcon: Icon(Icons.settings),
-                  label: Text('Settings'),
+                  label: Text(l10n.page_settings),
                 ),
               ],
             ),

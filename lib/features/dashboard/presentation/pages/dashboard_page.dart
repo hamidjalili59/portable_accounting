@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:portable_accounting/core/helpers/currency_formatter.dart';
+import 'package:portable_accounting/core/l10n/app_localizations.dart';
+import 'package:portable_accounting/core/l10n/l10n.dart';
 import 'package:portable_accounting/core/services/currency_service.dart';
 import 'package:portable_accounting/core/widgets/responsive_layout.dart';
 import 'package:portable_accounting/features/dashboard/presentation/widgets/profit_chart_card.dart';
@@ -14,10 +16,11 @@ class DashboardPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Scaffold(
       appBar:
           MediaQuery.of(context).size.width < ResponsiveLayout.mobileBreakpoint
-          ? AppBar(title: const Text('Dashboard'))
+          ? AppBar(title: Text(l10n.page_dashboard))
           : null,
       body: BlocBuilder<DashboardBloc, DashboardState>(
         builder: (context, state) {
@@ -37,13 +40,13 @@ class DashboardPage extends StatelessWidget {
                       Padding(
                         padding: const EdgeInsets.only(bottom: 16.0),
                         child: Text(
-                          'Dashboard',
+                          l10n.page_dashboard,
                           style: Theme.of(context).textTheme.headlineMedium,
                         ),
                       ),
 
                     // Main Stats Grid
-                    _buildStatsGrid(context, data),
+                    _buildStatsGrid(context, data, l10n),
                     const SizedBox(height: 24),
 
                     // The two charts
@@ -85,30 +88,34 @@ class DashboardPage extends StatelessWidget {
   }
 
   // A helper to build the stats grid responsively.
-  Widget _buildStatsGrid(BuildContext context, DashboardData data) {
+  Widget _buildStatsGrid(
+    BuildContext context,
+    DashboardData data,
+    AppLocalizations l10n,
+  ) {
     final currencyUnit = context.watch<CurrencyCubit>().state;
 
     final stats = [
       StatCard(
-        title: 'Net Profit',
+        title: l10n.dashboard_netProfit,
         value: data.totalProfit.formatAsCurrency(currencyUnit),
         icon: Icons.attach_money,
         color: Colors.blue,
       ),
       StatCard(
-        title: 'Total Revenue',
+        title: l10n.dashboard_totalRevenue,
         value: data.totalRevenue.formatAsCurrency(currencyUnit),
         icon: Icons.trending_up,
         color: Colors.green,
       ),
       StatCard(
-        title: 'Total Cost',
+        title: l10n.dashboard_totalCost,
         value: data.totalCost.formatAsCurrency(currencyUnit),
         icon: Icons.trending_down,
         color: Colors.red,
       ),
       StatCard(
-        title: 'Total Sales',
+        title: l10n.dashboard_totalSales,
         value: '${data.totalSalesCount}',
         icon: Icons.point_of_sale,
         color: Colors.orange,
@@ -148,6 +155,3 @@ class DashboardPage extends StatelessWidget {
     );
   }
 }
-
-// Don't forget to move the Line Chart logic into its own file:
-// lib/features/dashboard/presentation/widgets/profit_chart_card.dart

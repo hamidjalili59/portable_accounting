@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:portable_accounting/core/l10n/l10n.dart';
+import 'package:portable_accounting/core/services/currency_service.dart';
 import 'package:portable_accounting/core/widgets/responsive_layout.dart';
 import 'package:portable_accounting/features/inventory/domain/entities/inventory_item.dart';
 import 'package:portable_accounting/features/sales/domain/entities/sale_item.dart';
@@ -17,17 +19,19 @@ class CreateInvoicePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return BlocBuilder<SalesBloc, SalesState>(
       builder: (context, state) {
         // Determine if the user should be allowed to navigate back freely.
         final canPop = state.maybeWhen(
           loaded: (_, invoiceItems, _) => invoiceItems.isEmpty,
-          orElse: () => true, // Allow back navigation in initial, loading, or success states.
+          orElse: () =>
+              true, // Allow back navigation in initial, loading, or success states.
         );
 
         return PopScope(
           canPop: canPop,
-          onPopInvoked: (didPop) async {
+          onPopInvokedWithResult: (didPop, result) async {
             // If the pop was already successful, do nothing.
             if (didPop) return;
 
@@ -35,16 +39,16 @@ class CreateInvoicePage extends StatelessWidget {
             final shouldPop = await showDialog<bool>(
               context: context,
               builder: (context) => AlertDialog(
-                title: const Text('Exit Confirmation'),
-                content: const Text('You have items in your invoice. Are you sure you want to exit and discard them?'),
+                title: Text(l10n.createInvoice_exitConfirmTitle),
+                content: Text(l10n.createInvoice_exitConfirmMessage),
                 actions: [
                   TextButton(
                     onPressed: () => Navigator.of(context).pop(false),
-                    child: const Text('Stay'),
+                    child: Text(l10n.createInvoice_stay),
                   ),
                   FilledButton(
                     onPressed: () => Navigator.of(context).pop(true),
-                    child: const Text('Exit'),
+                    child: Text(l10n.createInvoice_exit),
                   ),
                 ],
               ),
@@ -58,15 +62,15 @@ class CreateInvoicePage extends StatelessWidget {
             }
           },
           child: Scaffold(
-            appBar: AppBar(title: const Text('Create New Invoice')),
+            appBar: AppBar(title: Text(l10n.createInvoice_title)),
             body: BlocListener<SalesBloc, SalesState>(
               // This listener handles one-time events like showing SnackBars.
               listener: (context, state) {
                 state.whenOrNull(
                   success: () {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Invoice created successfully!'),
+                      SnackBar(
+                        content: Text(l10n.createInvoice_successSnackbar),
                         backgroundColor: Colors.green,
                       ),
                     );
@@ -84,10 +88,17 @@ class CreateInvoicePage extends StatelessWidget {
               },
               // This builder handles building the main UI based on the state.
               child: state.when(
-                initial: () => const Center(child: Text("Initializing...")),
+                initial: () =>
+                    Center(child: Text(l10n.createInvoice_initializing)),
                 loading: () => const Center(child: CircularProgressIndicator()),
                 error: (message) => Center(child: Text(message)),
-                success: () => const Center(child: Icon(Icons.check_circle, color: Colors.green, size: 50)),
+                success: () => const Center(
+                  child: Icon(
+                    Icons.check_circle,
+                    color: Colors.green,
+                    size: 50,
+                  ),
+                ),
                 loaded: (availableItems, invoiceItems, totalPrice) {
                   // The main layout is now very clean and declarative.
                   return ResponsiveLayout(
@@ -126,12 +137,20 @@ class _DesktopInvoiceLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final currencyUnit = context.watch<CurrencyCubit>().state;
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Expanded(flex: 2, child: AvailableItemsList(items: availableItems)),
         const VerticalDivider(width: 1),
-        Expanded(flex: 3, child: CurrentInvoiceCard(items: invoiceItems, totalPrice: totalPrice)),
+        Expanded(
+          flex: 3,
+          child: CurrentInvoiceCard(
+            items: invoiceItems,
+            currencyUnit: currencyUnit,
+            totalPrice: totalPrice,
+          ),
+        ),
       ],
     );
   }
@@ -151,17 +170,27 @@ class _MobileInvoiceLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final currencyUnit = context.watch<CurrencyCubit>().state;
+    final l10n = context.l10n;
     return Column(
       children: [
-        Expanded(child: CurrentInvoiceCard(items: invoiceItems, totalPrice: totalPrice)),
+        Expanded(
+          child: CurrentInvoiceCard(
+            items: invoiceItems,
+            currencyUnit: currencyUnit,
+            totalPrice: totalPrice,
+          ),
+        ),
         Padding(
           padding: const EdgeInsets.all(16.0),
           child: OutlinedButton.icon(
             icon: const Icon(Icons.add_shopping_cart),
-            label: const Text('Add Item to Invoice'),
+            label: Text(l10n.createInvoice_addItemButton),
             style: OutlinedButton.styleFrom(
               minimumSize: const Size.fromHeight(50),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
             onPressed: () {
               showModalBottomSheet(

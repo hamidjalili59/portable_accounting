@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:portable_accounting/core/helpers/currency_formatter.dart';
+import 'package:portable_accounting/core/l10n/l10n.dart';
+import 'package:portable_accounting/core/services/currency_service.dart';
 import '../../domain/entities/sale_item.dart';
 import '../bloc/sell_bloc.dart';
 
@@ -8,11 +11,13 @@ import '../bloc/sell_bloc.dart';
 class CurrentInvoiceCard extends StatefulWidget {
   final List<SaleItem> items;
   final double totalPrice;
+  final CurrencyUnit currencyUnit;
 
   const CurrentInvoiceCard({
     super.key,
     required this.items,
     required this.totalPrice,
+    required this.currencyUnit,
   });
 
   @override
@@ -36,6 +41,7 @@ class _CurrentInvoiceCardState extends State<CurrentInvoiceCard> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Card(
       margin: const EdgeInsets.all(8.0),
       elevation: 2,
@@ -45,7 +51,7 @@ class _CurrentInvoiceCardState extends State<CurrentInvoiceCard> {
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Text(
-              "Current Invoice",
+              l10n.createInvoice_currentInvoice,
               style: Theme.of(context).textTheme.titleLarge,
               textAlign: TextAlign.center,
             ),
@@ -53,7 +59,7 @@ class _CurrentInvoiceCardState extends State<CurrentInvoiceCard> {
           const Divider(height: 1),
           Expanded(
             child: widget.items.isEmpty
-                ? const Center(child: Text('No items selected.'))
+                ? Center(child: Text(l10n.createInvoice_noItemsSelected))
                 : ListView.builder(
                     itemCount: widget.items.length,
                     itemBuilder: (context, index) {
@@ -61,7 +67,10 @@ class _CurrentInvoiceCardState extends State<CurrentInvoiceCard> {
                       return ListTile(
                         title: Text(item.name),
                         subtitle: Text(
-                          '${item.quantity} x ${item.price.toStringAsFixed(0)}',
+                          l10n.createInvoice_itemSubtitle(
+                            item.quantity,
+                            item.price.formatAsCurrency(widget.currencyUnit),
+                          ),
                         ),
                         trailing: IconButton(
                           icon: const Icon(
@@ -83,8 +92,8 @@ class _CurrentInvoiceCardState extends State<CurrentInvoiceCard> {
               children: [
                 TextField(
                   controller: _customerNameController,
-                  decoration: const InputDecoration(
-                    labelText: 'Customer Name (Optional)',
+                  decoration: InputDecoration(
+                    labelText: l10n.createInvoice_customerNameHint,
                     border: OutlineInputBorder(),
                   ),
                 ),
@@ -93,7 +102,7 @@ class _CurrentInvoiceCardState extends State<CurrentInvoiceCard> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      "Total:",
+                      l10n.createInvoice_total,
                       style: Theme.of(context).textTheme.titleLarge,
                     ),
                     Text(
@@ -115,7 +124,7 @@ class _CurrentInvoiceCardState extends State<CurrentInvoiceCard> {
                             ),
                           )
                         : null,
-                    child: const Text('Submit Invoice'),
+                    child: Text(l10n.createInvoice_submitButton),
                   ),
                 ),
               ],

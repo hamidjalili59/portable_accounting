@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:portable_accounting/core/l10n/l10n.dart';
 
 import '../../../../core/widgets/empty_state_widget.dart';
 import '../../domain/entities/inventory_item.dart';
@@ -22,12 +23,13 @@ class InventoryMobileView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     // If the list is empty, show the custom empty state widget.
     if (items.isEmpty) {
-      return const EmptyStateWidget(
+      return EmptyStateWidget(
         icon: Icons.inventory_2_outlined,
-        title: 'Your inventory is empty!',
-        message: 'Add your first item by tapping the + button below.',
+        title: l10n.inventory_emptyStateTitle,
+        message: l10n.inventory_emptyStateMessage,
         // We don't add a button here because the FloatingActionButton
         // on the main page already serves this purpose.
       );

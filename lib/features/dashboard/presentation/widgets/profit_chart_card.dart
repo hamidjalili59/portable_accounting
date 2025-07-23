@@ -1,6 +1,7 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:portable_accounting/core/l10n/l10n.dart';
 import '../../domain/entities/dashboard_data.dart';
 
 /// A card widget that displays the weekly profit trend using a line chart.
@@ -12,14 +13,16 @@ class ProfitChartCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+
     // If there is no data, show a helpful message instead of an empty chart.
     if (weeklyProfit.isEmpty) {
       return Card(
         elevation: 2,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        child: const SizedBox(
+        child: SizedBox(
           height: 300,
-          child: Center(child: Text('Not enough data to show profit chart.')),
+          child: Center(child: Text(l10n.dashboard_noChartData)),
         ),
       );
     }
@@ -34,7 +37,7 @@ class ProfitChartCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              'Last 7 Days Profit',
+              l10n.dashboard_last7DaysProfit,
               style: Theme.of(context).textTheme.titleLarge,
             ),
             const SizedBox(height: 24),

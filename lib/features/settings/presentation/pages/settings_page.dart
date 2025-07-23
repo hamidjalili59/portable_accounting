@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:portable_accounting/core/di/service_locator.dart';
+import 'package:portable_accounting/core/l10n/l10n.dart';
 import 'package:portable_accounting/core/services/backup_service.dart';
 import 'package:portable_accounting/core/services/currency_service.dart';
+import 'package:portable_accounting/core/services/locale_cubit.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -22,20 +24,21 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   Future<void> _handleBackup() async {
+    final l10n = context.l10n;
     // Show a dialog to let the user choose the backup method.
     final choice = await showDialog<String>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Create Backup'),
-        content: const Text('How would you like to back up your data?'),
+        title: Text(l10n.settings_backupDialogTitle),
+        content: Text(l10n.settings_backupDialogMessage),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop('share'),
-            child: const Text('Share'),
+            child: Text(l10n.global_share),
           ),
           FilledButton(
             onPressed: () => Navigator.of(context).pop('save'),
-            child: const Text('Save to Downloads'),
+            child: Text(l10n.settings_saveToDownloads),
           ),
         ],
       ),
@@ -51,7 +54,7 @@ class _SettingsPageState extends State<SettingsPage> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Backup saved successfully to: $path'),
+              content: Text(l10n.settings_backupSuccessMessage(path)),
               backgroundColor: Colors.green,
             ),
           );
@@ -63,7 +66,7 @@ class _SettingsPageState extends State<SettingsPage> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error creating backup: ${e.toString()}'),
+            content: Text(l10n.settings_backupErrorMessage(e.toString())),
             backgroundColor: Colors.red,
           ),
         );
@@ -74,22 +77,21 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   Future<void> _handleRestore() async {
+    final l10n = context.l10n;
     // نمایش یک دیالوگ هشدار به کاربر
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('هشدار بازیابی اطلاعات'),
-        content: const Text(
-          'با بازیابی اطلاعات، تمام داده‌های فعلی شما پاک شده و اطلاعات فایل پشتیبان جایگزین می‌شود. پس از بازیابی، برنامه باید مجدداً راه‌اندازی شود. آیا ادامه می‌دهید؟',
-        ),
+        title: Text(l10n.settings_restoreWarningTitle),
+        content: Text(l10n.settings_restoreWarningMessage),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('لغو'),
+            child: Text(l10n.global_cancel),
           ),
           FilledButton(
             onPressed: () => Navigator.of(ctx).pop(true),
-            child: const Text('تایید و بازیابی'),
+            child: Text(l10n.settings_restoreConfirmButton),
           ),
         ],
       ),
@@ -105,22 +107,20 @@ class _SettingsPageState extends State<SettingsPage> {
             context: context,
             barrierDismissible: false,
             builder: (ctx) => AlertDialog(
-              title: const Text('بازیابی موفق'),
-              content: const Text(
-                'اطلاعات با موفقیت بازیابی شد. لطفاً برای اعمال تغییرات، برنامه را ببندید و دوباره باز کنید.',
-              ),
+              title: Text(l10n.settings_restoreSuccessTitle),
+              content: Text(l10n.settings_restoreSuccessMessage),
               actions: [
                 FilledButton(
                   onPressed: () => Navigator.of(ctx).pop(),
-                  child: const Text('متوجه شدم'),
+                  child: Text(l10n.settings_iUnderstandButton),
                 ),
               ],
             ),
           );
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('خطا در بازیابی یا فایلی انتخاب نشد.'),
+            SnackBar(
+              content: Text(l10n.settings_restoreErrorMessage),
               backgroundColor: Colors.red,
             ),
           );
@@ -132,8 +132,9 @@ class _SettingsPageState extends State<SettingsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Scaffold(
-      appBar: AppBar(title: const Text('تنظیمات و پشتیبان‌گیری')),
+      appBar: AppBar(title: Text(l10n.settings_backupTitle)),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : Padding(
@@ -142,25 +143,21 @@ class _SettingsPageState extends State<SettingsPage> {
                 children: [
                   ListTile(
                     leading: const Icon(Icons.backup_outlined),
-                    title: const Text('تهیه نسخه پشتیبان'),
-                    subtitle: const Text(
-                      'یک نسخه از اطلاعات خود را به صورت فایل ذخیره کنید.',
-                    ),
+                    title: Text(l10n.settings_createBackup),
+                    subtitle: Text(l10n.settings_createBackupSubtitle),
                     onTap: _handleBackup,
                   ),
                   const Divider(),
                   ListTile(
                     leading: const Icon(Icons.restore_page_outlined),
-                    title: const Text('بازیابی از نسخه پشتیبان'),
-                    subtitle: const Text(
-                      'اطلاعات خود را از یک فایل پشتیبان بازگردانید.',
-                    ),
+                    title: Text(l10n.settings_restoreBackup),
+                    subtitle: Text(l10n.settings_restoreBackupSubtitle),
                     onTap: _handleRestore,
                   ),
                   const Divider(),
                   ListTile(
                     leading: const Icon(Icons.attach_money_outlined),
-                    title: const Text('واحد پولی'),
+                    title: Text(l10n.settings_currency),
                     trailing: DropdownButton<CurrencyUnit>(
                       value: context
                           .watch<CurrencyCubit>()
@@ -175,6 +172,29 @@ class _SettingsPageState extends State<SettingsPage> {
                         if (newUnit != null) {
                           // ارسال درخواست تغییر واحد پولی به Cubit
                           context.read<CurrencyCubit>().setCurrency(newUnit);
+                        }
+                      },
+                    ),
+                  ),
+                  const Divider(),
+                  ListTile(
+                    leading: const Icon(Icons.language_outlined),
+                    title: Text(l10n.settings_language),
+                    trailing: DropdownButton<Locale>(
+                      value: context.watch<LocaleCubit>().state,
+                      items: const [
+                        DropdownMenuItem(
+                          value: Locale('en'),
+                          child: Text('English'),
+                        ),
+                        DropdownMenuItem(
+                          value: Locale('fa'),
+                          child: Text('فارسی'),
+                        ),
+                      ],
+                      onChanged: (newLocale) {
+                        if (newLocale != null) {
+                          context.read<LocaleCubit>().setLocale(newLocale);
                         }
                       },
                     ),

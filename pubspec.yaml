@@ -9,6 +9,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
 
   cupertino_icons: ^1.0.8
   flutter_bloc: ^9.1.1
@@ -22,7 +24,7 @@ dependencies:
   pdf: ^3.11.3
   printing: ^5.14.2
   hydrated_bloc: ^10.1.1
-  intl: ^0.20.2
+  intl: any
   file_picker: ^10.2.0
   share_plus: ^11.0.0
   equatable: ^2.0.7
@@ -48,6 +50,7 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  generate: true
 
   assets:
     - assets/fonts/
