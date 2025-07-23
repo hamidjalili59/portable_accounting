@@ -35,9 +35,9 @@ class InventoryDesktopView extends StatelessWidget {
     if (items.isEmpty) {
       return EmptyStateWidget(
         icon: Icons.inventory_2_outlined,
-        title: 'Your inventory is empty!',
-        message: 'Add your first item to get started.',
-        buttonText: 'Add New Item',
+        title: l10n.inventory_emptyStateTitle,
+        message: l10n.inventory_emptyStateMessage,
+        buttonText: l10n.inventory_addNewItem,
         onButtonPressed: onAddItem,
       );
     }
@@ -60,13 +60,13 @@ class InventoryDesktopView extends StatelessWidget {
           Row(
             children: [
               Text(
-                'Inventory Management',
+                l10n.inventory_title,
                 style: Theme.of(context).textTheme.headlineMedium,
               ),
               const Spacer(),
               FilledButton.icon(
                 icon: const Icon(Icons.point_of_sale_outlined),
-                label: const Text('New Sale'),
+                label: Text(l10n.inventory_newSale),
                 onPressed: () => context.push('/create-invoice'),
                 style: FilledButton.styleFrom(
                   backgroundColor: Theme.of(context).colorScheme.secondary,
@@ -79,7 +79,7 @@ class InventoryDesktopView extends StatelessWidget {
               const SizedBox(width: 12),
               FilledButton.icon(
                 icon: const Icon(Icons.add),
-                label: const Text('Add New Item'),
+                label: Text(l10n.inventory_addNewItem),
                 onPressed: onAddItem,
                 style: const ButtonStyle(
                   padding: WidgetStatePropertyAll(
@@ -111,29 +111,29 @@ class InventoryDesktopView extends StatelessWidget {
                 columns: <GridColumn>[
                   GridColumn(
                     columnName: 'image',
-                    label: const Center(child: Text('Image')),
+                    label: Center(child: Text(l10n.global_image)),
                     width: 100,
                     columnWidthMode: ColumnWidthMode.none,
                   ),
                   GridColumn(
                     columnName: 'name',
-                    label: const Center(child: Text('Item Name')),
+                    label: Center(child: Text(l10n.inventory_item_name)),
                   ),
                   GridColumn(
                     columnName: 'quantity',
-                    label: const Center(child: Text('Quantity')),
+                    label: Center(child: Text(l10n.inventory_quantity)),
                   ),
                   GridColumn(
                     columnName: 'purchasePrice',
-                    label: const Center(child: Text('Purchase Price')),
+                    label: Center(child: Text(l10n.inventory_purchase_price)),
                   ),
                   GridColumn(
                     columnName: 'salePrice',
-                    label: const Center(child: Text('Sale Price')),
+                    label: Center(child: Text(l10n.inventory_sale_price)),
                   ),
                   GridColumn(
                     columnName: 'actions',
-                    label: const Center(child: Text('Actions')),
+                    label: Center(child: Text(l10n.global_actions)),
                     width: 120,
                     columnWidthMode: ColumnWidthMode.none,
                   ),

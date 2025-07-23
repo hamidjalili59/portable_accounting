@@ -355,4 +355,7 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get inventory_controls_sortByQuantityDesc => 'تعداد (زیاد به کم)';
+
+  @override
+  String get global_image => 'تصویر';
 }

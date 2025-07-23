@@ -104,5 +104,6 @@
     "inventory_controls_sortByNameAsc": "نام (صعودی)",
     "inventory_controls_sortByNameDesc": "نام (نزولی)",
     "inventory_controls_sortByQuantityAsc": "تعداد (کم به زیاد)",
-    "inventory_controls_sortByQuantityDesc": "تعداد (زیاد به کم)"
+    "inventory_controls_sortByQuantityDesc": "تعداد (زیاد به کم)",
+    "global_image": "تصویر"
 }

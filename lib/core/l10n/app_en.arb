@@ -104,5 +104,6 @@
     "inventory_controls_sortByNameAsc": "Name (A-Z)",
     "inventory_controls_sortByNameDesc": "Name (Z-A)",
     "inventory_controls_sortByQuantityAsc": "Quantity (Low-High)",
-    "inventory_controls_sortByQuantityDesc": "Quantity (High-Low)"
+    "inventory_controls_sortByQuantityDesc": "Quantity (High-Low)",
+    "global_image": "Image"
 }

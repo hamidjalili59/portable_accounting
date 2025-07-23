@@ -355,4 +355,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get inventory_controls_sortByQuantityDesc => 'Quantity (High-Low)';
+
+  @override
+  String get global_image => 'Image';
 }

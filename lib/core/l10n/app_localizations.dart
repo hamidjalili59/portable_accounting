@@ -727,6 +727,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Quantity (High-Low)'**
   String get inventory_controls_sortByQuantityDesc;
+
+  /// No description provided for @global_image.
+  ///
+  /// In en, this message translates to:
+  /// **'Image'**
+  String get global_image;
 }
 
 class _AppLocalizationsDelegate

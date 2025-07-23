@@ -273,7 +273,7 @@ class _AddItemFormState extends State<AddItemForm> {
                 const SizedBox(height: 12),
                 TextFormField(
                   controller: _purchasePriceController,
-                  decoration: InputDecoration(labelText: l10n.inventory_sale_price),
+                  decoration: InputDecoration(labelText: l10n.inventory_purchase_price),
                   keyboardType: TextInputType.number,
                   validator: (value) {
                     if (value == null || double.tryParse(value) == null) {
@@ -285,7 +285,7 @@ class _AddItemFormState extends State<AddItemForm> {
                 const SizedBox(height: 12),
                 TextFormField(
                   controller: _salePriceController,
-                  decoration: const InputDecoration(labelText: 'قیمت فروش'),
+                  decoration: InputDecoration(labelText: l10n.inventory_sale_price),
                   keyboardType: TextInputType.number,
                   validator: (value) {
                     if (value == null || double.tryParse(value) == null) {
