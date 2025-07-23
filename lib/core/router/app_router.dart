@@ -9,6 +9,8 @@ import 'package:portable_accounting/features/inventory/presentation/bloc/invento
 import 'package:portable_accounting/features/inventory/presentation/bloc/invoice_list_bloc.dart';
 import 'package:portable_accounting/features/inventory/presentation/pages/inventory_page.dart';
 import 'package:portable_accounting/features/inventory/presentation/pages/invoices_list_page.dart';
+import 'package:portable_accounting/features/reports/presentation/bloc/reports_bloc.dart';
+import 'package:portable_accounting/features/reports/presentation/pages/reports_page.dart';
 import 'package:portable_accounting/features/sales/presentation/bloc/sell_bloc.dart';
 import 'package:portable_accounting/features/sales/presentation/pages/create_invoice_page.dart';
 import 'package:portable_accounting/features/settings/presentation/pages/settings_page.dart';
@@ -60,6 +62,13 @@ final GoRouter router = GoRouter(
             create: (context) =>
                 sl<SalesBloc>()..add(const SalesEvent.loadInitialData()),
             child: const CreateInvoicePage(),
+          ),
+        ),
+        GoRoute(
+          path: '/reports',
+          builder: (context, state) => BlocProvider(
+            create: (context) => sl<ReportsBloc>(),
+            child: const ReportsPage(),
           ),
         ),
       ],

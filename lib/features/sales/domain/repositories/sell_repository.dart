@@ -10,4 +10,10 @@ abstract class SalesRepository {
 
   // تمام فاکتورهای ذخیره شده را برمی‌گرداند
   Future<Either<Failure, List<Invoice>>> getAllInvoices();
+
+  // متد جدید برای گرفتن فاکتورها بر اساس تاریخ
+  Future<Either<Failure, List<Invoice>>> getInvoicesByDateRange(
+    DateTime start,
+    DateTime end,
+  );
 }

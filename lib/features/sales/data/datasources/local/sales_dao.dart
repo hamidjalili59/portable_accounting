@@ -26,6 +26,15 @@ class SalesDao extends DatabaseAccessor<AppDatabase> with _$SalesDaoMixin {
 
   // تمام آیتم‌های فروخته شده برای یک فاکتور خاص را برمی‌گرداند
   Future<List<SaleItemData>> getSaleItemsForInvoice(int invoiceId) {
-    return (select(saleItems)..where((tbl) => tbl.invoiceId.equals(invoiceId))).get();
+    return (select(
+      saleItems,
+    )..where((tbl) => tbl.invoiceId.equals(invoiceId))).get();
+  }
+
+  // متد جدید برای خواندن فاکتورها در یک بازه زمانی
+  Future<List<InvoiceData>> getInvoicesBetween(DateTime start, DateTime end) {
+    return (select(invoices)
+          ..where((tbl) => tbl.date.isBetween(Variable(start), Variable(end))))
+        .get();
   }
 }

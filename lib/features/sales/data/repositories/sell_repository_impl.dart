@@ -22,6 +22,53 @@ class SalesRepositoryImpl implements SalesRepository {
        _inventoryDao = inventoryDao;
 
   @override
+  Future<Either<Failure, List<Invoice>>> getInvoicesByDateRange(
+    DateTime start,
+    DateTime end,
+  ) async {
+    try {
+      // از متد جدید DAO برای فیلتر کردن استفاده می‌کنیم
+      final invoicesData = await _salesDao.getInvoicesBetween(start, end);
+      final List<Invoice> result = [];
+
+      // این بخش مشابه متد getAllInvoices است و فاکتورها را به Entity تبدیل می‌کند
+      for (final invoiceData in invoicesData) {
+        final saleItemsData = await _salesDao.getSaleItemsForInvoice(
+          invoiceData.id,
+        );
+        final saleItems = saleItemsData
+            .map(
+              (itemData) => SaleItem(
+                id: itemData.id,
+                inventoryItemId: itemData.inventoryItemId,
+                name: itemData.name,
+                quantity: itemData.quantity,
+                price: itemData.price,
+              ),
+            )
+            .toList();
+
+        result.add(
+          Invoice(
+            id: invoiceData.id,
+            date: invoiceData.date,
+            items: saleItems,
+            totalPrice: invoiceData.totalPrice,
+            customerName: invoiceData.customerName,
+          ),
+        );
+      }
+      return Right(result);
+    } catch (e) {
+      return Left(
+        DatabaseFailure(
+          message: 'خطا در دریافت گزارش فاکتورها: ${e.toString()}',
+        ),
+      );
+    }
+  }
+
+  @override
   Future<Either<Failure, void>> createInvoice(Invoice invoice) async {
     try {
       await _db.transaction(() async {

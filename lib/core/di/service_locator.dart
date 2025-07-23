@@ -13,6 +13,8 @@ import 'package:portable_accounting/features/inventory/domain/usecases/get_all_i
 import 'package:portable_accounting/features/inventory/domain/usecases/update_inventory_item.dart';
 import 'package:portable_accounting/features/inventory/presentation/bloc/inventory_bloc.dart';
 import 'package:portable_accounting/features/inventory/presentation/bloc/invoice_list_bloc.dart';
+import 'package:portable_accounting/features/reports/domain/usecases/get_invoices_by_date_range.dart';
+import 'package:portable_accounting/features/reports/presentation/bloc/reports_bloc.dart';
 import 'package:portable_accounting/features/sales/data/datasources/local/sales_dao.dart';
 import 'package:portable_accounting/features/sales/data/repositories/sell_repository_impl.dart';
 import 'package:portable_accounting/features/sales/domain/repositories/sell_repository.dart';
@@ -78,4 +80,12 @@ Future<void> initDependencies() async {
   sl.registerLazySingleton(() => GetDashboardData(sl()));
 
   sl.registerFactory(() => DashboardBloc(getDashboardData: sl()));
+
+  // ...
+  // -- Reports Feature --
+  // Use Case
+  sl.registerLazySingleton(() => GetInvoicesByDateRange(sl()));
+
+  // Bloc
+  sl.registerFactory(() => ReportsBloc(getInvoicesByDateRange: sl()));
 }

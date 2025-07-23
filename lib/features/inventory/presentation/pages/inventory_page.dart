@@ -101,6 +101,11 @@ class InventoryPage extends StatelessWidget {
           onPressed: () => context.push('/invoices'),
         ),
         IconButton(
+          icon: const Icon(Icons.assessment_outlined),
+          tooltip: 'Reports',
+          onPressed: () => context.push('/reports'),
+        ),
+        IconButton(
           icon: const Icon(Icons.settings_outlined),
           tooltip: 'Settings',
           onPressed: () => context.push('/settings'),
