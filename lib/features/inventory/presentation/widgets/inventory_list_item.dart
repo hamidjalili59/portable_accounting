@@ -40,8 +40,7 @@ class InventoryListItem extends StatelessWidget {
                       ),
               ),
             ),
-            const SizedBox(width: 16),
-            // بخش اطلاعات کالا
+            SizedBox(width: 16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -51,8 +50,45 @@ class InventoryListItem extends StatelessWidget {
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
                   const SizedBox(height: 8),
-                  Text('موجودی: ${item.quantity} عدد'),
-                  Text('قیمت فروش: ${item.salePrice.toStringAsFixed(0)} تومان'),
+                  // نمایش تعداد با رنگ‌بندی
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.inventory_2_outlined,
+                        size: 16,
+                        color: Theme.of(context).textTheme.bodySmall?.color,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        'موجودی: ',
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: _getQuantityColor(
+                            item.quantity,
+                          ).withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          item.quantity.toString(),
+                          style: TextStyle(
+                            color: _getQuantityColor(item.quantity),
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'قیمت فروش: ${item.salePrice.toStringAsFixed(0)} تومان',
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
                 ],
               ),
             ),
@@ -91,6 +127,12 @@ class InventoryListItem extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Color _getQuantityColor(double quantity) {
+    if (quantity == 0) return Colors.red;
+    if (quantity <= 5) return Colors.orange;
+    return Colors.green;
   }
 
   void _showDeleteConfirmationDialog(BuildContext context, InventoryItem item) {

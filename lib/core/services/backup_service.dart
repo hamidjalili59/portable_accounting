@@ -1,10 +1,11 @@
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:file_saver/file_saver.dart';
-import 'package:flutter/foundation.dart' show debugPrint;
+import 'package:flutter/foundation.dart' show debugPrint, kDebugMode;
 import 'package:intl/intl.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:portable_accounting/core/database/app_database.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -34,33 +35,42 @@ class BackupService {
   /// Saves the backup file directly to the Downloads folder.
   Future<String> saveBackupToDownloads() async {
     try {
-      final dbPath = await getDatabasePath();
-      final dbFile = File(dbPath);
-      if (!await dbFile.exists()) {
-        throw Exception('Database file does not exist.');
-      }
+      // 1. Check and request storage permission
+      final status = await Permission.storage.request();
 
-      // Create a filename with a timestamp
-      final timestamp = DateFormat('yyyy-MM-dd_HH-mm').format(DateTime.now());
-      final fileName = 'backup-$timestamp.db';
+      // if (status.isGranted) {
+        // 2. If permission is granted, proceed with saving
+        final dbPath = await getDatabasePath();
+        final dbFile = File(dbPath);
+        if (!await dbFile.exists()) {
+          throw Exception('Database file does not exist.');
+        }
 
-      // Read the file as bytes
-      final bytes = await dbFile.readAsBytes();
+        final timestamp = DateFormat('yyyy-MM-dd_HH-mm').format(DateTime.now());
+        final fileName = 'backup-$timestamp';
 
-      // Use file_saver to save the file
-      String? savedPath = await FileSaver.instance.saveFile(
-        name: fileName,
-        bytes: bytes,
-        mimeType: MimeType.other,
-      );
+        final bytes = await dbFile.readAsBytes();
 
-      return savedPath;
+        String? savedPath = await FileSaver.instance.saveAs(
+          name: fileName,
+          bytes: bytes,
+          fileExtension: 'db',
+          mimeType: MimeType.other,
+        );
+
+        if (savedPath == null) {
+          throw Exception('File saving was cancelled.');
+        }
+        return savedPath;
+      // } else {
+      //   // 3. If permission is denied, throw an error
+      //   throw Exception('Storage permission is required to save the file.');
+      // }
     } catch (e) {
       debugPrint('Save backup failed: $e');
-      rethrow;
+      rethrow; // Re-throw the exception to be caught by the UI
     }
   }
-
 
   // متد برای پیدا کردن مسیر فایل دیتابیس
   Future<String> getDatabasePath() async {
@@ -90,7 +100,9 @@ class BackupService {
       }
       return false; // کاربر فایلی انتخاب نکرد
     } catch (e) {
-      print('Restore failed: $e');
+      if (kDebugMode) {
+        print('Restore failed: $e');
+      }
       return false;
     }
   }

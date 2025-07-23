@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:pdf/pdf.dart' show PdfPageFormat;
+import 'package:portable_accounting/core/widgets/empty_state_widget.dart';
 import 'package:portable_accounting/features/inventory/data/pdf/pdf_generator.dart';
 import 'package:portable_accounting/features/inventory/presentation/bloc/invoice_list_bloc.dart';
 import 'package:portable_accounting/features/sales/domain/entities/invoice.dart';
@@ -29,7 +31,16 @@ class InvoicesListPage extends StatelessWidget {
             error: (message) => Center(child: Text(message)),
             loaded: (invoices) {
               if (invoices.isEmpty) {
-                return const Center(child: Text('هیچ فاکتوری ثبت نشده است.'));
+                return EmptyStateWidget(
+                  icon: Icons.receipt_long_outlined,
+                  title: 'هنوز فاکتوری ثبت نشده!',
+                  message: 'پس از ثبت اولین فروش، فاکتور آن در اینجا نمایش داده می‌شود.',
+                  buttonText: 'ثبت اولین فاکتور',
+                  onButtonPressed: () {
+                    // کاربر را به صفحه ایجاد فاکتور هدایت می‌کنیم
+                    context.push('/create-invoice');
+                  },
+                );
               }
               return ListView.builder(
                 itemCount: invoices.length,

@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
+import 'package:portable_accounting/core/router/app_router.dart';
 import 'package:portable_accounting/features/inventory/domain/entities/inventory_item.dart';
 import 'package:portable_accounting/features/inventory/presentation/bloc/inventory_bloc.dart';
 
@@ -68,12 +69,9 @@ class _AddItemFormState extends State<AddItemForm> {
     super.dispose();
   }
 
-  Future<void> _pickImage() async {
+  Future<void> _pickImage(ImageSource source) async {
     final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(
-      source: ImageSource.gallery,
-      imageQuality: 80,
-    );
+    final pickedFile = await picker.pickImage(source: source, imageQuality: 80);
 
     if (pickedFile != null) {
       final appDir = await getApplicationDocumentsDirectory();
@@ -84,14 +82,86 @@ class _AddItemFormState extends State<AddItemForm> {
 
       setState(() {
         _selectedImagePath = savedImage.path;
+        _onFormChanged(); // Mark form as dirty
       });
     }
+  }
 
-    if (!_isFormDirty) {
-      setState(() {
-        _isFormDirty = true;
-      });
-    }
+  Widget _buildSourceOption({
+    required BuildContext context,
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        width: 120,
+        padding: const EdgeInsets.symmetric(vertical: 24),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          color: Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.5),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 40, color: Theme.of(context).colorScheme.primary),
+            const SizedBox(height: 8),
+            Text(label),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showImageSourceDialog() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Theme.of(context).cardColor,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text(
+                'Choose Image Source',
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+              const SizedBox(height: 24),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  _buildSourceOption(
+                    context: context,
+                    icon: Icons.photo_library_outlined,
+                    label: 'Gallery',
+                    onTap: () {
+                      _pickImage(ImageSource.gallery);
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                  _buildSourceOption(
+                    context: context,
+                    icon: Icons.camera_alt_outlined,
+                    label: 'Camera',
+                    onTap: () {
+                      _pickImage(ImageSource.camera);
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   void _submitForm() {
@@ -149,7 +219,7 @@ class _AddItemFormState extends State<AddItemForm> {
 
         if (shouldPop ?? false) {
           if (mounted) {
-            Navigator.of(context).pop();
+            router.pop();
           }
         }
       },
@@ -224,10 +294,18 @@ class _AddItemFormState extends State<AddItemForm> {
                 // بخش انتخاب و پیش‌نمایش عکس
                 _buildImagePicker(),
                 const SizedBox(height: 24),
-                ElevatedButton(
-                  onPressed: _submitForm,
-                  child: Text(
-                    widget.editingItem != null ? 'ذخیره تغییرات' : 'ذخیره',
+                SizedBox(
+                  width: double.infinity,
+                  child: FilledButton(
+                    onPressed: _submitForm,
+                    style: FilledButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      textStyle: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    child: Text(isEditing ? 'Save Changes' : 'Save Item'),
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -261,7 +339,7 @@ class _AddItemFormState extends State<AddItemForm> {
         ),
         const SizedBox(height: 8),
         TextButton.icon(
-          onPressed: _pickImage,
+          onPressed: _showImageSourceDialog,
           icon: const Icon(Icons.camera_alt),
           label: const Text('انتخاب عکس'),
         ),
