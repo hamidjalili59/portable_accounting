@@ -105,13 +105,27 @@ class SalesBloc extends Bloc<SalesEvent, SalesState> {
       final currentState = state as _Loaded;
       final newInvoiceItems = List<SaleItem>.from(currentState.invoiceItems);
       final index = newInvoiceItems.indexWhere(
-        (item) => item.id == event.item.id,
+        (item) => item.inventoryItemId == event.item.inventoryItemId,
       );
 
-      if (index != -1 && event.newQuantity > 0) {
-        newInvoiceItems[index] = event.item.copyWith(
-          quantity: event.newQuantity,
-        );
+      if (index != -1) {
+        // If the new quantity is zero or less, remove the item
+        if (event.newQuantity <= 0) {
+          newInvoiceItems.removeAt(index);
+        } else {
+          // Find the original item in inventory to check the stock limit
+          final originalItem = currentState.availableItems.firstWhere(
+            (invItem) => invItem.id == event.item.inventoryItemId,
+          );
+
+          // Only update if the new quantity does not exceed the stock
+          if (event.newQuantity <= originalItem.quantity) {
+            newInvoiceItems[index] = event.item.copyWith(
+              quantity: event.newQuantity,
+            );
+          }
+        }
+
         emit(
           currentState.copyWith(
             invoiceItems: newInvoiceItems,

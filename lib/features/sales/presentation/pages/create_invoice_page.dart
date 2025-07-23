@@ -141,7 +141,13 @@ class _DesktopInvoiceLayout extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Expanded(flex: 2, child: AvailableItemsList(items: availableItems)),
+        Expanded(
+          flex: 2,
+          child: AvailableItemsList(
+            items: availableItems,
+            invoiceItems: invoiceItems,
+          ),
+        ),
         const VerticalDivider(width: 1),
         Expanded(
           flex: 3,
@@ -197,7 +203,10 @@ class _MobileInvoiceLayout extends StatelessWidget {
                 context: context,
                 builder: (_) => BlocProvider.value(
                   value: context.read<SalesBloc>(),
-                  child: AvailableItemsList(items: availableItems),
+                  child: AvailableItemsList(
+                    items: availableItems,
+                    invoiceItems: invoiceItems,
+                  ),
                 ),
               );
             },

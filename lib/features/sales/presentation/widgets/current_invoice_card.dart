@@ -42,6 +42,7 @@ class _CurrentInvoiceCardState extends State<CurrentInvoiceCard> {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
+    final currencyUnit = context.watch<CurrencyCubit>().state;
     return Card(
       margin: const EdgeInsets.all(8.0),
       elevation: 2,
@@ -67,19 +68,43 @@ class _CurrentInvoiceCardState extends State<CurrentInvoiceCard> {
                       return ListTile(
                         title: Text(item.name),
                         subtitle: Text(
-                          l10n.createInvoice_itemSubtitle(
-                            item.quantity,
-                            item.price.formatAsCurrency(widget.currencyUnit),
-                          ),
+                          // The subtitle can now show the total for that line item
+                          '${item.quantity} x ${item.price.formatAsCurrency(currencyUnit)} = ${(item.quantity * item.price).formatAsCurrency(currencyUnit)}',
                         ),
-                        trailing: IconButton(
-                          icon: const Icon(
-                            Icons.delete_outline,
-                            color: Colors.red,
-                          ),
-                          onPressed: () => context.read<SalesBloc>().add(
-                            SalesEvent.removeItemFromInvoice(item),
-                          ),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            // Decrease Quantity Button
+                            IconButton(
+                              icon: const Icon(Icons.remove_circle_outline),
+                              onPressed: () {
+                                // Decreasing to 0 will remove the item
+                                context.read<SalesBloc>().add(
+                                  SalesEvent.updateItemQuantity(
+                                    item,
+                                    item.quantity - 1,
+                                  ),
+                                );
+                              },
+                            ),
+                            Text(
+                              item.quantity.toString(),
+                              style: Theme.of(context).textTheme.titleMedium,
+                            ),
+                            // Increase Quantity Button
+                            IconButton(
+                              icon: const Icon(Icons.add_circle_outline),
+                              onPressed: () {
+                                // We will add a check inside the BLoC to prevent going over the stock limit
+                                context.read<SalesBloc>().add(
+                                  SalesEvent.updateItemQuantity(
+                                    item,
+                                    item.quantity + 1,
+                                  ),
+                                );
+                              },
+                            ),
+                          ],
                         ),
                       );
                     },
