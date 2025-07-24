@@ -131,7 +131,7 @@ class _CurrentInvoiceCardState extends State<CurrentInvoiceCard> {
                       style: Theme.of(context).textTheme.titleLarge,
                     ),
                     Text(
-                      widget.totalPrice.toStringAsFixed(0),
+                      widget.totalPrice.formatAsCurrency(currencyUnit),
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
                         color: Theme.of(context).primaryColor,
                       ),
