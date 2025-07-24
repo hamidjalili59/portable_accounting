@@ -116,10 +116,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get inventory_quantity => 'Quantity';
 
   @override
-  String get inventory_purchase_price => 'Purchase Price';
+  String get inventory_purchase_price => 'Purchase Price (Rial)';
 
   @override
-  String get inventory_sale_price => 'Sale Price';
+  String get inventory_sale_price => 'Sale Price (Rial)';
 
   @override
   String get form_addNewItemTitle => 'Add New Item';

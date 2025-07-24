@@ -311,13 +311,13 @@ abstract class AppLocalizations {
   /// No description provided for @inventory_purchase_price.
   ///
   /// In en, this message translates to:
-  /// **'Purchase Price'**
+  /// **'Purchase Price (Rial)'**
   String get inventory_purchase_price;
 
   /// No description provided for @inventory_sale_price.
   ///
   /// In en, this message translates to:
-  /// **'Sale Price'**
+  /// **'Sale Price (Rial)'**
   String get inventory_sale_price;
 
   /// No description provided for @form_addNewItemTitle.

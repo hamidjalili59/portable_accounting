@@ -116,10 +116,10 @@ class AppLocalizationsFa extends AppLocalizations {
   String get inventory_quantity => 'تعداد';
 
   @override
-  String get inventory_purchase_price => 'قیمت خرید';
+  String get inventory_purchase_price => 'قیمت خرید (ریال)';
 
   @override
-  String get inventory_sale_price => 'قیمت فروش';
+  String get inventory_sale_price => 'قیمت فروش (ریال)';
 
   @override
   String get form_addNewItemTitle => 'افزودن کالای جدید';

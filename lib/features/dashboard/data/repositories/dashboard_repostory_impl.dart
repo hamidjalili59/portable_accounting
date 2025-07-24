@@ -105,6 +105,7 @@ class DashboardRepositoryImpl implements DashboardRepository {
         ),
       );
     } catch (e) {
+      print(e.toString());
       return Left(
         DatabaseFailure(
           message: 'Error calculating dashboard data: ${e.toString()}',
