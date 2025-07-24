@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:portable_accounting/core/helpers/currency_formatter.dart';
 import 'package:portable_accounting/core/l10n/l10n.dart';
+import 'package:portable_accounting/core/services/currency_service.dart';
 import '../../domain/entities/inventory_item.dart';
 
 /// A widget that displays a summary of the inventory.
@@ -25,15 +27,9 @@ class InventorySummaryHeader extends StatelessWidget {
       (sum, item) => sum + (item.quantity * item.purchasePrice),
     );
 
-    // Format the total value for better readability.
-    final formattedTotalValue = NumberFormat.compactCurrency(
-      locale: 'fa_IR',
-      symbol: 'T', // T for Toman
-      decimalDigits: 0,
-    ).format(totalStockValue);
-
     // --- UI ---
 
+    final currencyUnit = context.watch<CurrencyCubit>().state;
     final l10n = context.l10n;
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
@@ -60,7 +56,7 @@ class InventorySummaryHeader extends StatelessWidget {
             _buildStat(
               context: context,
               label: l10n.inventory_total_stock_value,
-              value: formattedTotalValue,
+              value: totalStockValue.formatAsCurrency(currencyUnit),
               icon: Icons.monetization_on_outlined,
             ),
           ],
