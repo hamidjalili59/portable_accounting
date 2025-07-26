@@ -7,9 +7,7 @@ import 'package:portable_accounting/features/sales/domain/entities/sale_item.dar
 import 'package:portable_accounting/features/sales/domain/usecases/create_invoice.dart';
 
 part 'sell_bloc.freezed.dart';
-
 part 'sell_event.dart';
-
 part 'sell_state.dart';
 
 class SalesBloc extends Bloc<SalesEvent, SalesState> {
