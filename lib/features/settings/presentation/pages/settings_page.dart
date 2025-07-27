@@ -78,7 +78,6 @@ class _SettingsPageState extends State<SettingsPage> {
 
   Future<void> _handleRestore() async {
     final l10n = context.l10n;
-    // نمایش یک دیالوگ هشدار به کاربر
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
