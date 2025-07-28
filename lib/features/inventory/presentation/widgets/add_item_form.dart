@@ -3,9 +3,12 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart' show NumberFormat;
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
-import 'package:portable_accounting/core/l10n/app_localizations.dart' show AppLocalizations;
+import 'package:portable_accounting/core/helpers/thousands_separator_input_formatter.dart';
+import 'package:portable_accounting/core/l10n/app_localizations.dart'
+    show AppLocalizations;
 import 'package:portable_accounting/core/l10n/l10n.dart';
 import 'package:portable_accounting/core/router/app_router.dart';
 import 'package:portable_accounting/features/inventory/domain/entities/inventory_item.dart';
@@ -26,6 +29,8 @@ class _AddItemFormState extends State<AddItemForm> {
   final _quantityController = TextEditingController();
   final _purchasePriceController = TextEditingController();
   final _salePriceController = TextEditingController();
+  final _markupPercentController = TextEditingController();
+  bool _isManualSalePrice = false;
 
   String? _selectedImagePath;
 
@@ -34,6 +39,8 @@ class _AddItemFormState extends State<AddItemForm> {
   @override
   void initState() {
     super.initState();
+    _purchasePriceController.addListener(_calculateSalePrice);
+    _markupPercentController.addListener(_calculateSalePrice);
     if (widget.editingItem != null) {
       final item = widget.editingItem!;
       _nameController.text = item.name;
@@ -59,6 +66,9 @@ class _AddItemFormState extends State<AddItemForm> {
 
   @override
   void dispose() {
+    _purchasePriceController.removeListener(_calculateSalePrice);
+    _markupPercentController.removeListener(_calculateSalePrice);
+    _markupPercentController.dispose();
     _nameController.removeListener(_onFormChanged);
     _quantityController.removeListener(_onFormChanged);
     _purchasePriceController.removeListener(_onFormChanged);
@@ -69,6 +79,23 @@ class _AddItemFormState extends State<AddItemForm> {
     _salePriceController.dispose();
 
     super.dispose();
+  }
+
+  void _calculateSalePrice() {
+    if (_isManualSalePrice) return;
+
+    final purchasePrice =
+        double.tryParse(_purchasePriceController.text.replaceAll(',', '')) ?? 0;
+    final markup = double.tryParse(_markupPercentController.text) ?? 0;
+
+    if (purchasePrice > 0) {
+      final salePrice = purchasePrice * (1 + (markup / 100));
+      final formatter = NumberFormat('#,###');
+      _salePriceController.text = formatter.format(salePrice.round());
+    } else {
+      _salePriceController.text = '0';
+    }
+    _onFormChanged();
   }
 
   Future<void> _pickImage(ImageSource source) async {
@@ -105,7 +132,7 @@ class _AddItemFormState extends State<AddItemForm> {
           borderRadius: BorderRadius.circular(12),
           color: Theme.of(
             context,
-          ).colorScheme.surfaceContainerHighest.withOpacity(0.5),
+          ).colorScheme.surfaceContainerHighest.withAlpha((0.5 * 255).toInt()),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -171,14 +198,21 @@ class _AddItemFormState extends State<AddItemForm> {
 
   void _submitForm() {
     if (_formKey.currentState!.validate()) {
+      final purchasePrice = double.parse(
+        _purchasePriceController.text.replaceAll(',', ''),
+      );
+      final salePrice = double.parse(
+        _salePriceController.text.replaceAll(',', ''),
+      );
+
       final isEditing = widget.editingItem != null;
 
       final itemToSave = InventoryItem(
         id: widget.editingItem?.id ?? 0,
         name: _nameController.text,
         quantity: int.parse(_quantityController.text),
-        purchasePrice: double.parse(_purchasePriceController.text),
-        salePrice: double.parse(_salePriceController.text),
+        purchasePrice: purchasePrice,
+        salePrice: salePrice,
         imagePath: _selectedImagePath,
       );
 
@@ -232,7 +266,6 @@ class _AddItemFormState extends State<AddItemForm> {
           left: 16,
           right: 16,
           top: 20,
-          // این مقدار باعث می‌شود کیبورد روی فرم را نپوشاند
           bottom: MediaQuery.of(context).viewInsets.bottom,
         ),
         child: Form(
@@ -243,14 +276,18 @@ class _AddItemFormState extends State<AddItemForm> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Text(
-                  isEditing ? l10n.form_editItemTitle : l10n.form_addNewItemTitle,
+                  isEditing
+                      ? l10n.form_editItemTitle
+                      : l10n.form_addNewItemTitle,
                   style: Theme.of(context).textTheme.headlineSmall,
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 20),
                 TextFormField(
                   controller: _nameController,
-                  decoration: InputDecoration(labelText: l10n.inventory_item_name),
+                  decoration: InputDecoration(
+                    labelText: l10n.inventory_item_name,
+                  ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return l10n.form_validator_pleaseEnterName;
@@ -261,10 +298,13 @@ class _AddItemFormState extends State<AddItemForm> {
                 const SizedBox(height: 12),
                 TextFormField(
                   controller: _quantityController,
-                  decoration: InputDecoration(labelText: l10n.inventory_quantity),
+                  decoration: InputDecoration(
+                    labelText: l10n.inventory_quantity,
+                  ),
                   keyboardType: TextInputType.number,
                   validator: (value) {
-                    if (value == null || double.tryParse(value) == null) {
+                    if (value == null ||
+                        double.tryParse(value.replaceAll(',', '')) == null) {
                       return l10n.form_validator_pleaseEnterValidNumber;
                     }
                     return null;
@@ -273,27 +313,93 @@ class _AddItemFormState extends State<AddItemForm> {
                 const SizedBox(height: 12),
                 TextFormField(
                   controller: _purchasePriceController,
-                  decoration: InputDecoration(labelText: l10n.inventory_purchase_price),
+                  decoration: InputDecoration(
+                    labelText: l10n.inventory_purchase_price_field,
+                  ),
                   keyboardType: TextInputType.number,
+                  inputFormatters: [ThousandsSeparatorInputFormatter()],
                   validator: (value) {
-                    if (value == null || double.tryParse(value) == null) {
+                    if (value == null ||
+                        double.tryParse(value.replaceAll(',', '')) == null) {
                       return l10n.form_validator_pleaseEnterValidNumber;
                     }
                     return null;
                   },
                 ),
                 const SizedBox(height: 12),
-                TextFormField(
-                  controller: _salePriceController,
-                  decoration: InputDecoration(labelText: l10n.inventory_sale_price),
-                  keyboardType: TextInputType.number,
-                  validator: (value) {
-                    if (value == null || double.tryParse(value) == null) {
-                      return 'لطفاً یک قیمت معتبر وارد کنید';
-                    }
-                    return null;
-                  },
+
+                // --- بخش جدید و هوشمند قیمت فروش ---
+                Row(
+                  children: [
+                    Text(
+                      'قیمت فروش دستی',
+                      style: Theme.of(context).textTheme.bodyLarge,
+                    ),
+                    const Spacer(),
+                    Switch(
+                      value: _isManualSalePrice,
+                      onChanged: (value) {
+                        setState(() {
+                          _isManualSalePrice = value;
+                          if (!value) {
+                            // اگر حالت دستی غیرفعال شد، قیمت را دوباره محاسبه کن
+                            _calculateSalePrice();
+                          }
+                        });
+                      },
+                    ),
+                  ],
                 ),
+                const SizedBox(height: 8),
+
+                // نمایش فیلد مناسب بر اساس حالت
+                if (_isManualSalePrice)
+                  TextFormField(
+                    controller: _salePriceController,
+                    decoration: InputDecoration(
+                      labelText: l10n.inventory_sale_price_field,
+                    ),
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [ThousandsSeparatorInputFormatter()],
+                    validator: (value) {
+                      if (value == null ||
+                          double.tryParse(value.replaceAll(',', '')) == null) {
+                        return 'لطفاً یک قیمت معتبر وارد کنید';
+                      }
+                      return null;
+                    },
+                  )
+                else
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextFormField(
+                          controller: _markupPercentController,
+                          decoration: const InputDecoration(
+                            labelText: 'درصد سود',
+                            suffixText: '%',
+                          ),
+                          keyboardType: TextInputType.number,
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: TextFormField(
+                          controller: _salePriceController,
+                          decoration: InputDecoration(
+                            labelText: l10n.inventory_sale_price_field,
+                            filled: true,
+                            fillColor: Theme.of(context)
+                                .colorScheme
+                                .surfaceContainerHighest
+                                .withAlpha((0.5 * 255).toInt()),
+                          ),
+                          readOnly: true, // این فیلد فقط نمایش‌دهنده است
+                        ),
+                      ),
+                    ],
+                  ),
+
                 const SizedBox(height: 20),
                 // بخش انتخاب و پیش‌نمایش عکس
                 _buildImagePicker(l10n),
@@ -309,7 +415,9 @@ class _AddItemFormState extends State<AddItemForm> {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    child: Text(isEditing ? l10n.form_saveChanges : l10n.global_save),
+                    child: Text(
+                      isEditing ? l10n.form_saveChanges : l10n.global_save,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 16),
