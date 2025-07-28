@@ -152,4 +152,57 @@ class SalesRepositoryImpl implements SalesRepository {
       );
     }
   }
+
+  @override
+  Future<Either<Failure, List<Invoice>>> getInvoicesByDateRangeAndQuery({
+    required DateTime start,
+    required DateTime end,
+    String? query,
+  }) async {
+    try {
+      // Call the DAO method with the filters
+      final invoicesData = await _salesDao.getFilteredInvoices(
+        start: start,
+        end: end,
+        query: query,
+      );
+
+      final List<Invoice> result = [];
+
+      // This logic converts the database data to your app's domain objects
+      for (final invoiceData in invoicesData) {
+        final saleItemsData = await _salesDao.getSaleItemsForInvoice(
+          invoiceData.id,
+        );
+        final saleItems = saleItemsData
+            .map(
+              (itemData) => SaleItem(
+                id: itemData.id,
+                inventoryItemId: itemData.inventoryItemId,
+                name: itemData.name,
+                quantity: itemData.quantity,
+                price: itemData.price,
+              ),
+            )
+            .toList();
+
+        result.add(
+          Invoice(
+            id: invoiceData.id,
+            date: invoiceData.date,
+            items: saleItems,
+            totalPrice: invoiceData.totalPrice,
+            customerName: invoiceData.customerName,
+          ),
+        );
+      }
+      return Right(result);
+    } catch (e) {
+      return Left(
+        DatabaseFailure(
+          message: 'Error fetching filtered invoices: ${e.toString()}',
+        ),
+      );
+    }
+  }
 }

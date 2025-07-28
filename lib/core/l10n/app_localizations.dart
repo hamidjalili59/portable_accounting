@@ -745,6 +745,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Image'**
   String get global_image;
+
+  /// No description provided for @reports_search_by_name.
+  ///
+  /// In en, this message translates to:
+  /// **'Search by customer name...'**
+  String get reports_search_by_name;
+
+  /// No description provided for @reports_apply_filters.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply Filters'**
+  String get reports_apply_filters;
+
+  /// No description provided for @global_print.
+  ///
+  /// In en, this message translates to:
+  /// **'Print'**
+  String get global_print;
+
+  /// No description provided for @settings_stockValueCalculationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Stock Value Calculation'**
+  String get settings_stockValueCalculationTitle;
+
+  /// No description provided for @settings_stockValueCalculationPurchasePrice.
+  ///
+  /// In en, this message translates to:
+  /// **'By Purchase Price'**
+  String get settings_stockValueCalculationPurchasePrice;
+
+  /// No description provided for @settings_stockValueCalculationSalePrice.
+  ///
+  /// In en, this message translates to:
+  /// **'By Sale Price'**
+  String get settings_stockValueCalculationSalePrice;
 }
 
 class _AppLocalizationsDelegate

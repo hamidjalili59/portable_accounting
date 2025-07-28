@@ -11,7 +11,8 @@ import 'package:portable_accounting/features/inventory/presentation/widgets/add_
 import 'package:portable_accounting/features/inventory/presentation/widgets/inventory_controls.dart';
 import 'package:portable_accounting/features/inventory/presentation/widgets/inventory_desktop_view.dart';
 import 'package:portable_accounting/features/inventory/presentation/widgets/inventory_mobile_view.dart';
-import 'package:portable_accounting/features/inventory/presentation/widgets/inventory_summart_header.dart';
+
+import '../widgets/inventory_summary_header.dart';
 
 /// The main page for the Inventory feature.
 ///
@@ -65,6 +66,7 @@ class InventoryPage extends StatelessWidget {
                             _showItemForm(context, item: item),
                         onDeleteItem: (item) =>
                             _showDeleteConfirmationDialog(context, item),
+                        l10n: l10n,
                       ),
                     ),
                   ),

@@ -14,6 +14,21 @@ class SalesDao extends DatabaseAccessor<AppDatabase> with _$SalesDaoMixin {
     return into(invoices).insert(invoice);
   }
 
+  Future<List<InvoiceData>> getFilteredInvoices({
+    required DateTime start,
+    required DateTime end,
+    String? query,
+  }) {
+    var statement = select(invoices)
+      ..where((tbl) => tbl.date.isBetween(Variable(start), Variable(end)));
+
+    if (query != null && query.isNotEmpty) {
+      statement.where((tbl) => tbl.customerName.like('%$query%'));
+    }
+
+    return statement.get();
+  }
+
   // لیستی از آیتم‌های فروخته شده را درج می‌کند
   Future<void> insertSaleItems(List<SaleItemsCompanion> items) {
     return batch((batch) {

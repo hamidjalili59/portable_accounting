@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:portable_accounting/core/l10n/l10n.dart';
+import 'package:portable_accounting/core/l10n/app_localizations.dart';
 import 'package:portable_accounting/core/services/currency_service.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
@@ -18,6 +18,7 @@ class InventoryDesktopView extends StatelessWidget {
   final Function(InventoryItem) onEditItem;
   final Function(InventoryItem) onDeleteItem;
   final CurrencyUnit currencyUnit;
+  final AppLocalizations l10n;
 
   const InventoryDesktopView({
     super.key,
@@ -26,12 +27,12 @@ class InventoryDesktopView extends StatelessWidget {
     required this.onAddItem,
     required this.onEditItem,
     required this.onDeleteItem,
+    required this.l10n,
   });
 
   @override
   Widget build(BuildContext context) {
-    final l10n = context.l10n;
-    // If the list is empty, show the empty state widget.
+    // If the list is empty, show the localized empty state widget.
     if (items.isEmpty) {
       return EmptyStateWidget(
         icon: Icons.inventory_2_outlined,
@@ -70,10 +71,7 @@ class InventoryDesktopView extends StatelessWidget {
                 onPressed: () => context.push('/create-invoice'),
                 style: FilledButton.styleFrom(
                   backgroundColor: Theme.of(context).colorScheme.secondary,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 12,
-                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 ),
               ),
               const SizedBox(width: 12),
@@ -90,7 +88,6 @@ class InventoryDesktopView extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 16),
-
           // The interactive data grid.
           Expanded(
             child: Card(
@@ -108,35 +105,14 @@ class InventoryDesktopView extends StatelessWidget {
                 headerGridLinesVisibility: GridLinesVisibility.horizontal,
                 headerRowHeight: 56,
                 rowHeight: 64,
+                // Use localized strings for column headers.
                 columns: <GridColumn>[
-                  GridColumn(
-                    columnName: 'image',
-                    label: Center(child: Text(l10n.global_image)),
-                    width: 100,
-                    columnWidthMode: ColumnWidthMode.none,
-                  ),
-                  GridColumn(
-                    columnName: 'name',
-                    label: Center(child: Text(l10n.inventory_item_name)),
-                  ),
-                  GridColumn(
-                    columnName: 'quantity',
-                    label: Center(child: Text(l10n.inventory_quantity)),
-                  ),
-                  GridColumn(
-                    columnName: 'purchasePrice',
-                    label: Center(child: Text(l10n.inventory_purchase_price)),
-                  ),
-                  GridColumn(
-                    columnName: 'salePrice',
-                    label: Center(child: Text(l10n.inventory_sale_price)),
-                  ),
-                  GridColumn(
-                    columnName: 'actions',
-                    label: Center(child: Text(l10n.global_actions)),
-                    width: 120,
-                    columnWidthMode: ColumnWidthMode.none,
-                  ),
+                  GridColumn(columnName: 'image', label: Center(child: Text(l10n.global_image)), width: 100, columnWidthMode: ColumnWidthMode.none),
+                  GridColumn(columnName: 'name', label: Center(child: Text(l10n.inventory_item_name))),
+                  GridColumn(columnName: 'quantity', label: Center(child: Text(l10n.inventory_quantity))),
+                  GridColumn(columnName: 'purchasePrice', label: Center(child: Text(l10n.inventory_purchase_price))),
+                  GridColumn(columnName: 'salePrice', label: Center(child: Text(l10n.inventory_sale_price))),
+                  GridColumn(columnName: 'actions', label: Center(child: Text(l10n.global_actions)), width: 120, columnWidthMode: ColumnWidthMode.none),
                 ],
               ),
             ),

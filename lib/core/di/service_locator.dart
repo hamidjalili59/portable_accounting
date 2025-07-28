@@ -1,5 +1,6 @@
 import 'package:get_it/get_it.dart';
 import 'package:portable_accounting/core/database/app_database.dart';
+import 'package:portable_accounting/core/services/settings_cubit.dart';
 import 'package:portable_accounting/features/dashboard/data/repositories/dashboard_repostory_impl.dart';
 import 'package:portable_accounting/features/dashboard/domain/usecases/get_dashboard_data.dart';
 import 'package:portable_accounting/features/dashboard/domain/repository/dashboard_repository.dart';
@@ -10,6 +11,7 @@ import 'package:portable_accounting/features/inventory/domain/repositories/inven
 import 'package:portable_accounting/features/inventory/domain/usecases/add_inventory_item.dart';
 import 'package:portable_accounting/features/inventory/domain/usecases/delete_inventory_item.dart';
 import 'package:portable_accounting/features/inventory/domain/usecases/get_all_inventory_items.dart';
+import 'package:portable_accounting/features/inventory/domain/usecases/get_filtered_invoices.dart';
 import 'package:portable_accounting/features/inventory/domain/usecases/update_inventory_item.dart';
 import 'package:portable_accounting/features/inventory/presentation/bloc/inventory_bloc.dart';
 import 'package:portable_accounting/features/inventory/presentation/bloc/invoice_list_bloc.dart';
@@ -63,13 +65,14 @@ Future<void> initDependencies() async {
   );
 
   // Use Cases
+  sl.registerLazySingleton(() => GetFilteredInvoices(sl()));
   sl.registerLazySingleton(() => CreateInvoice(sl()));
   sl.registerLazySingleton(() => GetAllInvoices(sl()));
   // Bloc
   sl.registerFactory(
     () => SalesBloc(getAllInventoryItems: sl(), createInvoice: sl()),
   );
-  sl.registerFactory(() => InvoiceListBloc(getAllInvoices: sl()));
+  sl.registerFactory(() => InvoiceListBloc(getFilteredInvoices: sl()));
 
   // -- Dashboard Feature --
   // Repository
@@ -88,4 +91,6 @@ Future<void> initDependencies() async {
 
   // Bloc
   sl.registerFactory(() => ReportsBloc(getInvoicesByDateRange: sl()));
+
+  sl.registerFactory(() => SettingsCubit());
 }

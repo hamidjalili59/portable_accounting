@@ -178,12 +178,12 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String reports_from(Object date) {
-    return 'از: $date';
+    return 'از تاریخ: $date';
   }
 
   @override
   String reports_to(Object date) {
-    return 'تا: $date';
+    return 'تا تاریخ: $date';
   }
 
   @override
@@ -364,4 +364,22 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get global_image => 'تصویر';
+
+  @override
+  String get reports_search_by_name => 'جستجو بر اساس اسم...';
+
+  @override
+  String get reports_apply_filters => 'تایید فیلتر ها';
+
+  @override
+  String get global_print => 'چاپ';
+
+  @override
+  String get settings_stockValueCalculationTitle => 'محاسبه ارزش انبار';
+
+  @override
+  String get settings_stockValueCalculationPurchasePrice => 'بر اساس قیمت خرید';
+
+  @override
+  String get settings_stockValueCalculationSalePrice => 'بر اساس قیمت فروش';
 }

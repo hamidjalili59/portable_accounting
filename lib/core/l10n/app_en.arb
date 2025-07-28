@@ -107,5 +107,14 @@
     "inventory_controls_sortByNameDesc": "Name (Z-A)",
     "inventory_controls_sortByQuantityAsc": "Quantity (Low-High)",
     "inventory_controls_sortByQuantityDesc": "Quantity (High-Low)",
-    "global_image": "Image"
+    "global_image": "Image",
+    "reports_from": "From: {date}",
+    "reports_to": "To: {date}",
+    "reports_search_by_name": "Search by customer name...",
+    "reports_apply_filters": "Apply Filters",
+    "global_print": "Print",
+    "global_share": "Share",
+    "settings_stockValueCalculationTitle": "Stock Value Calculation",
+    "settings_stockValueCalculationPurchasePrice": "By Purchase Price",
+    "settings_stockValueCalculationSalePrice": "By Sale Price"
 }

@@ -107,5 +107,14 @@
     "inventory_controls_sortByNameDesc": "نام (نزولی)",
     "inventory_controls_sortByQuantityAsc": "تعداد (کم به زیاد)",
     "inventory_controls_sortByQuantityDesc": "تعداد (زیاد به کم)",
-    "global_image": "تصویر"
+    "global_image": "تصویر",
+    "reports_from": "از تاریخ: {date}",
+    "reports_to": "تا تاریخ: {date}",
+    "reports_search_by_name": "جستجو بر اساس اسم...",
+    "reports_apply_filters": "تایید فیلتر ها",
+    "global_print": "چاپ",
+    "global_share": "اشتراک‌گذاری",
+    "settings_stockValueCalculationTitle": "محاسبه ارزش انبار",
+    "settings_stockValueCalculationPurchasePrice": "بر اساس قیمت خرید",
+    "settings_stockValueCalculationSalePrice": "بر اساس قیمت فروش"
 }

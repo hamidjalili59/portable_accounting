@@ -5,6 +5,7 @@ import 'package:portable_accounting/core/l10n/l10n.dart';
 import 'package:portable_accounting/core/services/backup_service.dart';
 import 'package:portable_accounting/core/services/currency_service.dart';
 import 'package:portable_accounting/core/services/locale_cubit.dart';
+import 'package:portable_accounting/core/services/settings_cubit.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -196,6 +197,33 @@ class _SettingsPageState extends State<SettingsPage> {
                           context.read<LocaleCubit>().setLocale(newLocale);
                         }
                       },
+                    ),
+                  ),
+                  const Divider(),
+                  ListTile(
+                    title: Text(l10n.settings_stockValueCalculationTitle),
+                    subtitle: Padding(
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: BlocBuilder<SettingsCubit, StockValueCalculation>(
+                        builder: (context, currentSetting) {
+                          return SegmentedButton<StockValueCalculation>(
+                            segments: <ButtonSegment<StockValueCalculation>>[
+                              ButtonSegment(
+                                value: StockValueCalculation.basedOnPurchasePrice,
+                                label: Text(l10n.settings_stockValueCalculationPurchasePrice),
+                              ),
+                              ButtonSegment(
+                                value: StockValueCalculation.basedOnSalePrice,
+                                label: Text(l10n.settings_stockValueCalculationSalePrice),
+                              ),
+                            ],
+                            selected: {currentSetting},
+                            onSelectionChanged: (newSelection) {
+                              context.read<SettingsCubit>().setStockValueCalculation(newSelection.first);
+                            },
+                          );
+                        },
+                      ),
                     ),
                   ),
                 ],

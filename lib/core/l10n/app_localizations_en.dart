@@ -364,4 +364,22 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get global_image => 'Image';
+
+  @override
+  String get reports_search_by_name => 'Search by customer name...';
+
+  @override
+  String get reports_apply_filters => 'Apply Filters';
+
+  @override
+  String get global_print => 'Print';
+
+  @override
+  String get settings_stockValueCalculationTitle => 'Stock Value Calculation';
+
+  @override
+  String get settings_stockValueCalculationPurchasePrice => 'By Purchase Price';
+
+  @override
+  String get settings_stockValueCalculationSalePrice => 'By Sale Price';
 }

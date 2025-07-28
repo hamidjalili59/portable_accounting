@@ -14,30 +14,63 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$InvoiceListEvent {
 
-
+ DateTime? get startDate; DateTime? get endDate; String? get searchQuery;
+/// Create a copy of InvoiceListEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$InvoiceListEventCopyWith<InvoiceListEvent> get copyWith => _$InvoiceListEventCopyWithImpl<InvoiceListEvent>(this as InvoiceListEvent, _$identity);
 
 
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is InvoiceListEvent);
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is InvoiceListEvent&&(identical(other.startDate, startDate) || other.startDate == startDate)&&(identical(other.endDate, endDate) || other.endDate == endDate)&&(identical(other.searchQuery, searchQuery) || other.searchQuery == searchQuery));
 }
 
 
 @override
-int get hashCode => runtimeType.hashCode;
+int get hashCode => Object.hash(runtimeType,startDate,endDate,searchQuery);
 
 @override
 String toString() {
-  return 'InvoiceListEvent()';
+  return 'InvoiceListEvent(startDate: $startDate, endDate: $endDate, searchQuery: $searchQuery)';
 }
 
 
 }
 
 /// @nodoc
-class $InvoiceListEventCopyWith<$Res>  {
-$InvoiceListEventCopyWith(InvoiceListEvent _, $Res Function(InvoiceListEvent) __);
+abstract mixin class $InvoiceListEventCopyWith<$Res>  {
+  factory $InvoiceListEventCopyWith(InvoiceListEvent value, $Res Function(InvoiceListEvent) _then) = _$InvoiceListEventCopyWithImpl;
+@useResult
+$Res call({
+ DateTime? startDate, DateTime? endDate, String? searchQuery
+});
+
+
+
+
+}
+/// @nodoc
+class _$InvoiceListEventCopyWithImpl<$Res>
+    implements $InvoiceListEventCopyWith<$Res> {
+  _$InvoiceListEventCopyWithImpl(this._self, this._then);
+
+  final InvoiceListEvent _self;
+  final $Res Function(InvoiceListEvent) _then;
+
+/// Create a copy of InvoiceListEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? startDate = freezed,Object? endDate = freezed,Object? searchQuery = freezed,}) {
+  return _then(_self.copyWith(
+startDate: freezed == startDate ? _self.startDate : startDate // ignore: cast_nullable_to_non_nullable
+as DateTime?,endDate: freezed == endDate ? _self.endDate : endDate // ignore: cast_nullable_to_non_nullable
+as DateTime?,searchQuery: freezed == searchQuery ? _self.searchQuery : searchQuery // ignore: cast_nullable_to_non_nullable
+as String?,
+  ));
+}
+
 }
 
 
@@ -119,10 +152,10 @@ return load(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  load,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( DateTime? startDate,  DateTime? endDate,  String? searchQuery)?  load,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Load() when load != null:
-return load();case _:
+return load(_that.startDate,_that.endDate,_that.searchQuery);case _:
   return orElse();
 
 }
@@ -140,10 +173,10 @@ return load();case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  load,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( DateTime? startDate,  DateTime? endDate,  String? searchQuery)  load,}) {final _that = this;
 switch (_that) {
 case _Load():
-return load();case _:
+return load(_that.startDate,_that.endDate,_that.searchQuery);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -160,10 +193,10 @@ return load();case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  load,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( DateTime? startDate,  DateTime? endDate,  String? searchQuery)?  load,}) {final _that = this;
 switch (_that) {
 case _Load() when load != null:
-return load();case _:
+return load(_that.startDate,_that.endDate,_that.searchQuery);case _:
   return null;
 
 }
@@ -175,33 +208,71 @@ return load();case _:
 
 
 class _Load implements InvoiceListEvent {
-  const _Load();
+  const _Load({this.startDate, this.endDate, this.searchQuery});
   
 
+@override final  DateTime? startDate;
+@override final  DateTime? endDate;
+@override final  String? searchQuery;
 
-
+/// Create a copy of InvoiceListEvent
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$LoadCopyWith<_Load> get copyWith => __$LoadCopyWithImpl<_Load>(this, _$identity);
 
 
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Load);
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Load&&(identical(other.startDate, startDate) || other.startDate == startDate)&&(identical(other.endDate, endDate) || other.endDate == endDate)&&(identical(other.searchQuery, searchQuery) || other.searchQuery == searchQuery));
 }
 
 
 @override
-int get hashCode => runtimeType.hashCode;
+int get hashCode => Object.hash(runtimeType,startDate,endDate,searchQuery);
 
 @override
 String toString() {
-  return 'InvoiceListEvent.load()';
+  return 'InvoiceListEvent.load(startDate: $startDate, endDate: $endDate, searchQuery: $searchQuery)';
 }
 
 
 }
 
+/// @nodoc
+abstract mixin class _$LoadCopyWith<$Res> implements $InvoiceListEventCopyWith<$Res> {
+  factory _$LoadCopyWith(_Load value, $Res Function(_Load) _then) = __$LoadCopyWithImpl;
+@override @useResult
+$Res call({
+ DateTime? startDate, DateTime? endDate, String? searchQuery
+});
 
 
+
+
+}
+/// @nodoc
+class __$LoadCopyWithImpl<$Res>
+    implements _$LoadCopyWith<$Res> {
+  __$LoadCopyWithImpl(this._self, this._then);
+
+  final _Load _self;
+  final $Res Function(_Load) _then;
+
+/// Create a copy of InvoiceListEvent
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? startDate = freezed,Object? endDate = freezed,Object? searchQuery = freezed,}) {
+  return _then(_Load(
+startDate: freezed == startDate ? _self.startDate : startDate // ignore: cast_nullable_to_non_nullable
+as DateTime?,endDate: freezed == endDate ? _self.endDate : endDate // ignore: cast_nullable_to_non_nullable
+as DateTime?,searchQuery: freezed == searchQuery ? _self.searchQuery : searchQuery // ignore: cast_nullable_to_non_nullable
+as String?,
+  ));
+}
+
+
+}
 
 /// @nodoc
 mixin _$InvoiceListState {
@@ -247,12 +318,12 @@ extension InvoiceListStatePatterns on InvoiceListState {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( _Initial value)?  initial,TResult Function( _Loading value)?  loading,TResult Function( _Loaded value)?  loaded,TResult Function( _Error value)?  error,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( _Initial value)?  initial,TResult Function( _Loading value)?  loading,TResult Function( Loaded value)?  loaded,TResult Function( _Error value)?  error,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case _Initial() when initial != null:
 return initial(_that);case _Loading() when loading != null:
-return loading(_that);case _Loaded() when loaded != null:
+return loading(_that);case Loaded() when loaded != null:
 return loaded(_that);case _Error() when error != null:
 return error(_that);case _:
   return orElse();
@@ -272,12 +343,12 @@ return error(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( _Initial value)  initial,required TResult Function( _Loading value)  loading,required TResult Function( _Loaded value)  loaded,required TResult Function( _Error value)  error,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( _Initial value)  initial,required TResult Function( _Loading value)  loading,required TResult Function( Loaded value)  loaded,required TResult Function( _Error value)  error,}){
 final _that = this;
 switch (_that) {
 case _Initial():
 return initial(_that);case _Loading():
-return loading(_that);case _Loaded():
+return loading(_that);case Loaded():
 return loaded(_that);case _Error():
 return error(_that);case _:
   throw StateError('Unexpected subclass');
@@ -296,12 +367,12 @@ return error(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( _Initial value)?  initial,TResult? Function( _Loading value)?  loading,TResult? Function( _Loaded value)?  loaded,TResult? Function( _Error value)?  error,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( _Initial value)?  initial,TResult? Function( _Loading value)?  loading,TResult? Function( Loaded value)?  loaded,TResult? Function( _Error value)?  error,}){
 final _that = this;
 switch (_that) {
 case _Initial() when initial != null:
 return initial(_that);case _Loading() when loading != null:
-return loading(_that);case _Loaded() when loaded != null:
+return loading(_that);case Loaded() when loaded != null:
 return loaded(_that);case _Error() when error != null:
 return error(_that);case _:
   return null;
@@ -320,12 +391,12 @@ return error(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function()?  loading,TResult Function( List<Invoice> invoices)?  loaded,TResult Function( String message)?  error,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function()?  loading,TResult Function( List<Invoice> invoices,  DateTime startDate,  DateTime endDate,  String searchQuery)?  loaded,TResult Function( String message)?  error,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Initial() when initial != null:
 return initial();case _Loading() when loading != null:
-return loading();case _Loaded() when loaded != null:
-return loaded(_that.invoices);case _Error() when error != null:
+return loading();case Loaded() when loaded != null:
+return loaded(_that.invoices,_that.startDate,_that.endDate,_that.searchQuery);case _Error() when error != null:
 return error(_that.message);case _:
   return orElse();
 
@@ -344,12 +415,12 @@ return error(_that.message);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function()  loading,required TResult Function( List<Invoice> invoices)  loaded,required TResult Function( String message)  error,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function()  loading,required TResult Function( List<Invoice> invoices,  DateTime startDate,  DateTime endDate,  String searchQuery)  loaded,required TResult Function( String message)  error,}) {final _that = this;
 switch (_that) {
 case _Initial():
 return initial();case _Loading():
-return loading();case _Loaded():
-return loaded(_that.invoices);case _Error():
+return loading();case Loaded():
+return loaded(_that.invoices,_that.startDate,_that.endDate,_that.searchQuery);case _Error():
 return error(_that.message);case _:
   throw StateError('Unexpected subclass');
 
@@ -367,12 +438,12 @@ return error(_that.message);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function()?  loading,TResult? Function( List<Invoice> invoices)?  loaded,TResult? Function( String message)?  error,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function()?  loading,TResult? Function( List<Invoice> invoices,  DateTime startDate,  DateTime endDate,  String searchQuery)?  loaded,TResult? Function( String message)?  error,}) {final _that = this;
 switch (_that) {
 case _Initial() when initial != null:
 return initial();case _Loading() when loading != null:
-return loading();case _Loaded() when loaded != null:
-return loaded(_that.invoices);case _Error() when error != null:
+return loading();case Loaded() when loaded != null:
+return loaded(_that.invoices,_that.startDate,_that.endDate,_that.searchQuery);case _Error() when error != null:
 return error(_that.message);case _:
   return null;
 
@@ -448,8 +519,8 @@ String toString() {
 /// @nodoc
 
 
-class _Loaded implements InvoiceListState {
-  const _Loaded(final  List<Invoice> invoices): _invoices = invoices;
+class Loaded implements InvoiceListState {
+  const Loaded({required final  List<Invoice> invoices, required this.startDate, required this.endDate, required this.searchQuery}): _invoices = invoices;
   
 
  final  List<Invoice> _invoices;
@@ -459,27 +530,30 @@ class _Loaded implements InvoiceListState {
   return EqualUnmodifiableListView(_invoices);
 }
 
+ final  DateTime startDate;
+ final  DateTime endDate;
+ final  String searchQuery;
 
 /// Create a copy of InvoiceListState
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
 @pragma('vm:prefer-inline')
-_$LoadedCopyWith<_Loaded> get copyWith => __$LoadedCopyWithImpl<_Loaded>(this, _$identity);
+_$LoadedCopyWith<Loaded> get copyWith => __$LoadedCopyWithImpl<Loaded>(this, _$identity);
 
 
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Loaded&&const DeepCollectionEquality().equals(other._invoices, _invoices));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Loaded&&const DeepCollectionEquality().equals(other._invoices, _invoices)&&(identical(other.startDate, startDate) || other.startDate == startDate)&&(identical(other.endDate, endDate) || other.endDate == endDate)&&(identical(other.searchQuery, searchQuery) || other.searchQuery == searchQuery));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_invoices));
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_invoices),startDate,endDate,searchQuery);
 
 @override
 String toString() {
-  return 'InvoiceListState.loaded(invoices: $invoices)';
+  return 'InvoiceListState.loaded(invoices: $invoices, startDate: $startDate, endDate: $endDate, searchQuery: $searchQuery)';
 }
 
 
@@ -487,10 +561,10 @@ String toString() {
 
 /// @nodoc
 abstract mixin class _$LoadedCopyWith<$Res> implements $InvoiceListStateCopyWith<$Res> {
-  factory _$LoadedCopyWith(_Loaded value, $Res Function(_Loaded) _then) = __$LoadedCopyWithImpl;
+  factory _$LoadedCopyWith(Loaded value, $Res Function(Loaded) _then) = __$LoadedCopyWithImpl;
 @useResult
 $Res call({
- List<Invoice> invoices
+ List<Invoice> invoices, DateTime startDate, DateTime endDate, String searchQuery
 });
 
 
@@ -502,15 +576,18 @@ class __$LoadedCopyWithImpl<$Res>
     implements _$LoadedCopyWith<$Res> {
   __$LoadedCopyWithImpl(this._self, this._then);
 
-  final _Loaded _self;
-  final $Res Function(_Loaded) _then;
+  final Loaded _self;
+  final $Res Function(Loaded) _then;
 
 /// Create a copy of InvoiceListState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? invoices = null,}) {
-  return _then(_Loaded(
-null == invoices ? _self._invoices : invoices // ignore: cast_nullable_to_non_nullable
-as List<Invoice>,
+@pragma('vm:prefer-inline') $Res call({Object? invoices = null,Object? startDate = null,Object? endDate = null,Object? searchQuery = null,}) {
+  return _then(Loaded(
+invoices: null == invoices ? _self._invoices : invoices // ignore: cast_nullable_to_non_nullable
+as List<Invoice>,startDate: null == startDate ? _self.startDate : startDate // ignore: cast_nullable_to_non_nullable
+as DateTime,endDate: null == endDate ? _self.endDate : endDate // ignore: cast_nullable_to_non_nullable
+as DateTime,searchQuery: null == searchQuery ? _self.searchQuery : searchQuery // ignore: cast_nullable_to_non_nullable
+as String,
   ));
 }
 

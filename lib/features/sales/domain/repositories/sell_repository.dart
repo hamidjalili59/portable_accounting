@@ -4,16 +4,18 @@ import 'package:portable_accounting/core/error/failure.dart';
 import 'package:portable_accounting/features/sales/domain/entities/invoice.dart';
 
 abstract class SalesRepository {
-  // یک فاکتور جدید ایجاد می‌کند
-  // این مهم‌ترین متد ماست. باید هم فاکتور را ذخیره کند و هم موجودی انبار را کم کند.
   Future<Either<Failure, void>> createInvoice(Invoice invoice);
 
-  // تمام فاکتورهای ذخیره شده را برمی‌گرداند
   Future<Either<Failure, List<Invoice>>> getAllInvoices();
 
-  // متد جدید برای گرفتن فاکتورها بر اساس تاریخ
   Future<Either<Failure, List<Invoice>>> getInvoicesByDateRange(
     DateTime start,
     DateTime end,
   );
+
+  Future<Either<Failure, List<Invoice>>> getInvoicesByDateRangeAndQuery({
+    required DateTime start,
+    required DateTime end,
+    String? query,
+  });
 }
