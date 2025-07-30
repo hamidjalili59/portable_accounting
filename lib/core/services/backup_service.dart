@@ -1,99 +1,140 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:file_saver/file_saver.dart';
-import 'package:flutter/foundation.dart' show debugPrint, kDebugMode;
+import 'package:flutter/foundation.dart';
 import 'package:intl/intl.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
-import 'package:portable_accounting/core/database/app_database.dart';
+import 'package:portable_accounting/core/database/app_database.dart' as db;
 import 'package:share_plus/share_plus.dart';
 
 class BackupService {
-  final AppDatabase _db;
+  final db.AppDatabase _db;
 
   BackupService(this._db);
 
-  Future<void> shareBackup() async {
-    try {
-      final dbPath = await getDatabasePath();
-      final dbFile = File(dbPath);
-      if (!await dbFile.exists()) {
-        throw Exception('Database file does not exist.');
-      }
-
-      final file = XFile(dbPath);
-      await SharePlus.instance.share(
-        ShareParams(files: [file], text: 'فایل پشتیبان دیتابیس'),
-      );
-    } catch (e) {
-      debugPrint('Share backup failed: $e');
-      rethrow;
-    }
+  // --- Native Methods ---
+  Future<String> getDatabasePath() async {
+    final dbFolder = await getApplicationDocumentsDirectory();
+    return p.join(dbFolder.path, '${db.dbName}.sqlite');
   }
 
-  /// Saves the backup file directly to the Downloads folder.
-  Future<String> saveBackupToDownloads() async {
-    try {
-      final dbPath = await getDatabasePath();
-      final dbFile = File(dbPath);
-      if (!await dbFile.exists()) {
-        throw Exception('Database file does not exist.');
-      }
+  Future<void> shareBackup() async {
+    final dbPath = await getDatabasePath();
+    await SharePlus.instance.share(
+      ShareParams(files: [XFile(dbPath)], text: 'Accounting Backup'),
+    );
+  }
 
+  Future<String> saveBackupToDownloads() async {
+    if (!kIsWeb) {
+      final dbPath = await getDatabasePath();
+      final bytes = await File(dbPath).readAsBytes();
       final timestamp = DateFormat('yyyy-MM-dd_HH-mm').format(DateTime.now());
       final fileName = 'backup-$timestamp';
-
-      final bytes = await dbFile.readAsBytes();
-
       String? savedPath = await FileSaver.instance.saveAs(
         name: fileName,
         bytes: bytes,
         fileExtension: 'db',
         mimeType: MimeType.other,
       );
-
-      if (savedPath == null) {
+      if (savedPath == null || savedPath.isEmpty) {
         throw Exception('File saving was cancelled.');
       }
       return savedPath;
-    } catch (e) {
-      debugPrint('Save backup failed: $e');
-      rethrow; // Re-throw the exception to be caught by the UI
+    } else {
+      throw Exception('Storage permission is required.');
     }
   }
 
-  // متد برای پیدا کردن مسیر فایل دیتابیس
-  Future<String> getDatabasePath() async {
-    final dbFolder = await getApplicationDocumentsDirectory();
-    // Add ".sqlite" to the filename to match the actual file
-    return p.join(dbFolder.path, '$dbName.sqlite');
-  }
-
-  // بازیابی دیتابیس از فایل پشتیبان
   Future<bool> restoreDatabase() async {
     try {
-      // به کاربر اجازه می‌دهیم یک فایل را انتخاب کند
-      final result = await FilePicker.platform.pickFiles();
-
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['db'],
+      );
       if (result != null && result.files.single.path != null) {
-        final pickedFile = File(result.files.single.path!);
-        final dbPath = await getDatabasePath();
-
-        // **مهم‌ترین بخش:** قبل از جایگزینی فایل، باید اتصال به دیتابیس فعلی را ببندیم.
         await _db.close();
-
-        // فایل انتخاب شده را در مسیر دیتابیس کپی و جایگزین می‌کنیم
-        await pickedFile.copy(dbPath);
-
-        // موفقیت‌آمیز بود
+        await File(result.files.single.path!).copy(await getDatabasePath());
         return true;
       }
-      return false; // کاربر فایلی انتخاب نکرد
-    } catch (e) {
-      if (kDebugMode) {
-        print('Restore failed: $e');
-      }
       return false;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Reads all data from the database and exports it as a single JSON file.
+  Future<void> exportDataAsJson() async {
+    try {
+      final inventory = await _db.select(_db.inventoryItems).get();
+      final invoices = await _db.select(_db.invoices).get();
+      final saleItems = await _db.select(_db.saleItems).get();
+
+      final exportData = {
+        'inventory': inventory.map((item) => item.toJson()).toList(),
+        'invoices': invoices.map((invoice) => invoice.toJson()).toList(),
+        'saleItems': saleItems.map((item) => item.toJson()).toList(),
+      };
+
+      final jsonString = jsonEncode(exportData);
+      final bytes = Uint8List.fromList(utf8.encode(jsonString));
+
+      final timestamp = DateFormat('yyyy-MM-dd_HH-mm').format(DateTime.now());
+      await FileSaver.instance.saveAs(
+        name: 'backup-$timestamp',
+        bytes: bytes,
+        fileExtension: 'json',
+        mimeType: MimeType.json,
+      );
+    } catch (e) {
+      debugPrint('JSON export failed: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> importDataFromJson() async {
+    try {
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['json'],
+        withData: true,
+      );
+
+      if (result == null || result.files.single.bytes == null) {
+        throw Exception('No file selected or file is empty.');
+      }
+
+      final bytes = result.files.single.bytes!;
+      final jsonString = utf8.decode(bytes);
+      final importData = jsonDecode(jsonString) as Map<String, dynamic>;
+
+      await _db.transaction(() async {
+        await _db.delete(_db.saleItems).go();
+        await _db.delete(_db.invoices).go();
+        await _db.delete(_db.inventoryItems).go();
+
+        final inventory = (importData['inventory'] as List)
+            .map((item) => db.InventoryItem.fromJson(item))
+            .toList();
+        await _db.batch(
+          (batch) => batch.insertAll(_db.inventoryItems, inventory),
+        );
+
+        final invoices = (importData['invoices'] as List)
+            .map((item) => db.Invoice.fromJson(item))
+            .toList();
+        await _db.batch((batch) => batch.insertAll(_db.invoices, invoices));
+
+        final saleItems = (importData['saleItems'] as List)
+            .map((item) => db.SaleItem.fromJson(item))
+            .toList();
+        await _db.batch((batch) => batch.insertAll(_db.saleItems, saleItems));
+      });
+    } catch (e) {
+      debugPrint('JSON import failed: $e');
+      rethrow;
     }
   }
 }

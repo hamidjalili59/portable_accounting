@@ -77,7 +77,7 @@
     "settings_restoreWarningMessage": "بازیابی اطلاعات، تمام داده‌های فعلی را پاک کرده و اطلاعات فایل پشتیبان را جایگزین می‌کند. برنامه باید مجدداً راه‌اندازی شود. آیا ادامه می‌دهید؟",
     "settings_restoreConfirmButton": "تایید و بازیابی",
     "settings_restoreSuccessTitle": "بازیابی موفق",
-    "settings_restoreSuccessMessage": "اطلاعات با موفقیت بازیابی شد. لطفاً برای اعمال تغییرات، برنامه را ببندید و دوباره باز کنید.",
+    "settings_restoreSuccessMessage": "اطلاعات با موفقیت بازیابی شد.",
     "settings_iUnderstandButton": "متوجه شدم",
     "settings_restoreErrorMessage": "خطا در بازیابی یا فایلی انتخاب نشد.",
     "createInvoice_title": "ایجاد فاکتور جدید",
@@ -116,5 +116,9 @@
     "global_share": "اشتراک‌گذاری",
     "settings_stockValueCalculationTitle": "محاسبه ارزش انبار",
     "settings_stockValueCalculationPurchasePrice": "بر اساس قیمت خرید",
-    "settings_stockValueCalculationSalePrice": "بر اساس قیمت فروش"
+    "settings_stockValueCalculationSalePrice": "بر اساس قیمت فروش",
+    "settings_exportDataTitle": "خروجی دیتا (JSON)",
+    "settings_exportDataSubtitle": "یک نسخه پشتیبان از اطلاعات خود به صورت فایل JSON ذخیره کنید.",
+    "settings_importDataTitle": "ورود دیتا (JSON)",
+    "settings_importDataSubtitle": "اطلاعات خود را از یک فایل پشتیبان JSON بازگردانید."
 }

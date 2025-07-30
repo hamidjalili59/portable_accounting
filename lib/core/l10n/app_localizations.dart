@@ -563,7 +563,7 @@ abstract class AppLocalizations {
   /// No description provided for @settings_restoreSuccessMessage.
   ///
   /// In en, this message translates to:
-  /// **'Data was restored successfully. Please close and reopen the app to apply the changes.'**
+  /// **'Data was restored successfully.'**
   String get settings_restoreSuccessMessage;
 
   /// No description provided for @settings_iUnderstandButton.
@@ -781,6 +781,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'By Sale Price'**
   String get settings_stockValueCalculationSalePrice;
+
+  /// No description provided for @settings_exportDataTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Export Data (JSON)'**
+  String get settings_exportDataTitle;
+
+  /// No description provided for @settings_exportDataSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Save a backup of your data as a JSON file.'**
+  String get settings_exportDataSubtitle;
+
+  /// No description provided for @settings_importDataTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Import Data (JSON)'**
+  String get settings_importDataTitle;
+
+  /// No description provided for @settings_importDataSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore your data from a JSON backup file.'**
+  String get settings_importDataSubtitle;
 }
 
 class _AppLocalizationsDelegate

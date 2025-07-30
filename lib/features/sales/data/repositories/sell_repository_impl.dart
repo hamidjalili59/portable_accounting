@@ -1,6 +1,6 @@
 import 'package:drift/drift.dart';
 import 'package:fpdart/fpdart.dart';
-import 'package:portable_accounting/core/database/app_database.dart';
+import 'package:portable_accounting/core/database/app_database.dart' as db;
 import 'package:portable_accounting/core/error/failure.dart';
 import 'package:portable_accounting/features/inventory/data/datasources/local/inventory_dao.dart';
 import 'package:portable_accounting/features/sales/data/datasources/local/sales_dao.dart';
@@ -9,12 +9,12 @@ import 'package:portable_accounting/features/sales/domain/entities/sale_item.dar
 import 'package:portable_accounting/features/sales/domain/repositories/sell_repository.dart';
 
 class SalesRepositoryImpl implements SalesRepository {
-  final AppDatabase _db;
+  final db.AppDatabase _db;
   final SalesDao _salesDao;
   final InventoryDao _inventoryDao;
 
   SalesRepositoryImpl({
-    required AppDatabase db,
+    required db.AppDatabase db,
     required SalesDao salesDao,
     required InventoryDao inventoryDao,
   }) : _db = db,
@@ -72,7 +72,7 @@ class SalesRepositoryImpl implements SalesRepository {
   Future<Either<Failure, void>> createInvoice(Invoice invoice) async {
     try {
       await _db.transaction(() async {
-        final invoiceCompanion = InvoicesCompanion(
+        final invoiceCompanion = db.InvoicesCompanion(
           date: Value(invoice.date),
           totalPrice: Value(invoice.totalPrice),
           customerName: Value(invoice.customerName),
@@ -80,7 +80,7 @@ class SalesRepositoryImpl implements SalesRepository {
         final invoiceId = await _salesDao.insertInvoice(invoiceCompanion);
 
         final saleItemsCompanions = invoice.items.map((item) {
-          return SaleItemsCompanion(
+          return db.SaleItemsCompanion(
             invoiceId: Value(invoiceId),
             inventoryItemId: Value(item.inventoryItemId),
             name: Value(item.name),
@@ -92,7 +92,7 @@ class SalesRepositoryImpl implements SalesRepository {
 
         for (final item in invoice.items) {
           final currentItem = await (_inventoryDao.select(
-            _inventoryDao.inventoryItems,
+            _inventoryDao.db.inventoryItems,
           )..where((tbl) => tbl.id.equals(item.inventoryItemId))).getSingle();
 
           final newQuantity = currentItem.quantity - item.quantity;

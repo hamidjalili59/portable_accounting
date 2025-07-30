@@ -1,16 +1,14 @@
 import 'package:drift/drift.dart';
 import 'package:drift_flutter/drift_flutter.dart';
 import 'package:portable_accounting/features/inventory/data/datasources/local/inventory_dao.dart';
-import 'package:portable_accounting/features/inventory/data/datasources/local/inventory_table.dart';
 import 'package:portable_accounting/features/sales/data/datasources/local/sales_dao.dart';
-import 'package:portable_accounting/features/sales/data/datasources/local/sell_table.dart';
 
 part 'app_database.g.dart';
 
 const String dbName = 'app_database.db';
 
 @DriftDatabase(
-  tables: [InventoryItems, Invoices, SaleItems],
+  include: {'schema.drift'},
   daos: [InventoryDao, SalesDao],
 )
 class AppDatabase extends _$AppDatabase {

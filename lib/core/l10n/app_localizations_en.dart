@@ -264,7 +264,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settings_restoreSuccessMessage =>
-      'Data was restored successfully. Please close and reopen the app to apply the changes.';
+      'Data was restored successfully.';
 
   @override
   String get settings_iUnderstandButton => 'I Understand';
@@ -382,4 +382,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settings_stockValueCalculationSalePrice => 'By Sale Price';
+
+  @override
+  String get settings_exportDataTitle => 'Export Data (JSON)';
+
+  @override
+  String get settings_exportDataSubtitle =>
+      'Save a backup of your data as a JSON file.';
+
+  @override
+  String get settings_importDataTitle => 'Import Data (JSON)';
+
+  @override
+  String get settings_importDataSubtitle =>
+      'Restore your data from a JSON backup file.';
 }

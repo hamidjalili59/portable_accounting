@@ -1,0 +1,26 @@
+-- This file defines the database schema for the application.
+
+CREATE TABLE inventory_items (
+    id INT NOT NULL PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    quantity INT NOT NULL,
+    purchase_price REAL NOT NULL,
+    sale_price REAL NOT NULL,
+    image_path TEXT
+) WITH JsonSerializable;
+
+CREATE TABLE invoices (
+    id INT NOT NULL PRIMARY KEY AUTOINCREMENT,
+    date DATETIME NOT NULL,
+    customer_name TEXT,
+    total_price REAL NOT NULL
+) WITH JsonSerializable;
+
+CREATE TABLE sale_items (
+    id INT NOT NULL PRIMARY KEY AUTOINCREMENT,
+    invoice_id INT NOT NULL REFERENCES invoices(id),
+    inventory_item_id INT NOT NULL REFERENCES inventory_items(id),
+    name TEXT NOT NULL,
+    quantity INT NOT NULL,
+    price REAL NOT NULL
+) WITH JsonSerializable;

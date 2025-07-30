@@ -115,8 +115,8 @@ class DashboardRepositoryImpl implements DashboardRepository {
 
   /// Helper method to calculate daily profit for the last 7 days.
   Future<List<DailyProfit>> _calculateLastWeekProfit(
-    List<InvoiceData> allInvoices,
-    List<SaleItemData> allSaleItems,
+    List<Invoice> allInvoices,
+    List<SaleItem> allSaleItems,
   ) async {
     // Step 1: Create a map with all of the last 7 days initialized to zero profit.
     final Map<DateTime, double> dailyProfitMap = {};

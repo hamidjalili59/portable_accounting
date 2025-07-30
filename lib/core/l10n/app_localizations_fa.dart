@@ -263,8 +263,7 @@ class AppLocalizationsFa extends AppLocalizations {
   String get settings_restoreSuccessTitle => 'بازیابی موفق';
 
   @override
-  String get settings_restoreSuccessMessage =>
-      'اطلاعات با موفقیت بازیابی شد. لطفاً برای اعمال تغییرات، برنامه را ببندید و دوباره باز کنید.';
+  String get settings_restoreSuccessMessage => 'اطلاعات با موفقیت بازیابی شد.';
 
   @override
   String get settings_iUnderstandButton => 'متوجه شدم';
@@ -382,4 +381,18 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get settings_stockValueCalculationSalePrice => 'بر اساس قیمت فروش';
+
+  @override
+  String get settings_exportDataTitle => 'خروجی دیتا (JSON)';
+
+  @override
+  String get settings_exportDataSubtitle =>
+      'یک نسخه پشتیبان از اطلاعات خود به صورت فایل JSON ذخیره کنید.';
+
+  @override
+  String get settings_importDataTitle => 'ورود دیتا (JSON)';
+
+  @override
+  String get settings_importDataSubtitle =>
+      'اطلاعات خود را از یک فایل پشتیبان JSON بازگردانید.';
 }

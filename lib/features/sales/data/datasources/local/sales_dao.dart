@@ -1,55 +1,45 @@
 import 'package:drift/drift.dart';
 import 'package:portable_accounting/core/database/app_database.dart';
 
-import 'sell_table.dart';
-
 part 'sales_dao.g.dart';
 
 @DriftAccessor(tables: [Invoices, SaleItems])
 class SalesDao extends DatabaseAccessor<AppDatabase> with _$SalesDaoMixin {
   SalesDao(super.db);
 
-  // یک فاکتور جدید درج می‌کند و ID آن را برمی‌گرداند
   Future<int> insertInvoice(InvoicesCompanion invoice) {
-    return into(invoices).insert(invoice);
+    return into(attachedDatabase.invoices).insert(invoice);
   }
 
-  Future<List<InvoiceData>> getFilteredInvoices({
+  Future<void> insertSaleItems(List<SaleItemsCompanion> items) {
+    return batch((batch) {
+      batch.insertAll(attachedDatabase.saleItems, items);
+    });
+  }
+
+  Future<List<Invoice>> getAllInvoices() => select(attachedDatabase.invoices).get();
+
+  Future<List<Invoice>> getFilteredInvoices({
     required DateTime start,
     required DateTime end,
     String? query,
   }) {
-    var statement = select(invoices)
+    var statement = select(attachedDatabase.invoices)
       ..where((tbl) => tbl.date.isBetween(Variable(start), Variable(end)));
 
     if (query != null && query.isNotEmpty) {
-      statement.where((tbl) => tbl.customerName.like('%$query%'));
+      // Ensure customerName is not null before calling .like()
+      statement.where((tbl) => tbl.customerName.isNotNull() & tbl.customerName.like('%$query%'));
     }
 
     return statement.get();
   }
 
-  // لیستی از آیتم‌های فروخته شده را درج می‌کند
-  Future<void> insertSaleItems(List<SaleItemsCompanion> items) {
-    return batch((batch) {
-      batch.insertAll(saleItems, items);
-    });
+  Future<List<SaleItem>> getSaleItemsForInvoice(int invoiceId) {
+    return (select(attachedDatabase.saleItems)..where((tbl) => tbl.invoiceId.equals(invoiceId))).get();
   }
 
-  // تمام فاکتورها را برمی‌گرداند
-  Future<List<InvoiceData>> getAllInvoices() => select(invoices).get();
-
-  // تمام آیتم‌های فروخته شده برای یک فاکتور خاص را برمی‌گرداند
-  Future<List<SaleItemData>> getSaleItemsForInvoice(int invoiceId) {
-    return (select(
-      saleItems,
-    )..where((tbl) => tbl.invoiceId.equals(invoiceId))).get();
-  }
-
-  // متد جدید برای خواندن فاکتورها در یک بازه زمانی
-  Future<List<InvoiceData>> getInvoicesBetween(DateTime start, DateTime end) {
-    return (select(invoices)
-          ..where((tbl) => tbl.date.isBetween(Variable(start), Variable(end))))
-        .get();
+  Future<List<Invoice>> getInvoicesBetween(DateTime start, DateTime end) {
+    return (select(attachedDatabase.invoices)..where((tbl) => tbl.date.isBetween(Variable(start), Variable(end)))).get();
   }
 }

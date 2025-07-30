@@ -1,6 +1,6 @@
 import 'package:drift/drift.dart';
 import 'package:fpdart/fpdart.dart';
-import 'package:portable_accounting/core/database/app_database.dart';
+import 'package:portable_accounting/core/database/app_database.dart' as db;
 import 'package:portable_accounting/core/error/failure.dart';
 import 'package:portable_accounting/features/inventory/data/datasources/local/inventory_dao.dart';
 import 'package:portable_accounting/features/inventory/domain/entities/inventory_item.dart';
@@ -30,7 +30,7 @@ class InventoryRepositoryImpl implements InventoryRepository {
   // ... پیاده‌سازی addItem, updateItem, deleteItem
 
   // Helper function to map from Data layer object to Domain entity
-  InventoryItem _mapDataToEntity(InventoryItemData data) {
+  InventoryItem _mapDataToEntity(db.InventoryItem data) {
     return InventoryItem(
       id: data.id,
       name: data.name,
@@ -42,8 +42,8 @@ class InventoryRepositoryImpl implements InventoryRepository {
   }
 
   // Helper function to map from Domain entity to Data layer object
-  InventoryItemsCompanion _mapEntityToCompanion(InventoryItem entity) {
-    return InventoryItemsCompanion(
+  db.InventoryItemsCompanion _mapEntityToCompanion(InventoryItem entity) {
+    return db.InventoryItemsCompanion(
       id: entity.id == 0 ? const Value.absent() : Value(entity.id),
       // id=0 یعنی آیتم جدید است
       name: Value(entity.name),

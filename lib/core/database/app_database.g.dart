@@ -3,14 +3,13 @@
 part of 'app_database.dart';
 
 // ignore_for_file: type=lint
-class $InventoryItemsTable extends InventoryItems
-    with TableInfo<$InventoryItemsTable, InventoryItemData> {
+class InventoryItems extends Table
+    with TableInfo<InventoryItems, InventoryItem> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
-  $InventoryItemsTable(this.attachedDatabase, [this._alias]);
+  InventoryItems(this.attachedDatabase, [this._alias]);
   static const VerificationMeta _idMeta = const VerificationMeta('id');
-  @override
   late final GeneratedColumn<int> id = GeneratedColumn<int>(
     'id',
     aliasedName,
@@ -18,66 +17,60 @@ class $InventoryItemsTable extends InventoryItems
     hasAutoIncrement: true,
     type: DriftSqlType.int,
     requiredDuringInsert: false,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'PRIMARY KEY AUTOINCREMENT',
-    ),
+    $customConstraints: 'NOT NULL PRIMARY KEY AUTOINCREMENT',
   );
   static const VerificationMeta _nameMeta = const VerificationMeta('name');
-  @override
   late final GeneratedColumn<String> name = GeneratedColumn<String>(
     'name',
     aliasedName,
     false,
-    additionalChecks: GeneratedColumn.checkTextLength(
-      minTextLength: 1,
-      maxTextLength: 100,
-    ),
     type: DriftSqlType.string,
     requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL',
   );
   static const VerificationMeta _quantityMeta = const VerificationMeta(
     'quantity',
   );
-  @override
   late final GeneratedColumn<int> quantity = GeneratedColumn<int>(
     'quantity',
     aliasedName,
     false,
     type: DriftSqlType.int,
     requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL',
   );
   static const VerificationMeta _purchasePriceMeta = const VerificationMeta(
     'purchasePrice',
   );
-  @override
   late final GeneratedColumn<double> purchasePrice = GeneratedColumn<double>(
     'purchase_price',
     aliasedName,
     false,
     type: DriftSqlType.double,
     requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL',
   );
   static const VerificationMeta _salePriceMeta = const VerificationMeta(
     'salePrice',
   );
-  @override
   late final GeneratedColumn<double> salePrice = GeneratedColumn<double>(
     'sale_price',
     aliasedName,
     false,
     type: DriftSqlType.double,
     requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL',
   );
   static const VerificationMeta _imagePathMeta = const VerificationMeta(
     'imagePath',
   );
-  @override
   late final GeneratedColumn<String> imagePath = GeneratedColumn<String>(
     'image_path',
     aliasedName,
     true,
     type: DriftSqlType.string,
     requiredDuringInsert: false,
+    $customConstraints: '',
   );
   @override
   List<GeneratedColumn> get $columns => [
@@ -95,7 +88,7 @@ class $InventoryItemsTable extends InventoryItems
   static const String $name = 'inventory_items';
   @override
   VerificationContext validateIntegrity(
-    Insertable<InventoryItemData> instance, {
+    Insertable<InventoryItem> instance, {
     bool isInserting = false,
   }) {
     final context = VerificationContext();
@@ -150,9 +143,9 @@ class $InventoryItemsTable extends InventoryItems
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
-  InventoryItemData map(Map<String, dynamic> data, {String? tablePrefix}) {
+  InventoryItem map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return InventoryItemData(
+    return InventoryItem(
       id: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}id'],
@@ -181,20 +174,22 @@ class $InventoryItemsTable extends InventoryItems
   }
 
   @override
-  $InventoryItemsTable createAlias(String alias) {
-    return $InventoryItemsTable(attachedDatabase, alias);
+  InventoryItems createAlias(String alias) {
+    return InventoryItems(attachedDatabase, alias);
   }
+
+  @override
+  bool get dontWriteConstraints => true;
 }
 
-class InventoryItemData extends DataClass
-    implements Insertable<InventoryItemData> {
+class InventoryItem extends DataClass implements Insertable<InventoryItem> {
   final int id;
   final String name;
   final int quantity;
   final double purchasePrice;
   final double salePrice;
   final String? imagePath;
-  const InventoryItemData({
+  const InventoryItem({
     required this.id,
     required this.name,
     required this.quantity,
@@ -229,18 +224,18 @@ class InventoryItemData extends DataClass
     );
   }
 
-  factory InventoryItemData.fromJson(
+  factory InventoryItem.fromJson(
     Map<String, dynamic> json, {
     ValueSerializer? serializer,
   }) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return InventoryItemData(
+    return InventoryItem(
       id: serializer.fromJson<int>(json['id']),
       name: serializer.fromJson<String>(json['name']),
       quantity: serializer.fromJson<int>(json['quantity']),
-      purchasePrice: serializer.fromJson<double>(json['purchasePrice']),
-      salePrice: serializer.fromJson<double>(json['salePrice']),
-      imagePath: serializer.fromJson<String?>(json['imagePath']),
+      purchasePrice: serializer.fromJson<double>(json['purchase_price']),
+      salePrice: serializer.fromJson<double>(json['sale_price']),
+      imagePath: serializer.fromJson<String?>(json['image_path']),
     );
   }
   @override
@@ -250,20 +245,20 @@ class InventoryItemData extends DataClass
       'id': serializer.toJson<int>(id),
       'name': serializer.toJson<String>(name),
       'quantity': serializer.toJson<int>(quantity),
-      'purchasePrice': serializer.toJson<double>(purchasePrice),
-      'salePrice': serializer.toJson<double>(salePrice),
-      'imagePath': serializer.toJson<String?>(imagePath),
+      'purchase_price': serializer.toJson<double>(purchasePrice),
+      'sale_price': serializer.toJson<double>(salePrice),
+      'image_path': serializer.toJson<String?>(imagePath),
     };
   }
 
-  InventoryItemData copyWith({
+  InventoryItem copyWith({
     int? id,
     String? name,
     int? quantity,
     double? purchasePrice,
     double? salePrice,
     Value<String?> imagePath = const Value.absent(),
-  }) => InventoryItemData(
+  }) => InventoryItem(
     id: id ?? this.id,
     name: name ?? this.name,
     quantity: quantity ?? this.quantity,
@@ -271,8 +266,8 @@ class InventoryItemData extends DataClass
     salePrice: salePrice ?? this.salePrice,
     imagePath: imagePath.present ? imagePath.value : this.imagePath,
   );
-  InventoryItemData copyWithCompanion(InventoryItemsCompanion data) {
-    return InventoryItemData(
+  InventoryItem copyWithCompanion(InventoryItemsCompanion data) {
+    return InventoryItem(
       id: data.id.present ? data.id.value : this.id,
       name: data.name.present ? data.name.value : this.name,
       quantity: data.quantity.present ? data.quantity.value : this.quantity,
@@ -286,7 +281,7 @@ class InventoryItemData extends DataClass
 
   @override
   String toString() {
-    return (StringBuffer('InventoryItemData(')
+    return (StringBuffer('InventoryItem(')
           ..write('id: $id, ')
           ..write('name: $name, ')
           ..write('quantity: $quantity, ')
@@ -303,7 +298,7 @@ class InventoryItemData extends DataClass
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is InventoryItemData &&
+      (other is InventoryItem &&
           other.id == this.id &&
           other.name == this.name &&
           other.quantity == this.quantity &&
@@ -312,7 +307,7 @@ class InventoryItemData extends DataClass
           other.imagePath == this.imagePath);
 }
 
-class InventoryItemsCompanion extends UpdateCompanion<InventoryItemData> {
+class InventoryItemsCompanion extends UpdateCompanion<InventoryItem> {
   final Value<int> id;
   final Value<String> name;
   final Value<int> quantity;
@@ -338,7 +333,7 @@ class InventoryItemsCompanion extends UpdateCompanion<InventoryItemData> {
        quantity = Value(quantity),
        purchasePrice = Value(purchasePrice),
        salePrice = Value(salePrice);
-  static Insertable<InventoryItemData> custom({
+  static Insertable<InventoryItem> custom({
     Expression<int>? id,
     Expression<String>? name,
     Expression<int>? quantity,
@@ -412,14 +407,12 @@ class InventoryItemsCompanion extends UpdateCompanion<InventoryItemData> {
   }
 }
 
-class $InvoicesTable extends Invoices
-    with TableInfo<$InvoicesTable, InvoiceData> {
+class Invoices extends Table with TableInfo<Invoices, Invoice> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
-  $InvoicesTable(this.attachedDatabase, [this._alias]);
+  Invoices(this.attachedDatabase, [this._alias]);
   static const VerificationMeta _idMeta = const VerificationMeta('id');
-  @override
   late final GeneratedColumn<int> id = GeneratedColumn<int>(
     'id',
     aliasedName,
@@ -427,40 +420,38 @@ class $InvoicesTable extends Invoices
     hasAutoIncrement: true,
     type: DriftSqlType.int,
     requiredDuringInsert: false,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'PRIMARY KEY AUTOINCREMENT',
-    ),
+    $customConstraints: 'NOT NULL PRIMARY KEY AUTOINCREMENT',
   );
   static const VerificationMeta _dateMeta = const VerificationMeta('date');
-  @override
   late final GeneratedColumn<DateTime> date = GeneratedColumn<DateTime>(
     'date',
     aliasedName,
     false,
     type: DriftSqlType.dateTime,
     requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL',
   );
   static const VerificationMeta _customerNameMeta = const VerificationMeta(
     'customerName',
   );
-  @override
   late final GeneratedColumn<String> customerName = GeneratedColumn<String>(
     'customer_name',
     aliasedName,
     true,
     type: DriftSqlType.string,
     requiredDuringInsert: false,
+    $customConstraints: '',
   );
   static const VerificationMeta _totalPriceMeta = const VerificationMeta(
     'totalPrice',
   );
-  @override
   late final GeneratedColumn<double> totalPrice = GeneratedColumn<double>(
     'total_price',
     aliasedName,
     false,
     type: DriftSqlType.double,
     requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL',
   );
   @override
   List<GeneratedColumn> get $columns => [id, date, customerName, totalPrice];
@@ -471,7 +462,7 @@ class $InvoicesTable extends Invoices
   static const String $name = 'invoices';
   @override
   VerificationContext validateIntegrity(
-    Insertable<InvoiceData> instance, {
+    Insertable<Invoice> instance, {
     bool isInserting = false,
   }) {
     final context = VerificationContext();
@@ -510,9 +501,9 @@ class $InvoicesTable extends Invoices
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
-  InvoiceData map(Map<String, dynamic> data, {String? tablePrefix}) {
+  Invoice map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return InvoiceData(
+    return Invoice(
       id: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}id'],
@@ -533,17 +524,20 @@ class $InvoicesTable extends Invoices
   }
 
   @override
-  $InvoicesTable createAlias(String alias) {
-    return $InvoicesTable(attachedDatabase, alias);
+  Invoices createAlias(String alias) {
+    return Invoices(attachedDatabase, alias);
   }
+
+  @override
+  bool get dontWriteConstraints => true;
 }
 
-class InvoiceData extends DataClass implements Insertable<InvoiceData> {
+class Invoice extends DataClass implements Insertable<Invoice> {
   final int id;
   final DateTime date;
   final String? customerName;
   final double totalPrice;
-  const InvoiceData({
+  const Invoice({
     required this.id,
     required this.date,
     this.customerName,
@@ -572,16 +566,16 @@ class InvoiceData extends DataClass implements Insertable<InvoiceData> {
     );
   }
 
-  factory InvoiceData.fromJson(
+  factory Invoice.fromJson(
     Map<String, dynamic> json, {
     ValueSerializer? serializer,
   }) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return InvoiceData(
+    return Invoice(
       id: serializer.fromJson<int>(json['id']),
       date: serializer.fromJson<DateTime>(json['date']),
-      customerName: serializer.fromJson<String?>(json['customerName']),
-      totalPrice: serializer.fromJson<double>(json['totalPrice']),
+      customerName: serializer.fromJson<String?>(json['customer_name']),
+      totalPrice: serializer.fromJson<double>(json['total_price']),
     );
   }
   @override
@@ -590,24 +584,24 @@ class InvoiceData extends DataClass implements Insertable<InvoiceData> {
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
       'date': serializer.toJson<DateTime>(date),
-      'customerName': serializer.toJson<String?>(customerName),
-      'totalPrice': serializer.toJson<double>(totalPrice),
+      'customer_name': serializer.toJson<String?>(customerName),
+      'total_price': serializer.toJson<double>(totalPrice),
     };
   }
 
-  InvoiceData copyWith({
+  Invoice copyWith({
     int? id,
     DateTime? date,
     Value<String?> customerName = const Value.absent(),
     double? totalPrice,
-  }) => InvoiceData(
+  }) => Invoice(
     id: id ?? this.id,
     date: date ?? this.date,
     customerName: customerName.present ? customerName.value : this.customerName,
     totalPrice: totalPrice ?? this.totalPrice,
   );
-  InvoiceData copyWithCompanion(InvoicesCompanion data) {
-    return InvoiceData(
+  Invoice copyWithCompanion(InvoicesCompanion data) {
+    return Invoice(
       id: data.id.present ? data.id.value : this.id,
       date: data.date.present ? data.date.value : this.date,
       customerName: data.customerName.present
@@ -621,7 +615,7 @@ class InvoiceData extends DataClass implements Insertable<InvoiceData> {
 
   @override
   String toString() {
-    return (StringBuffer('InvoiceData(')
+    return (StringBuffer('Invoice(')
           ..write('id: $id, ')
           ..write('date: $date, ')
           ..write('customerName: $customerName, ')
@@ -635,14 +629,14 @@ class InvoiceData extends DataClass implements Insertable<InvoiceData> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is InvoiceData &&
+      (other is Invoice &&
           other.id == this.id &&
           other.date == this.date &&
           other.customerName == this.customerName &&
           other.totalPrice == this.totalPrice);
 }
 
-class InvoicesCompanion extends UpdateCompanion<InvoiceData> {
+class InvoicesCompanion extends UpdateCompanion<Invoice> {
   final Value<int> id;
   final Value<DateTime> date;
   final Value<String?> customerName;
@@ -660,7 +654,7 @@ class InvoicesCompanion extends UpdateCompanion<InvoiceData> {
     required double totalPrice,
   }) : date = Value(date),
        totalPrice = Value(totalPrice);
-  static Insertable<InvoiceData> custom({
+  static Insertable<Invoice> custom({
     Expression<int>? id,
     Expression<DateTime>? date,
     Expression<String>? customerName,
@@ -718,14 +712,12 @@ class InvoicesCompanion extends UpdateCompanion<InvoiceData> {
   }
 }
 
-class $SaleItemsTable extends SaleItems
-    with TableInfo<$SaleItemsTable, SaleItemData> {
+class SaleItems extends Table with TableInfo<SaleItems, SaleItem> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
-  $SaleItemsTable(this.attachedDatabase, [this._alias]);
+  SaleItems(this.attachedDatabase, [this._alias]);
   static const VerificationMeta _idMeta = const VerificationMeta('id');
-  @override
   late final GeneratedColumn<int> id = GeneratedColumn<int>(
     'id',
     aliasedName,
@@ -733,66 +725,58 @@ class $SaleItemsTable extends SaleItems
     hasAutoIncrement: true,
     type: DriftSqlType.int,
     requiredDuringInsert: false,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'PRIMARY KEY AUTOINCREMENT',
-    ),
+    $customConstraints: 'NOT NULL PRIMARY KEY AUTOINCREMENT',
   );
   static const VerificationMeta _invoiceIdMeta = const VerificationMeta(
     'invoiceId',
   );
-  @override
   late final GeneratedColumn<int> invoiceId = GeneratedColumn<int>(
     'invoice_id',
     aliasedName,
     false,
     type: DriftSqlType.int,
     requiredDuringInsert: true,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'REFERENCES invoices (id)',
-    ),
+    $customConstraints: 'NOT NULL REFERENCES invoices(id)',
   );
   static const VerificationMeta _inventoryItemIdMeta = const VerificationMeta(
     'inventoryItemId',
   );
-  @override
   late final GeneratedColumn<int> inventoryItemId = GeneratedColumn<int>(
     'inventory_item_id',
     aliasedName,
     false,
     type: DriftSqlType.int,
     requiredDuringInsert: true,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'REFERENCES inventory_items (id)',
-    ),
+    $customConstraints: 'NOT NULL REFERENCES inventory_items(id)',
   );
   static const VerificationMeta _nameMeta = const VerificationMeta('name');
-  @override
   late final GeneratedColumn<String> name = GeneratedColumn<String>(
     'name',
     aliasedName,
     false,
     type: DriftSqlType.string,
     requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL',
   );
   static const VerificationMeta _quantityMeta = const VerificationMeta(
     'quantity',
   );
-  @override
   late final GeneratedColumn<int> quantity = GeneratedColumn<int>(
     'quantity',
     aliasedName,
     false,
     type: DriftSqlType.int,
     requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL',
   );
   static const VerificationMeta _priceMeta = const VerificationMeta('price');
-  @override
   late final GeneratedColumn<double> price = GeneratedColumn<double>(
     'price',
     aliasedName,
     false,
     type: DriftSqlType.double,
     requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL',
   );
   @override
   List<GeneratedColumn> get $columns => [
@@ -810,7 +794,7 @@ class $SaleItemsTable extends SaleItems
   static const String $name = 'sale_items';
   @override
   VerificationContext validateIntegrity(
-    Insertable<SaleItemData> instance, {
+    Insertable<SaleItem> instance, {
     bool isInserting = false,
   }) {
     final context = VerificationContext();
@@ -867,9 +851,9 @@ class $SaleItemsTable extends SaleItems
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
-  SaleItemData map(Map<String, dynamic> data, {String? tablePrefix}) {
+  SaleItem map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return SaleItemData(
+    return SaleItem(
       id: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}id'],
@@ -898,19 +882,22 @@ class $SaleItemsTable extends SaleItems
   }
 
   @override
-  $SaleItemsTable createAlias(String alias) {
-    return $SaleItemsTable(attachedDatabase, alias);
+  SaleItems createAlias(String alias) {
+    return SaleItems(attachedDatabase, alias);
   }
+
+  @override
+  bool get dontWriteConstraints => true;
 }
 
-class SaleItemData extends DataClass implements Insertable<SaleItemData> {
+class SaleItem extends DataClass implements Insertable<SaleItem> {
   final int id;
   final int invoiceId;
   final int inventoryItemId;
   final String name;
   final int quantity;
   final double price;
-  const SaleItemData({
+  const SaleItem({
     required this.id,
     required this.invoiceId,
     required this.inventoryItemId,
@@ -941,15 +928,15 @@ class SaleItemData extends DataClass implements Insertable<SaleItemData> {
     );
   }
 
-  factory SaleItemData.fromJson(
+  factory SaleItem.fromJson(
     Map<String, dynamic> json, {
     ValueSerializer? serializer,
   }) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return SaleItemData(
+    return SaleItem(
       id: serializer.fromJson<int>(json['id']),
-      invoiceId: serializer.fromJson<int>(json['invoiceId']),
-      inventoryItemId: serializer.fromJson<int>(json['inventoryItemId']),
+      invoiceId: serializer.fromJson<int>(json['invoice_id']),
+      inventoryItemId: serializer.fromJson<int>(json['inventory_item_id']),
       name: serializer.fromJson<String>(json['name']),
       quantity: serializer.fromJson<int>(json['quantity']),
       price: serializer.fromJson<double>(json['price']),
@@ -960,22 +947,22 @@ class SaleItemData extends DataClass implements Insertable<SaleItemData> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
-      'invoiceId': serializer.toJson<int>(invoiceId),
-      'inventoryItemId': serializer.toJson<int>(inventoryItemId),
+      'invoice_id': serializer.toJson<int>(invoiceId),
+      'inventory_item_id': serializer.toJson<int>(inventoryItemId),
       'name': serializer.toJson<String>(name),
       'quantity': serializer.toJson<int>(quantity),
       'price': serializer.toJson<double>(price),
     };
   }
 
-  SaleItemData copyWith({
+  SaleItem copyWith({
     int? id,
     int? invoiceId,
     int? inventoryItemId,
     String? name,
     int? quantity,
     double? price,
-  }) => SaleItemData(
+  }) => SaleItem(
     id: id ?? this.id,
     invoiceId: invoiceId ?? this.invoiceId,
     inventoryItemId: inventoryItemId ?? this.inventoryItemId,
@@ -983,8 +970,8 @@ class SaleItemData extends DataClass implements Insertable<SaleItemData> {
     quantity: quantity ?? this.quantity,
     price: price ?? this.price,
   );
-  SaleItemData copyWithCompanion(SaleItemsCompanion data) {
-    return SaleItemData(
+  SaleItem copyWithCompanion(SaleItemsCompanion data) {
+    return SaleItem(
       id: data.id.present ? data.id.value : this.id,
       invoiceId: data.invoiceId.present ? data.invoiceId.value : this.invoiceId,
       inventoryItemId: data.inventoryItemId.present
@@ -998,7 +985,7 @@ class SaleItemData extends DataClass implements Insertable<SaleItemData> {
 
   @override
   String toString() {
-    return (StringBuffer('SaleItemData(')
+    return (StringBuffer('SaleItem(')
           ..write('id: $id, ')
           ..write('invoiceId: $invoiceId, ')
           ..write('inventoryItemId: $inventoryItemId, ')
@@ -1015,7 +1002,7 @@ class SaleItemData extends DataClass implements Insertable<SaleItemData> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is SaleItemData &&
+      (other is SaleItem &&
           other.id == this.id &&
           other.invoiceId == this.invoiceId &&
           other.inventoryItemId == this.inventoryItemId &&
@@ -1024,7 +1011,7 @@ class SaleItemData extends DataClass implements Insertable<SaleItemData> {
           other.price == this.price);
 }
 
-class SaleItemsCompanion extends UpdateCompanion<SaleItemData> {
+class SaleItemsCompanion extends UpdateCompanion<SaleItem> {
   final Value<int> id;
   final Value<int> invoiceId;
   final Value<int> inventoryItemId;
@@ -1051,7 +1038,7 @@ class SaleItemsCompanion extends UpdateCompanion<SaleItemData> {
        name = Value(name),
        quantity = Value(quantity),
        price = Value(price);
-  static Insertable<SaleItemData> custom({
+  static Insertable<SaleItem> custom({
     Expression<int>? id,
     Expression<int>? invoiceId,
     Expression<int>? inventoryItemId,
@@ -1128,9 +1115,9 @@ class SaleItemsCompanion extends UpdateCompanion<SaleItemData> {
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
-  late final $InventoryItemsTable inventoryItems = $InventoryItemsTable(this);
-  late final $InvoicesTable invoices = $InvoicesTable(this);
-  late final $SaleItemsTable saleItems = $SaleItemsTable(this);
+  late final InventoryItems inventoryItems = InventoryItems(this);
+  late final Invoices invoices = Invoices(this);
+  late final SaleItems saleItems = SaleItems(this);
   late final InventoryDao inventoryDao = InventoryDao(this as AppDatabase);
   late final SalesDao salesDao = SalesDao(this as AppDatabase);
   @override
@@ -1144,7 +1131,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   ];
 }
 
-typedef $$InventoryItemsTableCreateCompanionBuilder =
+typedef $InventoryItemsCreateCompanionBuilder =
     InventoryItemsCompanion Function({
       Value<int> id,
       required String name,
@@ -1153,7 +1140,7 @@ typedef $$InventoryItemsTableCreateCompanionBuilder =
       required double salePrice,
       Value<String?> imagePath,
     });
-typedef $$InventoryItemsTableUpdateCompanionBuilder =
+typedef $InventoryItemsUpdateCompanionBuilder =
     InventoryItemsCompanion Function({
       Value<int> id,
       Value<String> name,
@@ -1163,17 +1150,13 @@ typedef $$InventoryItemsTableUpdateCompanionBuilder =
       Value<String?> imagePath,
     });
 
-final class $$InventoryItemsTableReferences
-    extends
-        BaseReferences<_$AppDatabase, $InventoryItemsTable, InventoryItemData> {
-  $$InventoryItemsTableReferences(
-    super.$_db,
-    super.$_table,
-    super.$_typedResult,
-  );
+final class $InventoryItemsReferences
+    extends BaseReferences<_$AppDatabase, InventoryItems, InventoryItem> {
+  $InventoryItemsReferences(super.$_db, super.$_table, super.$_typedResult);
 
-  static MultiTypedResultKey<$SaleItemsTable, List<SaleItemData>>
-  _saleItemsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+  static MultiTypedResultKey<SaleItems, List<SaleItem>> _saleItemsRefsTable(
+    _$AppDatabase db,
+  ) => MultiTypedResultKey.fromTable(
     db.saleItems,
     aliasName: $_aliasNameGenerator(
       db.inventoryItems.id,
@@ -1181,8 +1164,8 @@ final class $$InventoryItemsTableReferences
     ),
   );
 
-  $$SaleItemsTableProcessedTableManager get saleItemsRefs {
-    final manager = $$SaleItemsTableTableManager(
+  $SaleItemsProcessedTableManager get saleItemsRefs {
+    final manager = $SaleItemsTableManager(
       $_db,
       $_db.saleItems,
     ).filter((f) => f.inventoryItemId.id.sqlEquals($_itemColumn<int>('id')!));
@@ -1194,9 +1177,9 @@ final class $$InventoryItemsTableReferences
   }
 }
 
-class $$InventoryItemsTableFilterComposer
-    extends Composer<_$AppDatabase, $InventoryItemsTable> {
-  $$InventoryItemsTableFilterComposer({
+class $InventoryItemsFilterComposer
+    extends Composer<_$AppDatabase, InventoryItems> {
+  $InventoryItemsFilterComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -1234,9 +1217,9 @@ class $$InventoryItemsTableFilterComposer
   );
 
   Expression<bool> saleItemsRefs(
-    Expression<bool> Function($$SaleItemsTableFilterComposer f) f,
+    Expression<bool> Function($SaleItemsFilterComposer f) f,
   ) {
-    final $$SaleItemsTableFilterComposer composer = $composerBuilder(
+    final $SaleItemsFilterComposer composer = $composerBuilder(
       composer: this,
       getCurrentColumn: (t) => t.id,
       referencedTable: $db.saleItems,
@@ -1246,7 +1229,7 @@ class $$InventoryItemsTableFilterComposer
             joinBuilder, {
             $addJoinBuilderToRootComposer,
             $removeJoinBuilderFromRootComposer,
-          }) => $$SaleItemsTableFilterComposer(
+          }) => $SaleItemsFilterComposer(
             $db: $db,
             $table: $db.saleItems,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
@@ -1259,9 +1242,9 @@ class $$InventoryItemsTableFilterComposer
   }
 }
 
-class $$InventoryItemsTableOrderingComposer
-    extends Composer<_$AppDatabase, $InventoryItemsTable> {
-  $$InventoryItemsTableOrderingComposer({
+class $InventoryItemsOrderingComposer
+    extends Composer<_$AppDatabase, InventoryItems> {
+  $InventoryItemsOrderingComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -1299,9 +1282,9 @@ class $$InventoryItemsTableOrderingComposer
   );
 }
 
-class $$InventoryItemsTableAnnotationComposer
-    extends Composer<_$AppDatabase, $InventoryItemsTable> {
-  $$InventoryItemsTableAnnotationComposer({
+class $InventoryItemsAnnotationComposer
+    extends Composer<_$AppDatabase, InventoryItems> {
+  $InventoryItemsAnnotationComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -1329,9 +1312,9 @@ class $$InventoryItemsTableAnnotationComposer
       $composableBuilder(column: $table.imagePath, builder: (column) => column);
 
   Expression<T> saleItemsRefs<T extends Object>(
-    Expression<T> Function($$SaleItemsTableAnnotationComposer a) f,
+    Expression<T> Function($SaleItemsAnnotationComposer a) f,
   ) {
-    final $$SaleItemsTableAnnotationComposer composer = $composerBuilder(
+    final $SaleItemsAnnotationComposer composer = $composerBuilder(
       composer: this,
       getCurrentColumn: (t) => t.id,
       referencedTable: $db.saleItems,
@@ -1341,7 +1324,7 @@ class $$InventoryItemsTableAnnotationComposer
             joinBuilder, {
             $addJoinBuilderToRootComposer,
             $removeJoinBuilderFromRootComposer,
-          }) => $$SaleItemsTableAnnotationComposer(
+          }) => $SaleItemsAnnotationComposer(
             $db: $db,
             $table: $db.saleItems,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
@@ -1354,34 +1337,32 @@ class $$InventoryItemsTableAnnotationComposer
   }
 }
 
-class $$InventoryItemsTableTableManager
+class $InventoryItemsTableManager
     extends
         RootTableManager<
           _$AppDatabase,
-          $InventoryItemsTable,
-          InventoryItemData,
-          $$InventoryItemsTableFilterComposer,
-          $$InventoryItemsTableOrderingComposer,
-          $$InventoryItemsTableAnnotationComposer,
-          $$InventoryItemsTableCreateCompanionBuilder,
-          $$InventoryItemsTableUpdateCompanionBuilder,
-          (InventoryItemData, $$InventoryItemsTableReferences),
-          InventoryItemData,
+          InventoryItems,
+          InventoryItem,
+          $InventoryItemsFilterComposer,
+          $InventoryItemsOrderingComposer,
+          $InventoryItemsAnnotationComposer,
+          $InventoryItemsCreateCompanionBuilder,
+          $InventoryItemsUpdateCompanionBuilder,
+          (InventoryItem, $InventoryItemsReferences),
+          InventoryItem,
           PrefetchHooks Function({bool saleItemsRefs})
         > {
-  $$InventoryItemsTableTableManager(
-    _$AppDatabase db,
-    $InventoryItemsTable table,
-  ) : super(
+  $InventoryItemsTableManager(_$AppDatabase db, InventoryItems table)
+    : super(
         TableManagerState(
           db: db,
           table: table,
           createFilteringComposer: () =>
-              $$InventoryItemsTableFilterComposer($db: db, $table: table),
+              $InventoryItemsFilterComposer($db: db, $table: table),
           createOrderingComposer: () =>
-              $$InventoryItemsTableOrderingComposer($db: db, $table: table),
+              $InventoryItemsOrderingComposer($db: db, $table: table),
           createComputedFieldComposer: () =>
-              $$InventoryItemsTableAnnotationComposer($db: db, $table: table),
+              $InventoryItemsAnnotationComposer($db: db, $table: table),
           updateCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
@@ -1418,7 +1399,7 @@ class $$InventoryItemsTableTableManager
               .map(
                 (e) => (
                   e.readTable(table),
-                  $$InventoryItemsTableReferences(db, table, e),
+                  $InventoryItemsReferences(db, table, e),
                 ),
               )
               .toList(),
@@ -1431,19 +1412,18 @@ class $$InventoryItemsTableTableManager
                 return [
                   if (saleItemsRefs)
                     await $_getPrefetchedData<
-                      InventoryItemData,
-                      $InventoryItemsTable,
-                      SaleItemData
+                      InventoryItem,
+                      InventoryItems,
+                      SaleItem
                     >(
                       currentTable: table,
-                      referencedTable: $$InventoryItemsTableReferences
+                      referencedTable: $InventoryItemsReferences
                           ._saleItemsRefsTable(db),
-                      managerFromTypedResult: (p0) =>
-                          $$InventoryItemsTableReferences(
-                            db,
-                            table,
-                            p0,
-                          ).saleItemsRefs,
+                      managerFromTypedResult: (p0) => $InventoryItemsReferences(
+                        db,
+                        table,
+                        p0,
+                      ).saleItemsRefs,
                       referencedItemsForCurrentItem: (item, referencedItems) =>
                           referencedItems.where(
                             (e) => e.inventoryItemId == item.id,
@@ -1458,28 +1438,28 @@ class $$InventoryItemsTableTableManager
       );
 }
 
-typedef $$InventoryItemsTableProcessedTableManager =
+typedef $InventoryItemsProcessedTableManager =
     ProcessedTableManager<
       _$AppDatabase,
-      $InventoryItemsTable,
-      InventoryItemData,
-      $$InventoryItemsTableFilterComposer,
-      $$InventoryItemsTableOrderingComposer,
-      $$InventoryItemsTableAnnotationComposer,
-      $$InventoryItemsTableCreateCompanionBuilder,
-      $$InventoryItemsTableUpdateCompanionBuilder,
-      (InventoryItemData, $$InventoryItemsTableReferences),
-      InventoryItemData,
+      InventoryItems,
+      InventoryItem,
+      $InventoryItemsFilterComposer,
+      $InventoryItemsOrderingComposer,
+      $InventoryItemsAnnotationComposer,
+      $InventoryItemsCreateCompanionBuilder,
+      $InventoryItemsUpdateCompanionBuilder,
+      (InventoryItem, $InventoryItemsReferences),
+      InventoryItem,
       PrefetchHooks Function({bool saleItemsRefs})
     >;
-typedef $$InvoicesTableCreateCompanionBuilder =
+typedef $InvoicesCreateCompanionBuilder =
     InvoicesCompanion Function({
       Value<int> id,
       required DateTime date,
       Value<String?> customerName,
       required double totalPrice,
     });
-typedef $$InvoicesTableUpdateCompanionBuilder =
+typedef $InvoicesUpdateCompanionBuilder =
     InvoicesCompanion Function({
       Value<int> id,
       Value<DateTime> date,
@@ -1487,18 +1467,19 @@ typedef $$InvoicesTableUpdateCompanionBuilder =
       Value<double> totalPrice,
     });
 
-final class $$InvoicesTableReferences
-    extends BaseReferences<_$AppDatabase, $InvoicesTable, InvoiceData> {
-  $$InvoicesTableReferences(super.$_db, super.$_table, super.$_typedResult);
+final class $InvoicesReferences
+    extends BaseReferences<_$AppDatabase, Invoices, Invoice> {
+  $InvoicesReferences(super.$_db, super.$_table, super.$_typedResult);
 
-  static MultiTypedResultKey<$SaleItemsTable, List<SaleItemData>>
-  _saleItemsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+  static MultiTypedResultKey<SaleItems, List<SaleItem>> _saleItemsRefsTable(
+    _$AppDatabase db,
+  ) => MultiTypedResultKey.fromTable(
     db.saleItems,
     aliasName: $_aliasNameGenerator(db.invoices.id, db.saleItems.invoiceId),
   );
 
-  $$SaleItemsTableProcessedTableManager get saleItemsRefs {
-    final manager = $$SaleItemsTableTableManager(
+  $SaleItemsProcessedTableManager get saleItemsRefs {
+    final manager = $SaleItemsTableManager(
       $_db,
       $_db.saleItems,
     ).filter((f) => f.invoiceId.id.sqlEquals($_itemColumn<int>('id')!));
@@ -1510,9 +1491,8 @@ final class $$InvoicesTableReferences
   }
 }
 
-class $$InvoicesTableFilterComposer
-    extends Composer<_$AppDatabase, $InvoicesTable> {
-  $$InvoicesTableFilterComposer({
+class $InvoicesFilterComposer extends Composer<_$AppDatabase, Invoices> {
+  $InvoicesFilterComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -1540,9 +1520,9 @@ class $$InvoicesTableFilterComposer
   );
 
   Expression<bool> saleItemsRefs(
-    Expression<bool> Function($$SaleItemsTableFilterComposer f) f,
+    Expression<bool> Function($SaleItemsFilterComposer f) f,
   ) {
-    final $$SaleItemsTableFilterComposer composer = $composerBuilder(
+    final $SaleItemsFilterComposer composer = $composerBuilder(
       composer: this,
       getCurrentColumn: (t) => t.id,
       referencedTable: $db.saleItems,
@@ -1552,7 +1532,7 @@ class $$InvoicesTableFilterComposer
             joinBuilder, {
             $addJoinBuilderToRootComposer,
             $removeJoinBuilderFromRootComposer,
-          }) => $$SaleItemsTableFilterComposer(
+          }) => $SaleItemsFilterComposer(
             $db: $db,
             $table: $db.saleItems,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
@@ -1565,9 +1545,8 @@ class $$InvoicesTableFilterComposer
   }
 }
 
-class $$InvoicesTableOrderingComposer
-    extends Composer<_$AppDatabase, $InvoicesTable> {
-  $$InvoicesTableOrderingComposer({
+class $InvoicesOrderingComposer extends Composer<_$AppDatabase, Invoices> {
+  $InvoicesOrderingComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -1595,9 +1574,8 @@ class $$InvoicesTableOrderingComposer
   );
 }
 
-class $$InvoicesTableAnnotationComposer
-    extends Composer<_$AppDatabase, $InvoicesTable> {
-  $$InvoicesTableAnnotationComposer({
+class $InvoicesAnnotationComposer extends Composer<_$AppDatabase, Invoices> {
+  $InvoicesAnnotationComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -1621,9 +1599,9 @@ class $$InvoicesTableAnnotationComposer
   );
 
   Expression<T> saleItemsRefs<T extends Object>(
-    Expression<T> Function($$SaleItemsTableAnnotationComposer a) f,
+    Expression<T> Function($SaleItemsAnnotationComposer a) f,
   ) {
-    final $$SaleItemsTableAnnotationComposer composer = $composerBuilder(
+    final $SaleItemsAnnotationComposer composer = $composerBuilder(
       composer: this,
       getCurrentColumn: (t) => t.id,
       referencedTable: $db.saleItems,
@@ -1633,7 +1611,7 @@ class $$InvoicesTableAnnotationComposer
             joinBuilder, {
             $addJoinBuilderToRootComposer,
             $removeJoinBuilderFromRootComposer,
-          }) => $$SaleItemsTableAnnotationComposer(
+          }) => $SaleItemsAnnotationComposer(
             $db: $db,
             $table: $db.saleItems,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
@@ -1646,32 +1624,32 @@ class $$InvoicesTableAnnotationComposer
   }
 }
 
-class $$InvoicesTableTableManager
+class $InvoicesTableManager
     extends
         RootTableManager<
           _$AppDatabase,
-          $InvoicesTable,
-          InvoiceData,
-          $$InvoicesTableFilterComposer,
-          $$InvoicesTableOrderingComposer,
-          $$InvoicesTableAnnotationComposer,
-          $$InvoicesTableCreateCompanionBuilder,
-          $$InvoicesTableUpdateCompanionBuilder,
-          (InvoiceData, $$InvoicesTableReferences),
-          InvoiceData,
+          Invoices,
+          Invoice,
+          $InvoicesFilterComposer,
+          $InvoicesOrderingComposer,
+          $InvoicesAnnotationComposer,
+          $InvoicesCreateCompanionBuilder,
+          $InvoicesUpdateCompanionBuilder,
+          (Invoice, $InvoicesReferences),
+          Invoice,
           PrefetchHooks Function({bool saleItemsRefs})
         > {
-  $$InvoicesTableTableManager(_$AppDatabase db, $InvoicesTable table)
+  $InvoicesTableManager(_$AppDatabase db, Invoices table)
     : super(
         TableManagerState(
           db: db,
           table: table,
           createFilteringComposer: () =>
-              $$InvoicesTableFilterComposer($db: db, $table: table),
+              $InvoicesFilterComposer($db: db, $table: table),
           createOrderingComposer: () =>
-              $$InvoicesTableOrderingComposer($db: db, $table: table),
+              $InvoicesOrderingComposer($db: db, $table: table),
           createComputedFieldComposer: () =>
-              $$InvoicesTableAnnotationComposer($db: db, $table: table),
+              $InvoicesAnnotationComposer($db: db, $table: table),
           updateCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
@@ -1698,10 +1676,7 @@ class $$InvoicesTableTableManager
               ),
           withReferenceMapper: (p0) => p0
               .map(
-                (e) => (
-                  e.readTable(table),
-                  $$InvoicesTableReferences(db, table, e),
-                ),
+                (e) => (e.readTable(table), $InvoicesReferences(db, table, e)),
               )
               .toList(),
           prefetchHooksCallback: ({saleItemsRefs = false}) {
@@ -1712,19 +1687,13 @@ class $$InvoicesTableTableManager
               getPrefetchedDataCallback: (items) async {
                 return [
                   if (saleItemsRefs)
-                    await $_getPrefetchedData<
-                      InvoiceData,
-                      $InvoicesTable,
-                      SaleItemData
-                    >(
+                    await $_getPrefetchedData<Invoice, Invoices, SaleItem>(
                       currentTable: table,
-                      referencedTable: $$InvoicesTableReferences
-                          ._saleItemsRefsTable(db),
-                      managerFromTypedResult: (p0) => $$InvoicesTableReferences(
+                      referencedTable: $InvoicesReferences._saleItemsRefsTable(
                         db,
-                        table,
-                        p0,
-                      ).saleItemsRefs,
+                      ),
+                      managerFromTypedResult: (p0) =>
+                          $InvoicesReferences(db, table, p0).saleItemsRefs,
                       referencedItemsForCurrentItem: (item, referencedItems) =>
                           referencedItems.where((e) => e.invoiceId == item.id),
                       typedResults: items,
@@ -1737,21 +1706,21 @@ class $$InvoicesTableTableManager
       );
 }
 
-typedef $$InvoicesTableProcessedTableManager =
+typedef $InvoicesProcessedTableManager =
     ProcessedTableManager<
       _$AppDatabase,
-      $InvoicesTable,
-      InvoiceData,
-      $$InvoicesTableFilterComposer,
-      $$InvoicesTableOrderingComposer,
-      $$InvoicesTableAnnotationComposer,
-      $$InvoicesTableCreateCompanionBuilder,
-      $$InvoicesTableUpdateCompanionBuilder,
-      (InvoiceData, $$InvoicesTableReferences),
-      InvoiceData,
+      Invoices,
+      Invoice,
+      $InvoicesFilterComposer,
+      $InvoicesOrderingComposer,
+      $InvoicesAnnotationComposer,
+      $InvoicesCreateCompanionBuilder,
+      $InvoicesUpdateCompanionBuilder,
+      (Invoice, $InvoicesReferences),
+      Invoice,
       PrefetchHooks Function({bool saleItemsRefs})
     >;
-typedef $$SaleItemsTableCreateCompanionBuilder =
+typedef $SaleItemsCreateCompanionBuilder =
     SaleItemsCompanion Function({
       Value<int> id,
       required int invoiceId,
@@ -1760,7 +1729,7 @@ typedef $$SaleItemsTableCreateCompanionBuilder =
       required int quantity,
       required double price,
     });
-typedef $$SaleItemsTableUpdateCompanionBuilder =
+typedef $SaleItemsUpdateCompanionBuilder =
     SaleItemsCompanion Function({
       Value<int> id,
       Value<int> invoiceId,
@@ -1770,19 +1739,18 @@ typedef $$SaleItemsTableUpdateCompanionBuilder =
       Value<double> price,
     });
 
-final class $$SaleItemsTableReferences
-    extends BaseReferences<_$AppDatabase, $SaleItemsTable, SaleItemData> {
-  $$SaleItemsTableReferences(super.$_db, super.$_table, super.$_typedResult);
+final class $SaleItemsReferences
+    extends BaseReferences<_$AppDatabase, SaleItems, SaleItem> {
+  $SaleItemsReferences(super.$_db, super.$_table, super.$_typedResult);
 
-  static $InvoicesTable _invoiceIdTable(_$AppDatabase db) =>
-      db.invoices.createAlias(
-        $_aliasNameGenerator(db.saleItems.invoiceId, db.invoices.id),
-      );
+  static Invoices _invoiceIdTable(_$AppDatabase db) => db.invoices.createAlias(
+    $_aliasNameGenerator(db.saleItems.invoiceId, db.invoices.id),
+  );
 
-  $$InvoicesTableProcessedTableManager get invoiceId {
+  $InvoicesProcessedTableManager get invoiceId {
     final $_column = $_itemColumn<int>('invoice_id')!;
 
-    final manager = $$InvoicesTableTableManager(
+    final manager = $InvoicesTableManager(
       $_db,
       $_db.invoices,
     ).filter((f) => f.id.sqlEquals($_column));
@@ -1793,7 +1761,7 @@ final class $$SaleItemsTableReferences
     );
   }
 
-  static $InventoryItemsTable _inventoryItemIdTable(_$AppDatabase db) =>
+  static InventoryItems _inventoryItemIdTable(_$AppDatabase db) =>
       db.inventoryItems.createAlias(
         $_aliasNameGenerator(
           db.saleItems.inventoryItemId,
@@ -1801,10 +1769,10 @@ final class $$SaleItemsTableReferences
         ),
       );
 
-  $$InventoryItemsTableProcessedTableManager get inventoryItemId {
+  $InventoryItemsProcessedTableManager get inventoryItemId {
     final $_column = $_itemColumn<int>('inventory_item_id')!;
 
-    final manager = $$InventoryItemsTableTableManager(
+    final manager = $InventoryItemsTableManager(
       $_db,
       $_db.inventoryItems,
     ).filter((f) => f.id.sqlEquals($_column));
@@ -1816,9 +1784,8 @@ final class $$SaleItemsTableReferences
   }
 }
 
-class $$SaleItemsTableFilterComposer
-    extends Composer<_$AppDatabase, $SaleItemsTable> {
-  $$SaleItemsTableFilterComposer({
+class $SaleItemsFilterComposer extends Composer<_$AppDatabase, SaleItems> {
+  $SaleItemsFilterComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -1845,8 +1812,8 @@ class $$SaleItemsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  $$InvoicesTableFilterComposer get invoiceId {
-    final $$InvoicesTableFilterComposer composer = $composerBuilder(
+  $InvoicesFilterComposer get invoiceId {
+    final $InvoicesFilterComposer composer = $composerBuilder(
       composer: this,
       getCurrentColumn: (t) => t.invoiceId,
       referencedTable: $db.invoices,
@@ -1856,7 +1823,7 @@ class $$SaleItemsTableFilterComposer
             joinBuilder, {
             $addJoinBuilderToRootComposer,
             $removeJoinBuilderFromRootComposer,
-          }) => $$InvoicesTableFilterComposer(
+          }) => $InvoicesFilterComposer(
             $db: $db,
             $table: $db.invoices,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
@@ -1868,8 +1835,8 @@ class $$SaleItemsTableFilterComposer
     return composer;
   }
 
-  $$InventoryItemsTableFilterComposer get inventoryItemId {
-    final $$InventoryItemsTableFilterComposer composer = $composerBuilder(
+  $InventoryItemsFilterComposer get inventoryItemId {
+    final $InventoryItemsFilterComposer composer = $composerBuilder(
       composer: this,
       getCurrentColumn: (t) => t.inventoryItemId,
       referencedTable: $db.inventoryItems,
@@ -1879,7 +1846,7 @@ class $$SaleItemsTableFilterComposer
             joinBuilder, {
             $addJoinBuilderToRootComposer,
             $removeJoinBuilderFromRootComposer,
-          }) => $$InventoryItemsTableFilterComposer(
+          }) => $InventoryItemsFilterComposer(
             $db: $db,
             $table: $db.inventoryItems,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
@@ -1892,9 +1859,8 @@ class $$SaleItemsTableFilterComposer
   }
 }
 
-class $$SaleItemsTableOrderingComposer
-    extends Composer<_$AppDatabase, $SaleItemsTable> {
-  $$SaleItemsTableOrderingComposer({
+class $SaleItemsOrderingComposer extends Composer<_$AppDatabase, SaleItems> {
+  $SaleItemsOrderingComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -1921,8 +1887,8 @@ class $$SaleItemsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  $$InvoicesTableOrderingComposer get invoiceId {
-    final $$InvoicesTableOrderingComposer composer = $composerBuilder(
+  $InvoicesOrderingComposer get invoiceId {
+    final $InvoicesOrderingComposer composer = $composerBuilder(
       composer: this,
       getCurrentColumn: (t) => t.invoiceId,
       referencedTable: $db.invoices,
@@ -1932,7 +1898,7 @@ class $$SaleItemsTableOrderingComposer
             joinBuilder, {
             $addJoinBuilderToRootComposer,
             $removeJoinBuilderFromRootComposer,
-          }) => $$InvoicesTableOrderingComposer(
+          }) => $InvoicesOrderingComposer(
             $db: $db,
             $table: $db.invoices,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
@@ -1944,8 +1910,8 @@ class $$SaleItemsTableOrderingComposer
     return composer;
   }
 
-  $$InventoryItemsTableOrderingComposer get inventoryItemId {
-    final $$InventoryItemsTableOrderingComposer composer = $composerBuilder(
+  $InventoryItemsOrderingComposer get inventoryItemId {
+    final $InventoryItemsOrderingComposer composer = $composerBuilder(
       composer: this,
       getCurrentColumn: (t) => t.inventoryItemId,
       referencedTable: $db.inventoryItems,
@@ -1955,7 +1921,7 @@ class $$SaleItemsTableOrderingComposer
             joinBuilder, {
             $addJoinBuilderToRootComposer,
             $removeJoinBuilderFromRootComposer,
-          }) => $$InventoryItemsTableOrderingComposer(
+          }) => $InventoryItemsOrderingComposer(
             $db: $db,
             $table: $db.inventoryItems,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
@@ -1968,9 +1934,8 @@ class $$SaleItemsTableOrderingComposer
   }
 }
 
-class $$SaleItemsTableAnnotationComposer
-    extends Composer<_$AppDatabase, $SaleItemsTable> {
-  $$SaleItemsTableAnnotationComposer({
+class $SaleItemsAnnotationComposer extends Composer<_$AppDatabase, SaleItems> {
+  $SaleItemsAnnotationComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -1989,8 +1954,8 @@ class $$SaleItemsTableAnnotationComposer
   GeneratedColumn<double> get price =>
       $composableBuilder(column: $table.price, builder: (column) => column);
 
-  $$InvoicesTableAnnotationComposer get invoiceId {
-    final $$InvoicesTableAnnotationComposer composer = $composerBuilder(
+  $InvoicesAnnotationComposer get invoiceId {
+    final $InvoicesAnnotationComposer composer = $composerBuilder(
       composer: this,
       getCurrentColumn: (t) => t.invoiceId,
       referencedTable: $db.invoices,
@@ -2000,7 +1965,7 @@ class $$SaleItemsTableAnnotationComposer
             joinBuilder, {
             $addJoinBuilderToRootComposer,
             $removeJoinBuilderFromRootComposer,
-          }) => $$InvoicesTableAnnotationComposer(
+          }) => $InvoicesAnnotationComposer(
             $db: $db,
             $table: $db.invoices,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
@@ -2012,8 +1977,8 @@ class $$SaleItemsTableAnnotationComposer
     return composer;
   }
 
-  $$InventoryItemsTableAnnotationComposer get inventoryItemId {
-    final $$InventoryItemsTableAnnotationComposer composer = $composerBuilder(
+  $InventoryItemsAnnotationComposer get inventoryItemId {
+    final $InventoryItemsAnnotationComposer composer = $composerBuilder(
       composer: this,
       getCurrentColumn: (t) => t.inventoryItemId,
       referencedTable: $db.inventoryItems,
@@ -2023,7 +1988,7 @@ class $$SaleItemsTableAnnotationComposer
             joinBuilder, {
             $addJoinBuilderToRootComposer,
             $removeJoinBuilderFromRootComposer,
-          }) => $$InventoryItemsTableAnnotationComposer(
+          }) => $InventoryItemsAnnotationComposer(
             $db: $db,
             $table: $db.inventoryItems,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
@@ -2036,32 +2001,32 @@ class $$SaleItemsTableAnnotationComposer
   }
 }
 
-class $$SaleItemsTableTableManager
+class $SaleItemsTableManager
     extends
         RootTableManager<
           _$AppDatabase,
-          $SaleItemsTable,
-          SaleItemData,
-          $$SaleItemsTableFilterComposer,
-          $$SaleItemsTableOrderingComposer,
-          $$SaleItemsTableAnnotationComposer,
-          $$SaleItemsTableCreateCompanionBuilder,
-          $$SaleItemsTableUpdateCompanionBuilder,
-          (SaleItemData, $$SaleItemsTableReferences),
-          SaleItemData,
+          SaleItems,
+          SaleItem,
+          $SaleItemsFilterComposer,
+          $SaleItemsOrderingComposer,
+          $SaleItemsAnnotationComposer,
+          $SaleItemsCreateCompanionBuilder,
+          $SaleItemsUpdateCompanionBuilder,
+          (SaleItem, $SaleItemsReferences),
+          SaleItem,
           PrefetchHooks Function({bool invoiceId, bool inventoryItemId})
         > {
-  $$SaleItemsTableTableManager(_$AppDatabase db, $SaleItemsTable table)
+  $SaleItemsTableManager(_$AppDatabase db, SaleItems table)
     : super(
         TableManagerState(
           db: db,
           table: table,
           createFilteringComposer: () =>
-              $$SaleItemsTableFilterComposer($db: db, $table: table),
+              $SaleItemsFilterComposer($db: db, $table: table),
           createOrderingComposer: () =>
-              $$SaleItemsTableOrderingComposer($db: db, $table: table),
+              $SaleItemsOrderingComposer($db: db, $table: table),
           createComputedFieldComposer: () =>
-              $$SaleItemsTableAnnotationComposer($db: db, $table: table),
+              $SaleItemsAnnotationComposer($db: db, $table: table),
           updateCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
@@ -2096,10 +2061,7 @@ class $$SaleItemsTableTableManager
               ),
           withReferenceMapper: (p0) => p0
               .map(
-                (e) => (
-                  e.readTable(table),
-                  $$SaleItemsTableReferences(db, table, e),
-                ),
+                (e) => (e.readTable(table), $SaleItemsReferences(db, table, e)),
               )
               .toList(),
           prefetchHooksCallback:
@@ -2128,9 +2090,9 @@ class $$SaleItemsTableTableManager
                               state.withJoin(
                                     currentTable: table,
                                     currentColumn: table.invoiceId,
-                                    referencedTable: $$SaleItemsTableReferences
+                                    referencedTable: $SaleItemsReferences
                                         ._invoiceIdTable(db),
-                                    referencedColumn: $$SaleItemsTableReferences
+                                    referencedColumn: $SaleItemsReferences
                                         ._invoiceIdTable(db)
                                         .id,
                                   )
@@ -2141,9 +2103,9 @@ class $$SaleItemsTableTableManager
                               state.withJoin(
                                     currentTable: table,
                                     currentColumn: table.inventoryItemId,
-                                    referencedTable: $$SaleItemsTableReferences
+                                    referencedTable: $SaleItemsReferences
                                         ._inventoryItemIdTable(db),
-                                    referencedColumn: $$SaleItemsTableReferences
+                                    referencedColumn: $SaleItemsReferences
                                         ._inventoryItemIdTable(db)
                                         .id,
                                   )
@@ -2161,28 +2123,28 @@ class $$SaleItemsTableTableManager
       );
 }
 
-typedef $$SaleItemsTableProcessedTableManager =
+typedef $SaleItemsProcessedTableManager =
     ProcessedTableManager<
       _$AppDatabase,
-      $SaleItemsTable,
-      SaleItemData,
-      $$SaleItemsTableFilterComposer,
-      $$SaleItemsTableOrderingComposer,
-      $$SaleItemsTableAnnotationComposer,
-      $$SaleItemsTableCreateCompanionBuilder,
-      $$SaleItemsTableUpdateCompanionBuilder,
-      (SaleItemData, $$SaleItemsTableReferences),
-      SaleItemData,
+      SaleItems,
+      SaleItem,
+      $SaleItemsFilterComposer,
+      $SaleItemsOrderingComposer,
+      $SaleItemsAnnotationComposer,
+      $SaleItemsCreateCompanionBuilder,
+      $SaleItemsUpdateCompanionBuilder,
+      (SaleItem, $SaleItemsReferences),
+      SaleItem,
       PrefetchHooks Function({bool invoiceId, bool inventoryItemId})
     >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
   $AppDatabaseManager(this._db);
-  $$InventoryItemsTableTableManager get inventoryItems =>
-      $$InventoryItemsTableTableManager(_db, _db.inventoryItems);
-  $$InvoicesTableTableManager get invoices =>
-      $$InvoicesTableTableManager(_db, _db.invoices);
-  $$SaleItemsTableTableManager get saleItems =>
-      $$SaleItemsTableTableManager(_db, _db.saleItems);
+  $InventoryItemsTableManager get inventoryItems =>
+      $InventoryItemsTableManager(_db, _db.inventoryItems);
+  $InvoicesTableManager get invoices =>
+      $InvoicesTableManager(_db, _db.invoices);
+  $SaleItemsTableManager get saleItems =>
+      $SaleItemsTableManager(_db, _db.saleItems);
 }
