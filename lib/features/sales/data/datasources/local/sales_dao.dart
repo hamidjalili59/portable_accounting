@@ -28,7 +28,6 @@ class SalesDao extends DatabaseAccessor<AppDatabase> with _$SalesDaoMixin {
       ..where((tbl) => tbl.date.isBetween(Variable(start), Variable(end)));
 
     if (query != null && query.isNotEmpty) {
-      // Ensure customerName is not null before calling .like()
       statement.where((tbl) => tbl.customerName.isNotNull() & tbl.customerName.like('%$query%'));
     }
 
